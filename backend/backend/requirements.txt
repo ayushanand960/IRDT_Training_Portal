@@ -1,0 +1,12 @@
+asgiref==3.8.1
+Django==5.2.3
+djangorestframework==3.16.0
+psycopg2-binary==2.9.10
+sqlparse==0.5.3
+tzdata==2025.2
+django-crispy-forms==2.4
+django-cors-headers
+djangorestframework-simplejwt
+PyJWT
+pytz
+python-dotenv
