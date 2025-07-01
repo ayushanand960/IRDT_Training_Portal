@@ -34,12 +34,12 @@ export default function Home() {
   >
     Register as Coordinator
   </button>
-  {/*<button
+  {/* <button
     className="btn btn-secondary"
     onClick={() => nav('/login')}
   >
     Login
-  </button>*/}
+  </button> */}
 </div>
         </div>
       </section>
