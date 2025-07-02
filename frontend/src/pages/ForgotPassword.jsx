@@ -61,7 +61,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="d-flex justify-content-center align-items-center " style={{ minHeight: '100vh', backgroundColor: "#c1e4f9"}}>
-      <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px' }}>
+      <div className="card p-4 shadow" style={{ width: '100%',borderRadius:'20px', maxWidth: '400px' }}>
         <h4 className="text-center mb-4">Forgot Password</h4>
 
         {step === 1 && (

@@ -22,6 +22,7 @@ body {
   max-width: 400px;
   border-radius: 19px;
   background-color: #ffffff;
+   margin: "auto";
 }
 
 /* Toggle icon */
