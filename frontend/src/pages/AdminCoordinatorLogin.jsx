@@ -23,7 +23,7 @@ const AdminCoordinatorLogin = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center bg-light" style={{ minHeight: "100vh" }}>
+    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh", backgroundColor: "#c1e4f9" }}>
       <div className="card shadow p-4" style={{ width: "100%", maxWidth: "400px" }}>
         <h4 className="text-center mb-4">Admin/Coordinator Login</h4>
         <form onSubmit={handleLogin}>

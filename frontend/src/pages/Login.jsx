@@ -1,27 +1,31 @@
-
-
 import React, { useState } from "react";
+import axiosInstance from "../utils/axiosInstance";
 import { useNavigate, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css'; // Optional – if you have custom styles
+import './Login.css'; // Optional – your custom styles
 
 const Login = () => {
-  const [ehrmsId, setEhrmsId] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [credentials, setCredentials] = useState({ ehrms_code: "", password: "" });
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (ehrmsId === 'admin' && password === '1234') {
-      setError('');
-      navigate('/dashboard');
-    } else {
-      setError('Invalid EHRMS ID or Password');
-    }
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
 
-  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const res = await axiosInstance.post("/login/token/", credentials);
+      localStorage.setItem("access", res.data.access);
+      localStorage.setItem("refresh", res.data.refresh);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Invalid EHRMS code or password");
+    }
   };
 
   return (
@@ -29,19 +33,20 @@ const Login = () => {
       <div className="card login-card shadow-lg p-4" style={{ width: "100%", maxWidth: "400px" }}>
         <h3 className="text-center mb-4">Login</h3>
 
+        {/* Admin-Coordinator Link */}
+        <div className="mb-3 text-center">
+          <Link to="/admin-coordinator-login">Admin-Coordinator Login</Link>
+        </div>
 
-{/* Add the link below */}
-      <Link to="/admin-coordinator-login">Admin-Coordinator Login</Link>
-
-
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <input
               type="text"
+              name="ehrms_code"
               className="form-control"
-              placeholder="EHRMS ID"
-              value={ehrmsId}
-              onChange={(e) => setEhrmsId(e.target.value)}
+              placeholder="EHRMS Code"
+              value={credentials.ehrms_code}
+              onChange={handleChange}
               required
             />
           </div>
@@ -49,10 +54,11 @@ const Login = () => {
           <div className="mb-2 position-relative">
             <input
               type={showPassword ? "text" : "password"}
+              name="password"
               className="form-control"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={credentials.password}
+              onChange={handleChange}
               required
               style={{ paddingRight: '40px' }}
             />
@@ -95,4 +101,4 @@ const Login = () => {
   );
 };
 
-export default Login;   
+export default Login;

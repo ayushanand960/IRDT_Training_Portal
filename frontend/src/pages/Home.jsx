@@ -16,7 +16,7 @@ export default function Home() {
           </p>
           
            <div className="mt-4 d-flex flex-wrap justify-content-center gap-2">
-  <button
+  {/* <button
     className="btn btn-primary"
     onClick={() => nav('/register/staff')}
   >
@@ -33,13 +33,13 @@ export default function Home() {
     onClick={() => nav('/register/coordinator')}
   >
     Register as Coordinator
-  </button>
-  {/*<button
+  </button> */}
+  {/* <button
     className="btn btn-secondary"
     onClick={() => nav('/login')}
   >
     Login
-  </button>*/}
+  </button> */}
 </div>
         </div>
       </section>

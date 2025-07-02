@@ -6,6 +6,8 @@ from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all(), message="Email already exists")]
@@ -28,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "ehrms_code", "first_name", "middle_name","last_name", "gender","email", "mobile_number","username", "password", "institute_name", "branch", "designation","security_question", "security_answer"
+            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer"
             ]
         extra_kwargs = {
             "password": {"write_only": True},#this will write the password from client to database but will not ready the password for security
@@ -53,3 +55,11 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+class PasswordResetSerializer(serializers.Serializer):
+    ehrms_code = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
