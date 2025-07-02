@@ -644,8 +644,15 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+     if (!strongPasswordRegex.test(password)) {
+      setError("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
       return;
     }
 
@@ -671,17 +678,43 @@ const Register = () => {
       alert("Registration successful");
     } catch (err) {
       const errorData = err.response?.data;
+  console.error("Registration error response:", errorData); // for debugging
 
-      let errorMsg = "Registration failed";
-      if (typeof errorData === "string") {
-      errorMsg = errorData;
-      } else if (typeof errorData === "object" && errorData !== null) {
-        const firstKey = Object.keys(errorData)[0];
-        errorMsg = errorData[firstKey]?.[0] || errorData.detail || "Registration failed";
+  let errorMsg = "Registration failed";
+
+  if (typeof errorData === "string") {
+    errorMsg = errorData;
+  } else if (typeof errorData === "object" && errorData !== null) {
+    const messages = [];
+
+    // Recursive function to extract only message strings
+    const extractMessages = (obj) => {
+      for (const key in obj) {
+        const val = obj[key];
+
+        if (Array.isArray(val)) {
+          val.forEach((msg) => {
+            if (typeof msg === "string") messages.push(msg);
+          });
+        } else if (typeof val === "object" && val !== null) {
+          extractMessages(val); // handle nested errors
+        } else if (typeof val === "string") {
+          messages.push(val);
+        }
       }
+    };
 
-      setError(errorMsg);
-      alert("Error: " + errorMsg);
+    extractMessages(errorData);
+
+    if (messages.length > 0) {
+      errorMsg = messages.join("\n");
+    } else {
+      errorMsg = errorData.detail || "Registration failed";
+    }
+  }
+
+  setError(errorMsg);
+  alert("Error:\n" + errorMsg);
     }
   };
 
