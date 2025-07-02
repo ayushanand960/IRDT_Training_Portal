@@ -1,29 +1,8 @@
-// import React from "react";
-
-// const ForgotPassword = () => {
-//   return (
-//     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-//       <div className="card p-4 shadow" style={{ maxWidth: "400px", width: "100%" }}>
-//         <h4 className="text-center mb-3">Reset Password</h4>
-//         <p className="text-muted text-center">Enter your email to receive a reset link.</p>
-//         <form>
-//           <div className="mb-3">
-//             <input type="email" className="form-control" placeholder="Email" required />
-//           </div>
-//           <button type="submit" className="btn btn-primary w-100">Send Reset Link</button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ForgotPassword;
-
-
-
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance";
+import { securityQuestions } from "../data/securityQuestions";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ForgotPassword = () => {
@@ -37,25 +16,62 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
 
   // Dummy correct answer
-  const correctAnswer = "blue";
+  // const correctAnswer = "blue";
 
-  const handleSecuritySubmit = (e) => {
+ const handleSecuritySubmit = async (e) => {
     e.preventDefault();
-    if (ehrmsId && question && answer.toLowerCase() === correctAnswer) {
-      setStep(2);
-      setError('');
-    } else {
-      setError("Incorrect security answer.");
+    setError('');
+
+    try {
+      const res = await axiosInstance.post("/login/verify-security/", {
+        ehrms_code: ehrmsId,
+        security_question: question,
+        security_answer: answer,
+      });
+
+      if (res.data.success) {
+        setStep(2);
+      } else {
+        setError("Incorrect answer or user not found.");
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Verification failed.";
+      setError(msg);
     }
   };
 
-  const handlePasswordReset = (e) => {
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
-    if (newPassword === confirmPassword && newPassword.length >= 4) {
-      alert("✅ Password reset successfully!");
-      navigate('/');
-    } else {
-      setError("Passwords do not match or are too short.");
+    setError('');
+
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (!strongPasswordRegex.test(newPassword)) {
+      setError("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
+      return;
+    }
+
+    try {
+      const res = await axiosInstance.post("/login/reset-password/", {
+        ehrms_code: ehrmsId,
+        new_password: newPassword,
+      });
+
+      if (res.status === 200) {
+        alert("✅ Password reset successful!");
+        navigate("/login");
+      } else {
+        setError("Something went wrong. Please try again.");
+}
+
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Password reset failed.";
+      setError(msg);
     }
   };
 
@@ -70,7 +86,7 @@ const ForgotPassword = () => {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Enter your EHRMS ID"
+                placeholder="Enter your EHRMS CODE"
                 value={ehrmsId}
                 onChange={(e) => setEhrmsId(e.target.value)}
                 required
@@ -84,16 +100,10 @@ const ForgotPassword = () => {
                 onChange={(e) => setQuestion(e.target.value)}
                 required
               >
-                 <option value="">Select Security Question</option>
-                <option value="color">What is your favorite color?</option>
-                <option value="pet">What is your first pet’s name?</option>
-                <option value="school_name">What is your school name?</option> 
-                <option value="favourite_food">What is your favorite food?  </option>
-                <option value="favorite_book">  What is your favorite book?   </option>
-                <option value="nickname">    What was your childhood nickname? </option>
-                <option value="best_friend">   What is the name of your childhood best friend?  </option>
-                
-
+                  <option value="">Select Security Question</option>
+                {securityQuestions.map((q, idx) => (
+                  <option key={idx} value={q.value}>{q.label}</option>
+                ))}
               </select>
             </div>
 

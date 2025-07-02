@@ -46,3 +46,34 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class VerifySecurityAnswerAPIView(APIView):
+    def post(self, request):
+        ehrms_code = request.data.get("ehrms_code")
+        question = request.data.get("security_question")
+        answer = request.data.get("security_answer")
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code, security_question=question)
+            if user.security_answer.lower() == answer.lower():
+                return Response({"success": True}, status=status.HTTP_200_OK)
+            return Response({"error": "Incorrect answer."}, status=status.HTTP_403_FORBIDDEN)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class ResetPasswordAPIView(APIView):
+    def post(self, request):
+        ehrms_code = request.data.get("ehrms_code")
+        new_password = request.data.get("new_password")
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code)
+            validate_password(new_password, user)
+            user.password = make_password(new_password)
+            user.save()
+            return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+        except   User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
