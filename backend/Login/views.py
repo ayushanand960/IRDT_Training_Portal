@@ -14,9 +14,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserSerializer
+from .serializers import UserSerializer, PasswordResetSerializer
 from .models import User
 import logging
 

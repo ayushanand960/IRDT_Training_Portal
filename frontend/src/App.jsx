@@ -7,7 +7,7 @@ import Home from './pages/Home';
 import Login from "./pages/Login";
 import RegisterTemplate from './pages/RegisterTemplate';
 
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard_sample";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
 
@@ -21,7 +21,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/forgot_password" element={<ForgotPassword />} />
-      <Route path="/register/staff" element={<RegisterTemplate />} />
+      {/* <Route path="/register/staff" element={<RegisterTemplate />} /> */}
 
 
       <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />

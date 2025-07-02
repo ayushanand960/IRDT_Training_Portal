@@ -19,7 +19,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axiosInstance.post("/token/", credentials);
+      const res = await axiosInstance.post("/login/token/", credentials);
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
       navigate("/dashboard");

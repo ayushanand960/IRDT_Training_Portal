@@ -614,7 +614,21 @@ import { securityQuestions } from "../data/securityQuestions";
 import { branches } from "../data/branches";
 
 const Register = () => {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({
+    ehrms_code: '',
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    email: '', 
+    mobile_number: '',
+    gender: '', 
+    institute_name: '',
+    branch: '',
+    designation: '',
+    password: '',
+    security_question: '',
+    security_answer: '',
+  });
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -634,6 +648,12 @@ const Register = () => {
       setError("Passwords do not match.");
       return;
     }
+
+    console.log("Registering user:", {
+    ...form,
+    category: selectedCategory,
+    designation: selectedDesignation,
+  });
 
     try {
       await axiosInstance.post(
@@ -666,8 +686,9 @@ const Register = () => {
   };
 
   return (
+    <div style={{ backgroundColor: '#c1e4f9', minHeight: '100vh', paddingTop: '50px', paddingBottom: '50px' }}>
     <div className="container mt-5">
-      <div className="card p-4 shadow">
+      <div className="card p-4 shadow" >
         <h3 className="text-center text-primary">Trainee Registration</h3>
         <p className="text-center mb-4">Create your IRDT Portal account</p>
         <form onSubmit={handleSubmit} className="row g-3 needs-validation" noValidate>
@@ -714,7 +735,7 @@ const Register = () => {
           </div>
 
           <div className="col-md-6">
-            <select name="branch" on cChange={handleChange} requiredlassName="form-select">
+            <select name="branch" onChange={handleChange} required className="form-select">
               <option value="">Select Branch</option>
               {branches.map((branch, idx) => (
                 <option key={idx} value={branch}>{branch}</option>
@@ -828,6 +849,7 @@ const Register = () => {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };
