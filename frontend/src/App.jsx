@@ -1,20 +1,29 @@
   import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Pages
 import Home from './pages/Home';
          
 import Login from "./pages/Login";
 import RegisterTemplate from './pages/RegisterTemplate';
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import TraineeDashboard from "./pages/TraineeDashboard";
 
 import Dashboard from "./pages/Dashboard_sample";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
     <Router>
-    <Routes>
+ 
+       
+        <ToastContainer position="top-center" autoClose={3000} />
+   <Routes>
         {/* Home and Login */}
         <Route path="/" element={<Home />} />  
         <Route path="/register/staff" element={<RegisterTemplate  />} />
@@ -23,10 +32,13 @@ export default function App() {
       <Route path="/forgot_password" element={<ForgotPassword />} />
       {/* <Route path="/register/staff" element={<RegisterTemplate />} /> */}
 
+   <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} />
+        <Route path="/dashboard" element={<TraineeDashboard />} />
 
       <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
       </Routes>
-      </Router>
+      
+       </Router>
     
   );
 }

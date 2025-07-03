@@ -14,9 +14,18 @@ const Header = () => {
           <button className="btn btn-outline-primary me-2" onClick={() => nav('/login')}>
             Login
           </button>
-          <button className="btn btn-primary" onClick={() => nav('/register/staff')}>
-            Register
-          </button>
+         <button className="btn btn-outline-primary me-2" onClick={() => nav('/register/staff')}>
+  Register
+</button>
+
+{/* ➕ Admin/Coordinator Login Button with left margin */}
+<button
+  className="btn btn-outline-primary me-2"
+  onClick={() => nav('/admin-coordinator-login')}
+>
+  Admin/Coordinator Login
+</button>
+
         </div>
       </div>
     </nav>
