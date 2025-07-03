@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { useNavigate, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css'; // Optional – your custom styles
+import './Login.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ ehrms_code: "", password: "" });
@@ -29,15 +29,11 @@ const Login = () => {
   };
 
   return (
-     <div
-      className="d-flex justify-content-center align-items-center" style={{height: "100vh",backgroundColor: "#c1e4f9", margin: 0}}>
-      <div className="card shadow-lg" style={{width: "100%",maxWidth: "400px",height: "500px",borderRadius: "20px",display: "flex",justifyContent: "center",padding: "30px"}}>
+    <div
+      className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#c1e4f9", margin: 0 }}>
+      <div className="card shadow-lg" style={{ width: "100%", maxWidth: "400px", height: "500px", borderRadius: "20px", display: "flex", justifyContent: "center", padding: "30px" }}>
         <div style={{ width: "100%" }}>
           <h3 className="text-center mb-3">Login</h3>
-        </div>
-        {/* Admin-Coordinator Link */}
-        <div className="mb-3 text-center">
-          <Link to="/admin-coordinator-login">Admin-Coordinator Login</Link>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -93,7 +89,7 @@ const Login = () => {
             <span style={{ fontSize: '0.9rem' }}>
               If you don't have an account,{" "}
               <Link to="/register/staff" className="text-primary text-decoration-none">
-                Sign up
+                Register
               </Link>
             </span>
           </div>

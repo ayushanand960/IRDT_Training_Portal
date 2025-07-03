@@ -3,6 +3,7 @@ from .models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,3 +64,18 @@ class PasswordResetSerializer(serializers.Serializer):
     def validate_new_password(self, value):
         validate_password(value)
         return value
+    
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Add custom user data to the token response
+        data.update({
+            'ehrms_code': self.user.ehrms_code,
+            'is_superuser': self.user.is_superuser,
+            'is_coordinator': self.user.is_coordinator,
+            'first_name': self.user.first_name,
+            'email': self.user.email,
+        })
+        return data

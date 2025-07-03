@@ -1,16 +1,3 @@
-# from django.shortcuts import render
-# # from django.contrib.auth.models import User
-# from rest_framework import generics
-# from .serializers import UserSerializer
-# from rest_framework.permissions import IsAuthenticated, AllowAny
-# from .models import User
-
-# # Create your views here.
-# class CreateUserView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = [AllowAny]
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -18,7 +5,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import UserSerializer, PasswordResetSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer
 from .models import User
 import logging
 
@@ -28,7 +16,7 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print("🚀 Incoming Register Data:", request.data)
+        print("Incoming Register Data:", request.data)
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -61,10 +49,10 @@ class VerifySecurityAnswerAPIView(APIView):
 
             # Compare answer (case-insensitive, trimmed)
             if user.security_answer.strip().lower() == answer:
-                logger.info(f"✅ Security answer verified for {ehrms_code}")
+                logger.info(f"Security answer verified for {ehrms_code}")
                 return Response({"success": True}, status=status.HTTP_200_OK)
             else:
-                logger.warning(f"❌ Incorrect security answer for {ehrms_code}")
+                logger.warning(f"Incorrect security answer for {ehrms_code}")
                 return Response({"error": "Verification failed."}, status=status.HTTP_403_FORBIDDEN)
 
         except User.DoesNotExist:
@@ -78,7 +66,7 @@ class ResetPasswordAPIView(APIView):
         serializer = PasswordResetSerializer(data=request.data)
 
         if not serializer.is_valid():
-            print("❌ Validation errors:", serializer.errors)  # for debugging
+            print("Validation errors:", serializer.errors)  # for debugging
             return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         ehrms_code = serializer.validated_data['ehrms_code']
@@ -109,3 +97,7 @@ class GetSecurityQuestionAPIView(APIView):
         except User.DoesNotExist:
             logger.warning(f"User not found for EHRMS code: {ehrms_code}")
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

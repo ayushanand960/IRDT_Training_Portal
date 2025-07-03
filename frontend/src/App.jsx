@@ -19,26 +19,21 @@ import Footer from "./components/Footer";
 
 export default function App() {
   return (
-    <Router>
- 
-       
+    <Router> 
         <ToastContainer position="top-center" autoClose={3000} />
-   <Routes>
+     <Routes>
         {/* Home and Login */}
         <Route path="/" element={<Home />} />  
         <Route path="/register/staff" element={<RegisterTemplate  />} />
         <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/forgot_password" element={<ForgotPassword />} />
-      {/* <Route path="/register/staff" element={<RegisterTemplate />} /> */}
-
-   <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/forgot_password" element={<ForgotPassword />} />
+        <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} />
         <Route path="/dashboard" element={<TraineeDashboard />} />
-
-      <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
+        <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
       </Routes>
       
-       </Router>
+     </Router>
     
   );
 }

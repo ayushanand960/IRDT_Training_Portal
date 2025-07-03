@@ -18,7 +18,7 @@ const Header = () => {
   Register
 </button>
 
-{/* ➕ Admin/Coordinator Login Button with left margin */}
+
 <button
   className="btn btn-outline-primary me-2"
   onClick={() => nav('/admin-coordinator-login')}
