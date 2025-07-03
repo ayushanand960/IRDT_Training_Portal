@@ -29,10 +29,12 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page d-flex justify-content-center align-items-center bg-light" style={{ minHeight: "100vh" }}>
-      <div className="card login-card shadow-lg p-4" style={{ width: "100%", maxWidth: "400px" }}>
-        <h3 className="text-center mb-4">Login</h3>
-
+     <div
+      className="d-flex justify-content-center align-items-center" style={{height: "100vh",backgroundColor: "#c1e4f9", margin: 0}}>
+      <div className="card shadow-lg" style={{width: "100%",maxWidth: "400px",height: "500px",borderRadius: "20px",display: "flex",justifyContent: "center",padding: "30px"}}>
+        <div style={{ width: "100%" }}>
+          <h3 className="text-center mb-3">Login</h3>
+        </div>
         {/* Admin-Coordinator Link */}
         <div className="mb-3 text-center">
           <Link to="/admin-coordinator-login">Admin-Coordinator Login</Link>

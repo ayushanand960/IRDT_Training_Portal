@@ -18,25 +18,35 @@ const ForgotPassword = () => {
   // Dummy correct answer
   // const correctAnswer = "blue";
 
- const handleSecuritySubmit = async (e) => {
+  const fetchSecurityQuestion = async (e) => {
     e.preventDefault();
     setError('');
+    try {
+      const res = await axiosInstance.post("/login/get-security-question/", {
+        ehrms_code: ehrmsId,
+      });
+      setQuestion(res.data.security_question);
+      setStep(2);
+    } catch (err) {
+      setError(err.response?.data?.detail || "User not found.");
+    }
+  };
 
+  const verifyAnswer = async (e) => {
+    e.preventDefault();
+    setError('');
     try {
       const res = await axiosInstance.post("/login/verify-security/", {
         ehrms_code: ehrmsId,
-        security_question: question,
         security_answer: answer,
       });
-
       if (res.data.success) {
-        setStep(2);
+        setStep(3);
       } else {
-        setError("Incorrect answer or user not found.");
+        setError("Incorrect answer.");
       }
     } catch (err) {
-      const msg = err.response?.data?.detail || "Verification failed.";
-      setError(msg);
+      setError(err.response?.data?.detail || "Verification failed.");
     }
   };
 
@@ -70,18 +80,18 @@ const ForgotPassword = () => {
 }
 
     } catch (err) {
-      const msg = err.response?.data?.detail || "Password reset failed.";
+      const msg = err.response?.data?.error || "Password reset failed.";
       setError(msg);
     }
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center " style={{ minHeight: '100vh', backgroundColor: "#c1e4f9"}}>
-      <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px' }}>
+      <div className="card p-4 shadow" style={{ width: '100%', maxWidth: '400px', borderRadius: "20px"}}>
         <h4 className="text-center mb-4">Forgot Password</h4>
 
         {step === 1 && (
-          <form onSubmit={handleSecuritySubmit}>
+          <form onSubmit={fetchSecurityQuestion}>
             <div className="mb-3">
               <input
                 type="text"
@@ -93,18 +103,18 @@ const ForgotPassword = () => {
               />
             </div>
 
+            {error && <div className="text-danger text-center mb-2">{error}</div>}
+            <button type="submit" className="btn btn-primary w-100">Get Security Question</button>
+          </form>
+        )}
+
+
+
+         {step === 2 && (
+          <form onSubmit={verifyAnswer}>
             <div className="mb-3">
-              <select
-                className="form-select"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                required
-              >
-                  <option value="">Select Security Question</option>
-                {securityQuestions.map((q, idx) => (
-                  <option key={idx} value={q.value}>{q.label}</option>
-                ))}
-              </select>
+              <label><strong>Security Question:</strong></label>
+              <div className="form-control-plaintext">{question}</div>
             </div>
 
             <div className="mb-3">
@@ -119,18 +129,11 @@ const ForgotPassword = () => {
             </div>
 
             {error && <div className="text-danger text-center mb-2">{error}</div>}
-
-            <button type="submit" className="btn btn-primary w-100">Verify</button>
-
-            <div className="mt-3 text-center">
-              <Link to="/" className="text-decoration-none text-primary" style={{ fontSize: '0.9rem' }}>
-                Back to Login
-              </Link>
-            </div>
+            <button type="submit" className="btn btn-primary w-100">Verify Answer</button>
           </form>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <form onSubmit={handlePasswordReset}>
             <div className="mb-3">
               <input
@@ -155,10 +158,15 @@ const ForgotPassword = () => {
             </div>
 
             {error && <div className="text-danger text-center mb-2">{error}</div>}
-
             <button type="submit" className="btn btn-success w-100">Reset Password</button>
           </form>
         )}
+
+        <div className="mt-3 text-center">
+          <Link to="/" className="text-decoration-none text-primary" style={{ fontSize: '0.9rem' }}>
+            Back to Login
+          </Link>
+        </div>
       </div>
     </div>
   );
