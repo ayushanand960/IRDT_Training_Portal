@@ -4,6 +4,10 @@
   text-align: center;
 }
 
+.custom-title-color {
+  color: #4DA8DA;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -34,6 +38,7 @@
 
 .card {
   padding: 2em;
+
 }
 
 .read-the-docs {
