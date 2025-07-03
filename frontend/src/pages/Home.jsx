@@ -22,30 +22,6 @@ export default function Home() {
           </p>
           
            <div className="mt-4 d-flex flex-wrap justify-content-center gap-2">
-  {/* <button
-    className="btn btn-primary"
-    onClick={() => nav('/register/staff')}
-  >
-    Register as Staff
-  </button>
-  <button
-    className="btn btn-outline-primary"
-    onClick={() => nav('/register/admin')}
-  >
-    Register as Admin
-  </button>
-  <button
-    className="btn btn-outline-primary"
-    onClick={() => nav('/register/coordinator')}
-  >
-    Register as Coordinator
-  </button> */}
-  {/* <button
-    className="btn btn-secondary"
-    onClick={() => nav('/login')}
-  >
-    Login
-  </button> */}
 </div>
         </div>
       </section>

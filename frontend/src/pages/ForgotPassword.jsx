@@ -15,8 +15,6 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Dummy correct answer
-  // const correctAnswer = "blue";
 
   const fetchSecurityQuestion = async (e) => {
     e.preventDefault();
@@ -73,7 +71,7 @@ const ForgotPassword = () => {
       });
 
       if (res.status === 200) {
-        alert("✅ Password reset successful!");
+        alert("Password reset successful!");
         navigate("/login");
       } else {
         setError("Something went wrong. Please try again.");

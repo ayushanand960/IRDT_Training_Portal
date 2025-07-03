@@ -18,6 +18,7 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, ehrms_code, email, first_name, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
         return self.create_user(ehrms_code, email, first_name, password, **extra_fields)
 
 GENDER_CHOICES = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
@@ -48,11 +49,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     security_question = models.CharField(max_length=50, choices=QUESTION_CHOICES, default="pet_name")
     security_answer = models.CharField( max_length=50)
 
+
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
     is_coordinator = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     USERNAME_FIELD = 'ehrms_code'
-    REQUIRED_FIELDS = ["password","security_answer"]
+    REQUIRED_FIELDS = ["password","email", "first_name"]
 
     objects = CustomUserManager()
 
