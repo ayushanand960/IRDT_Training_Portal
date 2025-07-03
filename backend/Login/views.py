@@ -50,30 +50,62 @@ class UserProfileView(APIView):
 
 class VerifySecurityAnswerAPIView(APIView):
     def post(self, request):
-        ehrms_code = request.data.get("ehrms_code")
-        question = request.data.get("security_question")
-        answer = request.data.get("security_answer")
+        ehrms_code = request.data.get("ehrms_code", "").strip()
+        answer = request.data.get("security_answer", "").strip().lower()
 
-        try:
-            user = User.objects.get(ehrms_code=ehrms_code, security_question=question)
-            if user.security_answer.lower() == answer.lower():
-                return Response({"success": True}, status=status.HTTP_200_OK)
-            return Response({"error": "Incorrect answer."}, status=status.HTTP_403_FORBIDDEN)
-        except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-class ResetPasswordAPIView(APIView):
-    def post(self, request):
-        ehrms_code = request.data.get("ehrms_code")
-        new_password = request.data.get("new_password")
+        if not ehrms_code or not answer:
+            return Response({"error": "ehrms_code and security_answer are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.get(ehrms_code=ehrms_code)
-            validate_password(new_password, user)
-            user.password = make_password(new_password)
+
+            # Compare answer (case-insensitive, trimmed)
+            if user.security_answer.strip().lower() == answer:
+                logger.info(f"✅ Security answer verified for {ehrms_code}")
+                return Response({"success": True}, status=status.HTTP_200_OK)
+            else:
+                logger.warning(f"❌ Incorrect security answer for {ehrms_code}")
+                return Response({"error": "Verification failed."}, status=status.HTTP_403_FORBIDDEN)
+
+        except User.DoesNotExist:
+            logger.error(f"🔍 User not found for ehrms_code: {ehrms_code}")
+            return Response({"error": "Verification failed."}, status=status.HTTP_403_FORBIDDEN)
+
+class ResetPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            print("❌ Validation errors:", serializer.errors)  # for debugging
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        ehrms_code = serializer.validated_data['ehrms_code']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code)
+            user.set_password(new_password)  # recommended over make_password
             user.save()
             return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
-        except   User.DoesNotExist:
+        except User.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+class GetSecurityQuestionAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        ehrms_code = request.data.get("ehrms_code", "").strip()
+
+        if not ehrms_code:
+            return Response({"error": "EHRMS Code is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code)
+            return Response({"security_question": user.security_question}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            logger.warning(f"User not found for EHRMS code: {ehrms_code}")
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
