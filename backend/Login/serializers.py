@@ -72,6 +72,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom user data to the token response
         data.update({
+            'refresh': str(self.get_token(self.user)),
+            'access': str(self.get_token(self.user).access_token),
             'ehrms_code': self.user.ehrms_code,
             'is_superuser': self.user.is_superuser,
             'is_coordinator': self.user.is_coordinator,
@@ -79,3 +81,35 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': self.user.email,
         })
         return data
+
+ # ...................................................
+    
+class UserRoleUpdateSerializer(serializers.Serializer):
+    ehrms_code = serializers.CharField()
+    is_coordinator = serializers.BooleanField(required=True)
+
+    def validate_ehrms_code(self, value):
+        try:
+            user = User.objects.get(ehrms_code=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+        return value
+
+class UserListSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'full_name', 'role', 'ehrms_code']
+
+    def get_full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
+    def get_role(self, obj):
+        if obj.is_superuser:
+            return "admin"
+        elif obj.is_coordinator:
+            return "coordinator"
+        else:
+            return "staff"

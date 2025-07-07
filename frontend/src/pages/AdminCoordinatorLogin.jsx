@@ -22,8 +22,8 @@ const AdminCoordinatorLogin = () => {
       const { access, refresh, is_superuser, is_coordinator } = response.data;
 
       // Store tokens
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
+      localStorage.setItem("access", response.data.access);
+      localStorage.setItem("refresh", response.data.refresh);
 
       // ✅ Validate selected role matches backend response
       if (role === "admin" && is_superuser) {

@@ -22,8 +22,14 @@ const Login = () => {
       const res = await axiosInstance.post("/login/token/", credentials);
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
-      navigate("/dashboard");
-    } catch (err) {
+      if (res.data.is_admin) {
+      navigate("/admin-dashboard");
+      } else if (res.data.is_coordinator) {
+      navigate("/coordinator-dashboard");
+      } else {
+      navigate("/trainee-dashboard");
+      }
+    }catch (err) {
       setError("Invalid EHRMS code or password");
     }
   };

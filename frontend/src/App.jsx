@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
   return (
@@ -29,8 +30,10 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/forgot_password" element={<ForgotPassword />} />
         <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} />
-        <Route path="/dashboard" element={<TraineeDashboard />} />
+        <Route path="/trainee-dashboard" element={<TraineeDashboard />} />
         <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
+        {/* <Route path="/admin/profile" element={<AdminProfilePage />} /> */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
       
      </Router>
