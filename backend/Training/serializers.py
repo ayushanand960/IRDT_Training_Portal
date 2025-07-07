@@ -5,7 +5,7 @@ from django.utils.timezone import now
 class TrainingProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingProgram
-        fields = 'code',
+        fields = ['code',
         'name',
         'venue',
         'mode',
@@ -13,7 +13,7 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
         'start_date',
         'end_date',
         'faculty',
-        'number_of_participants',
+        'number_of_participants',]
         read_only_fields = ['status']  # Prevent external writes if needed
 
     def validate_number_of_participants(self, value):
