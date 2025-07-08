@@ -5,7 +5,7 @@ from django.utils.timezone import now
 class TrainingProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingProgram
-        fields = 'code',
+        fields = ['code',
         'name',
         'venue',
         'mode',
@@ -13,10 +13,10 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
         'start_date',
         'end_date',
         'faculty',
-        'number_of_participants',
+        'number_of_participants'],
         read_only_fields = ['status']  # Prevent external writes if needed
 
-    def validate_number_of_participants(self, value):
+    def validate_number_of_paclrticipants(self, value):
         if value is not None and (value < 0 or value > 1000):
             raise serializers.ValidationError("Participant count must be between 0 and 1000.")
         return value
