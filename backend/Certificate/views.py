@@ -13,7 +13,8 @@ class CertificateListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = CertificateSerializer(data=request.data)
+        # serializer = CertificateSerializer(data=request.data)
+        serializer = CertificateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=request.user)  # Set user here
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -41,6 +42,7 @@ class CertificateDetailView(APIView):
         if not cert:
             return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
         serializer = CertificateSerializer(cert, data=request.data)
+        # serializer = CertificateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=request.user)  # Again, assign user if needed
             return Response(serializer.data)
