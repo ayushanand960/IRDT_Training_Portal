@@ -1,10 +1,19 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import TrainingProgramViewSet
+from django.urls import path
+from .views import (
+    TrainingProgramListCreateAPIView,
+    TrainingProgramRetrieveUpdateAPIView,
+    EligibleStaffAPIView,
+    NominateStaffAPIView
+)
 
-router = DefaultRouter()
-router.register(r'training-programs', TrainingProgramViewSet)
+app_name = "training"
 
 urlpatterns = [
-    path('', include(router.urls)),
+    # Training Program APIs
+    path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='list-create'),
+    path('training-programs/<int:pk>/', TrainingProgramRetrieveUpdateAPIView.as_view(), name='detail-update'),
+
+    # Nomination Endpoints
+    path('training-programs/<int:training_id>/eligible-staff/', EligibleStaffAPIView.as_view(), name='eligible-staff'),
+    path('training-programs/nominate/', NominateStaffAPIView.as_view(), name='nominate'),
 ]

@@ -1,6 +1,21 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+
+User = get_user_model()
+
+
+class TeachingStaff(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(_("Name"), max_length=255)
+    branch = models.CharField(_("Branch"), max_length=100)
+    experience = models.PositiveIntegerField(_("Experience (Years)"))
+
+    def __str__(self):
+        return self.name
+
 
 class TrainingProgram(models.Model):
     code = models.CharField(_("Code"), max_length=50, blank=True, null=True)
@@ -33,6 +48,14 @@ class TrainingProgram(models.Model):
     remark = models.CharField(_("Remark"), max_length=255, blank=True, null=True)
     status = models.CharField(_("Status"), max_length=100, blank=True, null=True)
 
+    coordinator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="coordinated_trainings"
+    )
+
     class Meta:
         verbose_name = "Training Program"
         verbose_name_plural = "Training Programs"
@@ -45,70 +68,29 @@ class TrainingProgram(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Ensure end_date is not before start_date
         if self.end_date and self.start_date and self.end_date < self.start_date:
             raise ValidationError(_("End date cannot be earlier than start date."))
-
-        # Participants should be realistic (0–1000 limit)
-        if self.number_of_participants and (self.number_of_participants > 1000):
+        if self.number_of_participants and self.number_of_participants > 1000:
             raise ValidationError(_("Participant number seems too high. Please verify."))
-#         import pandas as pd
-# from datetime import datetime
-# from django.utils.timezone import make_aware
-# from training.models import TrainingProgram
 
-# # Load Excel
-# file_path = "Training Calendar 2025-26 Final.xlsx"
-# df = pd.read_excel(file_path, sheet_name="Training Calendar 2025-26")
 
-# # Drop completely empty rows
-# df = df.dropna(subset=["Code", "Name of Programme"])
+class TrainingAttendance(models.Model):
+    staff = models.ForeignKey(TeachingStaff, on_delete=models.CASCADE, related_name='attendances')
+    training = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE, related_name='attendances')
+    date_attended = models.DateField()
 
-# # Fix column names
-# df = df.rename(columns={
-#     "Code": "code",
-#     "Name of Programme": "name",
-#     "Target Group": "target_group",
-#     "Venue": "venue",
-#     "Mode": "mode",
-#     "T/NT": "training_type",
-#     "Start Date": "start_date",
-#     "End Date": "end_date",
-#     "Faculy": "faculty",
-#     "No.": "number_of_participants",
-#     "Remark": "remark",
-#     "Status": "status"
-# })
+    def __str__(self):
+        return f"{self.staff.name} - {self.training.name}"
 
-# # Clean and import row by row
-# for _, row in df.iterrows():
-#     try:
-#         # Convert dates and participants
-#         start_date = pd.to_datetime(row['start_date'], dayfirst=False, errors='coerce')
-#         end_date = pd.to_datetime(row['end_date'], dayfirst=False, errors='coerce')
-#         if pd.notnull(start_date):
-#             start_date = make_aware(start_date)
-#         if pd.notnull(end_date):
-#             end_date = make_aware(end_date)
 
-#         number_of_participants = int(row['number_of_participants']) if not pd.isna(row['number_of_participants']) else None
+class Nomination(models.Model):
+    staff = models.ForeignKey(TeachingStaff, on_delete=models.CASCADE, related_name='nominations')
+    training = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE, related_name='nominations')
+    nominated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_nominated = models.DateTimeField(auto_now_add=True)
 
-#         TrainingProgram.objects.create(
-#             code=row['code'],
-#             name=row['name'],
-#             target_group=row['target_group'],
-#             venue=row['venue'],
-#             mode=row['mode'],
-#             training_type=row['training_type'],
-#             start_date=start_date.date() if start_date else None,
-#             end_date=end_date.date() if end_date else None,
-#             faculty=row['faculty'],
-#             number_of_participants=number_of_participants,
-#             remark=row['remark'],
-#             status=row['status']
-#         )
-#         print(f"Imported: {row['code']} - {row['name']}")
-#     except Exception as e:
-#         print(f"❌ Error importing {row.get('code', 'UNKNOWN')}: {e}")
+    class Meta:
+        unique_together = ('staff', 'training')
 
+    def __str__(self):
+        return f"{self.staff.name} nominated for {self.training.name}"

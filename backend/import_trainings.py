@@ -1,31 +1,24 @@
 import pandas as pd
 from datetime import datetime
-import os
-import django
-
-# Setup Django environment
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
-django.setup()
-
-from Training.models import TrainingProgram
-
 from django.utils.timezone import make_aware
+from Training.models import TrainingProgram
+from django.core.exceptions import ValidationError
 
-# Load Excel file
+# Load Excel
 file_path = "Training Calendar 2025-26 Final.xlsx"
 df = pd.read_excel(file_path, sheet_name="Training Calendar 2025-26")
 
-# Clean the data
+# Drop rows missing required fields
 df = df.dropna(subset=["Code", "Name of Programme"])
 
-# Rename columns to match model fields
+# Rename columns
 df = df.rename(columns={
     "Code": "code",
     "Name of Programme": "name",
     "Target Group": "target_group",
     "Venue": "venue",
     "Mode": "mode",
-    "Training Type": "training_type",
+    "T/NT": "training_type",
     "Start Date": "start_date",
     "End Date": "end_date",
     "Faculy": "faculty",
@@ -34,29 +27,46 @@ df = df.rename(columns={
     "Status": "status"
 })
 
-# Import data into the database
-for _, row in df.iterrows():
+success_count = 0
+error_count = 0
+
+for i, row in df.iterrows():
     try:
         start_date = pd.to_datetime(row['start_date'], errors='coerce')
         end_date = pd.to_datetime(row['end_date'], errors='coerce')
 
-        number = int(row['number_of_participants']) if not pd.isna(row['number_of_participants']) else None
+        if pd.notnull(start_date):
+            start_date = make_aware(start_date).date()
+        if pd.notnull(end_date):
+            end_date = make_aware(end_date).date()
 
-        TrainingProgram.objects.create(
-            code=row['code'],
-            name=row['name'],
-            target_group=row['target_group'],
-            venue=row['venue'],
-            mode=row['mode'],
-            training_type=row['training_type'],
-            start_date=start_date.date() if not pd.isna(start_date) else None,
-            end_date=end_date.date() if not pd.isna(end_date) else None,
-            faculty=row['faculty'],
-            number_of_participants=number,
-            remark=row['remark'],
-            status=row['status']
+        number_of_participants = int(row['number_of_participants']) if pd.notna(row['number_of_participants']) else None
+
+        training = TrainingProgram(
+            code=row.get('code'),
+            name=row.get('name'),
+            target_group=row.get('target_group'),
+            venue=row.get('venue'),
+            mode=row.get('mode'),
+            training_type=row.get('training_type'),
+            start_date=start_date,
+            end_date=end_date,
+            faculty=row.get('faculty'),
+            number_of_participants=number_of_participants,
+            remark=row.get('remark'),
+            status=row.get('status'),
         )
 
-        print(f"✅ Imported: {row['code']} - {row['name']}")
+        training.full_clean()
+        training.save()
+        success_count += 1
+        print(f"✅ Imported: {training.code} - {training.name}")
+
+    except ValidationError as ve:
+        print(f"❌ Validation error in row {i}: {ve}")
+        error_count += 1
     except Exception as e:
-        print(f"❌ Error on {row.get('code')}: {e}")
+        print(f"❌ Error importing row {i}: {e}")
+        error_count += 1
+
+print(f"\n📊 Import Summary: {success_count} Success, {error_count} Errors")

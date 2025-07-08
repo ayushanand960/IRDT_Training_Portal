@@ -20,6 +20,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
+from Training.views import admin_weekly_trainings_view
 
 
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('login/', include('Login.urls')),
     path('training/',include('Training.urls')),
     path('certificate/',include('Certificate.urls')),
+    path('admin/training/weekly/', admin_weekly_trainings_view, name='admin-weekly-trainings'),
     
 ]
 if settings.DEBUG:
