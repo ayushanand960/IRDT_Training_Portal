@@ -1,3 +1,7 @@
+/* ===== Import animate.css for animation ===== */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+/* ===== Root and Utilities ===== */
 #root {
   max-width: 100%;
   margin: 0 auto;
@@ -8,45 +12,223 @@
   color: #4DA8DA;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .card {
   padding: 2em;
-
 }
 
 .read-the-docs {
   color: #888;
 }
 
+.btn-primary {
+  background-color: #4DA8DA;
+  border-color: #4DA8DA;
+}
 
+.btn-outline-primary {
+  color: #4DA8DA;
+  border-color: #4DA8DA;
+}
 
-/* Changes to override bootstrap */
-/* Override Bootstrap primary color */
+.btn-outline-primary:hover {
+  background-color: #4DA8DA;
+  color: #fff;
+}
 
+/* ===== Sidebar Layout ===== */
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  min-height: 100vh;
+  text-align: left;
+  padding: 1.5rem 1rem;
+  width: 260px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.sidebar h4 {
+  color: #4DA8DA;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.sidebar p {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar small {
+  color: #777;
+  font-size: 0.8rem;
+  display: block;
+}
+
+/* ===== Main Dashboard Layout ===== */
+.main-content {
+  margin-left: 260px;
+  padding: 2rem 1rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* ===== Card Styling ===== */
+.card.border-left {
+  border-left: 5px solid #4DA8DA !important;
+  border-radius: 0.5rem;
+}
+
+.card-title {
+  color: #4DA8DA;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.card img {
+  object-fit: cover;
+}
+
+/* ===== File Input ===== */
+input[type="file"] {
+  font-size: 0.85rem;
+}
+
+/* ===== Profile Photo in Dashboard Sidebar ===== */
+ 
+
+ 
+
+.profile-photo-nav:hover,
+.profile-pic:hover {
+  transform: scale(1.05);
+  border-color: #4DA8DA;
+}
+
+/* ===== Dropdown Card for User Info ===== */
+ 
+/* ===== Hamburger Icon Fix for Navbar ===== */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255,255,255,0.9%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* ===== Responsive Layout Fixes ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #dee2e6;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+   
+}
+.profile-passport {
+  width: 48px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+/* .dropdown-card {
+  position: absolute;
+  top: 70px;
+  right: 0;
+  width: 260px;
+  z-index: 999;
+} */
+.text-primary-custom {
+  color: #0077b6;
+}
+
+.navbar {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+}
+.custom-gradient-navbar {
+  background: linear-gradient(90deg, #007cf0, #00dfd8);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.profile-passport {
+  object-fit: cover;
+  border-radius: 5px;
+}
+.dropdown-card {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: white;
+  z-index: 10;
+  width: 250px;
+}
+.slide-panel {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  height: 100%;
+  width: 350px;
+  background-color: #ffffff;
+  border-left: 2px solid #0077b6;
+  transition: right 0.3s ease-in-out;
+  z-index: 1050;
+  overflow-y: auto;
+}
+.slide-panel.open {
+  right: 0;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  z-index: 1040;
+}
+.profile-panel {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 320px;
+  height: 90vh;
+  background: #f7f7ff;
+  padding: 1rem;
+  z-index: 1000;
+  border-left: 4px solid #00b4d8;
+  overflow-y: auto;
+}
+.nav-pills .nav-link.active {
+  background-color: #00b4d8;
+  color: white;
+}
+body {
+  background: linear-gradient(to right, #f5f7fa, #dfe9f3);
+}
+
+.training-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 12px;
+  background-color: #ffffff;
+  border: none !important;
+}
+
+.training-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.training-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #343a40;
+}
