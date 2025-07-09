@@ -60,16 +60,16 @@ class TrainingProgramRetrieveUpdateDeleteAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [throttling.UserRateThrottle]
 
-    def get_object(self, pk):
-        return get_object_or_404(TrainingProgram, pk=pk)
+    def get_object(self, code):
+        return get_object_or_404(TrainingProgram, pk=code)
 
-    def get(self, request, pk):
-        training = self.get_object(pk)
+    def get(self, request, code):
+        training = self.get_object(code)
         serializer = TrainingProgramSerializer(training)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk):
-        training = self.get_object(pk)
+    def put(self, request, code):
+        training = self.get_object(code)
         serializer = TrainingProgramSerializer(training, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -78,8 +78,8 @@ class TrainingProgramRetrieveUpdateDeleteAPIView(APIView):
         logger.warning(f"Training update failed: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        training = self.get_object(pk)
+    def delete(self, request, code):
+        training = self.get_object(code)
         training.delete()
         logger.info(f"Training deleted: {training.code}")
         return Response({"message": "Training deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
