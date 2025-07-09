@@ -266,3 +266,18 @@ class GetUserRoleView(APIView):
             },  status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CoordinatorListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        coordinators = User.objects.filter(is_coordinator=True)
+        data = [
+            {
+                "ehrms_code": u.ehrms_code,
+                "full_name": f"{u.first_name} {u.middle_name or ''} {u.last_name}".strip()
+            }
+            for u in coordinators
+        ]
+        return Response(data)

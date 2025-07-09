@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 class TrainingProgram(models.Model):
-    code = models.CharField(_("Code"), max_length=50, blank=True, null=True)
+    code = models.CharField(_("Code"), max_length=50, primary_key=True)
     name = models.CharField(_("Program Name"), max_length=255)
     target_group = models.TextField(_("Target Group"), blank=True, null=True)
 
@@ -32,6 +32,7 @@ class TrainingProgram(models.Model):
     # faculty = models.CharField(_("Faculty"), max_length=100, blank=True, null=True)
     faculty = models.ForeignKey(
     settings.AUTH_USER_MODEL,
+    to_field='ehrms_code',
     on_delete=models.SET_NULL,
     null=True,
     blank=True,

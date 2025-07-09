@@ -33,7 +33,7 @@ QUESTION_CHOICES = [
 ]
 
 class User(AbstractBaseUser, PermissionsMixin):
-    ehrms_code = models.CharField(max_length=20, unique=True)
+    ehrms_code = models.CharField(max_length=20, primary_key=True)
     # username = models.CharField(max_length=100)
 
     first_name = models.CharField(max_length=30, default = 'First')

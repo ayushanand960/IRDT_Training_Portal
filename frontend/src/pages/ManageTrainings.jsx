@@ -75,10 +75,10 @@ const ManageTrainings = () => {
                 <th style={{ width: "20%" }}>Name</th>
                 <th style={{ width: "12%" }}>Venue</th>
                 <th style={{ width: "8%" }}>Mode</th>
-                <th style={{ width: "10%" }}>Type</th>
+                <th style={{ width: "8%" }}>Type</th>
                 <th style={{ width: "10%" }}>Start Date</th>
                 <th style={{ width: "10%" }}>End Date</th>
-                <th style={{ width: "10%" }}>Faculty</th>
+                <th style={{ width: "15%" }}>Faculty</th>
                 <th style={{ width: "8%", whiteSpace: "nowrap" }}># Participants</th>
                 <th style={{ width: "12%" }}>Actions</th>
               </tr>
@@ -93,7 +93,7 @@ const ManageTrainings = () => {
                   <td>{t.training_type || "-"}</td>
                   <td>{t.start_date}</td>
                   <td>{t.end_date}</td>
-                  <td>{t.faculty || "-"}</td>
+                  <td>{t.faculty_name_display || "-"}</td>
                   <td>{t.number_of_participants ?? "-"}</td>
                   <td>
                     <div className="d-flex justify-content-center gap-1">
@@ -142,3 +142,6 @@ const ManageTrainings = () => {
 };
 
 export default ManageTrainings;
+
+
+
