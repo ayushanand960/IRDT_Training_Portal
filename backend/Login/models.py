@@ -60,6 +60,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.first_name} ({self.ehrms_code})"
+        # first
+        # return f"{self.first_name} ({self.ehrms_code})"
+
+        # second
+        # full_name = " ".join(filter(None, [self.first_name, self.middle_name, self.last_name])).strip()
+        # return f"{full_name} ({self.ehrms_code})"
+    
+        # third
+        return " ".join(filter(None, [self.first_name, self.middle_name, self.last_name]))
 
     

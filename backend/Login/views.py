@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer, UserListSerializer, UserRoleUpdateSerializer, EditUserSerializer
 from .models import User
 import logging
 
@@ -101,3 +101,168 @@ class GetSecurityQuestionAPIView(APIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+
+
+# Pawan addition for admin manage User
+
+
+# Create a new user
+class CreateUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Update user by ID
+# class UpdateUserView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def put(self, request, pk):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+#         try:
+#             user = User.objects.get(pk=pk)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+#         serializer = UserSerializer(user, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
+#         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ Partial allows field-wise update
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# Delete user by ID
+class DeleteUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            user = User.objects.get(pk=pk)
+            user.delete()
+            return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+class UpdateUserRoleView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+        ehrms_code = request.data.get("ehrms_code")
+        is_coordinator = request.data.get("is_coordinator")
+        
+        if isinstance(is_coordinator, str):  # convert string to boolean
+            is_coordinator = is_coordinator.lower() == 'true'
+
+        print("Received role update:", ehrms_code, is_coordinator) 
+
+        if ehrms_code is None or is_coordinator is None:
+            return Response({"error": "ehrms_code and is_coordinator are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code)
+            user.is_coordinator = is_coordinator
+            user.save()
+            return Response({"message": "User role updated successfully."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+# class ListUsersView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+#         users = User.objects.all()
+#         serializer = UserListSerializer(users, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class ListCreateUserView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        users = User.objects.all()
+        serializer = UserListSerializer(users, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUserRoleView(APIView):
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, ehrms_code):
+        if not request.user.is_superuser:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code)
+            return Response({
+                "ehrms_code": user.ehrms_code,
+                "is_superuser": user.is_superuser,
+                "is_coordinator": user.is_coordinator
+            },  status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)

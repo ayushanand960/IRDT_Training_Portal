@@ -79,3 +79,142 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': self.user.email,
         })
         return data
+    
+
+# Pawan addition for admin manage User
+
+class UserRoleUpdateSerializer(serializers.Serializer):
+    ehrms_code = serializers.CharField()
+    is_coordinator = serializers.BooleanField(required=True)
+
+    def validate_ehrms_code(self, value):
+        try:
+            user = User.objects.get(ehrms_code=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+        return value
+
+# class UserListSerializer(serializers.ModelSerializer):
+#     full_name = serializers.SerializerMethodField()
+#     role = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = User
+#         fields = ['id', 'email', 'full_name', 'role', 'ehrms_code']
+
+#     def get_full_name(self, obj):
+#         return f"{obj.first_name} {obj.last_name}"
+
+#     def get_role(self, obj):
+#         if obj.is_superuser:
+#             return "admin"
+#         elif obj.is_coordinator:
+#             return "coordinator"
+#         else:
+#             return "staff"
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'ehrms_code',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'email',
+            'mobile_number',
+            'institute_name',
+            'branch',
+            'designation',
+            'role',
+            'full_name'
+        ]
+
+    def get_full_name(self, obj):
+        # Handles optional middle name cleanly
+        return f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
+
+    def get_role(self, obj):
+        if obj.is_superuser:
+            return "admin"
+        elif obj.is_coordinator:
+            return "coordinator"
+        else:
+            return "staff"
+
+
+
+# class EditUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = [
+#             'first_name', 'middle_name', 'last_name', 'email',
+#             'mobile_number', 'gender', 'institute_name', 'branch',
+#             'designation', 'is_superuser', 'is_coordinator'
+#         ]
+#         extra_kwargs = {
+#             'email': {'required': False},
+#             'mobile_number': {'required': False},
+#             'first_name': {'required': False},
+#             'last_name': {'required': False},
+#             'gender': {'required': False},
+#             'institute_name': {'required': False},
+#             'branch': {'required': False},
+#             'designation': {'required': False},
+#             'is_superuser': {'required': False},
+#             'is_coordinator': {'required': False},
+#         }
+
+from rest_framework import serializers
+from .models import User
+
+class EditUserSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            'first_name', 'middle_name', 'last_name', 'email',
+            'mobile_number', 'gender', 'institute_name', 'branch',
+            'designation', 'is_superuser', 'is_coordinator', 'role'
+        ]
+        extra_kwargs = {
+            'email': {'required': False},
+            'mobile_number': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'gender': {'required': False},
+            'institute_name': {'required': False},
+            'branch': {'required': False},
+            'designation': {'required': False},
+            'is_superuser': {'required': False},
+            'is_coordinator': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        role = validated_data.pop("role", None)
+
+        # Update regular fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # Handle role flag updates
+        if role:
+            role = role.lower()
+            if role == "admin":
+                instance.is_superuser = True
+                instance.is_coordinator = False
+            elif role == "coordinator":
+                instance.is_superuser = False
+                instance.is_coordinator = True
+            else:
+                instance.is_superuser = False
+                instance.is_coordinator = False
+
+        instance.save()
+        return instance
