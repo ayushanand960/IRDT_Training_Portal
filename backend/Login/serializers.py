@@ -121,7 +121,6 @@ class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id',
             'ehrms_code',
             'first_name',
             'middle_name',
@@ -132,7 +131,10 @@ class UserListSerializer(serializers.ModelSerializer):
             'branch',
             'designation',
             'role',
-            'full_name'
+            'full_name',
+            'security_question',
+            'security_answer'
+
         ]
 
     def get_full_name(self, obj):

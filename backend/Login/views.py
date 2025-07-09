@@ -6,6 +6,8 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.shortcuts import get_object_or_404
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer, UserListSerializer, UserRoleUpdateSerializer, EditUserSerializer
 from .models import User
 import logging
@@ -145,43 +147,62 @@ class CreateUserView(APIView):
 #         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdateUserView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+# class UpdateUserView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-    def put(self, request, pk):
-        if not request.user.is_superuser:
-            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+#     def put(self, request, pk):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+#         try:
+#             user = User.objects.get(pk=pk)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ Partial allows field-wise update
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
-        return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+#         serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ Partial allows field-wise update
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
+#         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 # Delete user by ID
-class DeleteUserView(APIView):
+# class DeleteUserView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def delete(self, request, pk):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+
+#         try:
+#             user = User.objects.get(pk=pk)
+#             user.delete()
+#             return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class UserRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = EditUserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def delete(self, request, pk):
-        if not request.user.is_superuser:
-            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+    def put(self, request, ehrms_code):
+        user = get_object_or_404(User, ehrms_code=ehrms_code)
+        serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ allow partial updates
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            user = User.objects.get(pk=pk)
-            user.delete()
-            return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
+    def delete(self, request, ehrms_code):
+        user = get_object_or_404(User, ehrms_code=ehrms_code)
+        user.delete()
+        return Response({"message": "User deleted"}, status=status.HTTP_204_NO_CONTENT)
+    
 
 
 class UpdateUserRoleView(APIView):
