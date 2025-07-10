@@ -1,39 +1,29 @@
-// src/pages/ManageUsers.jsx
 import React, { useState, useEffect } from "react";
-import { Button, Table, Modal, Form } from "react-bootstrap";
-import institutes from "../data/polytechnics";
-import branches from "../data/branches";
+import { Button, Table, Modal, Form, Row, Col } from "react-bootstrap";
+import { toast } from "react-toastify";
+import axiosInstance from "../utils/axiosInstance";
+import { polytechnics } from "../data/polytechnics";
+import { branches } from "../data/branches";
 import designations from "../data/designations";
 
-
 const ManageUsers = () => {
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      ehrms: "123456",
-      name: "Dr. Rajesh Kumar",
-      email: "rajesh@example.com",
-      mobile: "9876543210",
-      institute: "IRDT Lucknow",
-      branch: "CSE",
-      designation: "Professor",
-      role: "Admin"
-    },
-    {
-      id: 2,
-      ehrms: "654321",
-      name: "Prof. Sunita Singh",
-      email: "sunita@example.com",
-      mobile: "9876501234",
-      institute: "IRDT Lucknow",
-      branch: "ECE",
-      designation: "HOD",
-      role: "Coordinator"
-    }
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axiosInstance.get("/login/users/");
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Failed to load users:", err);
+      toast.error("Failed to load users");
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleAdd = () => {
     setEditingUser(null);
@@ -45,8 +35,15 @@ const ManageUsers = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
-    setUsers(users.filter((user) => user.id !== id));
+  const handleDelete = async (ehrms_code) => {
+    try {
+      await axiosInstance.delete(`/login/users/${ehrms_code}/`);
+      toast.success("User deleted successfully");
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete user");
+    }
   };
 
   return (
@@ -68,24 +65,31 @@ const ManageUsers = () => {
             <th>Branch</th>
             <th>Designation</th>
             <th>Role</th>
+            <th>Security Question</th>
+            <th>Security Answer</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user, idx) => (
-            <tr key={user.id}>
+            <tr key={user.ehrms_code}>
               <td>{idx + 1}</td>
-              <td>{user.ehrms}</td>
+              <td>{user.ehrms_code}</td>
               <td>{user.name}</td>
               <td>{user.email}</td>
-              <td>{user.mobile}</td>
-              <td>{user.institute}</td>
+              <td>{user.mobile_number}</td>
+              <td>{user.institute_name}</td>
               <td>{user.branch}</td>
               <td>{user.designation}</td>
               <td>{user.role}</td>
-              <td>
-                <Button variant="warning" size="sm" onClick={() => handleEdit(user)}>Edit</Button>{" "}
-                <Button variant="danger" size="sm" onClick={() => handleDelete(user.id)}>Delete</Button>
+              <td>{user.security_question}</td>
+              <td>{user.security_answer}</td>
+              <td className="align-middle">
+                {/* <div className="d-flex flex-column gap-1"> */}
+                <div className="d-flex gap-2 justify-content-center">
+                  <Button variant="warning" size="sm" onClick={() => handleEdit(user)}>Edit</Button>
+                  <Button variant="danger" size="sm" onClick={() => handleDelete(user.ehrms_code)}>Delete</Button>
+                </div>
               </td>
             </tr>
           ))}
@@ -96,23 +100,24 @@ const ManageUsers = () => {
         show={showModal}
         onHide={() => setShowModal(false)}
         editingUser={editingUser}
-        setUsers={setUsers}
-        users={users}
+        fetchUsers={fetchUsers}
       />
     </div>
   );
 };
 
-const UserModal = ({ show, onHide, editingUser, users, setUsers }) => {
+const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
   const [formData, setFormData] = useState({
-    ehrms: "",
+    ehrms_code: "",
     name: "",
     email: "",
-    mobile: "",
-    institute: "",
+    mobile_number: "",
+    institute_name: "",
     branch: "",
     designation: "",
-    role: ""
+    role: "",
+    security_question: "",
+    security_answer: "",
   });
 
   useEffect(() => {
@@ -120,131 +125,114 @@ const UserModal = ({ show, onHide, editingUser, users, setUsers }) => {
       setFormData({ ...editingUser });
     } else {
       setFormData({
-        ehrms: "",
+        ehrms_code: "",
         name: "",
         email: "",
-        mobile: "",
-        institute: "",
+        mobile_number: "",
+        institute_name: "",
         branch: "",
         designation: "",
-        role: ""
+        role: "",
+        security_question: "",
+        security_answer: "",
       });
     }
   }, [editingUser]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingUser) {
-      const updatedUsers = users.map((u) =>
-        u.id === editingUser.id ? { ...editingUser, ...formData } : u
-      );
-      setUsers(updatedUsers);
-    } else {
-      const newUser = {
-        id: Date.now(),
-        ...formData
-      };
-      setUsers([...users, newUser]);
+
+    try {
+      if (editingUser) {
+        const cleanedData = Object.fromEntries(
+          Object.entries(formData).filter(([_, value]) => value !== "")
+        );
+        await axiosInstance.patch(`/login/users/${editingUser.ehrms_code}/`, cleanedData);
+        toast.success("User updated successfully");
+      } else {
+        await axiosInstance.post("/login/users/", formData);
+        toast.success("User added successfully");
+      }
+      onHide();
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save user");
     }
-    onHide();
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
-      <Modal.Header closeButton>
-        <Modal.Title>{editingUser ? "Edit User" : "Add User"}</Modal.Title>
-      </Modal.Header>
+    <Modal show={show} onHide={onHide} size="lg" centered>
       <Form onSubmit={handleSubmit}>
+        <Modal.Header closeButton>
+          <Modal.Title>{editingUser ? "Edit User" : "Add User"}</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
-          <div className="row">
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label>EHRMS Code</Form.Label>
-              <Form.Control
-                required
-                value={formData.ehrms}
-                onChange={(e) => setFormData({ ...formData, ehrms: e.target.value })}
-              />
-            </Form.Group>
+          <Row>
+            {[{ label: "EHRMS Code", key: "ehrms_code" },
+              { label: "Name", key: "name" },
+              { label: "Email", key: "email", type: "email" },
+              { label: "Mobile", key: "mobile_number", type: "tel" }
+            ].map(({ label, key, type = "text" }) => (
+              <Col md={6} className="mb-3" key={key}>
+                <Form.Label>{label}</Form.Label>
+                <Form.Control
+                  type={type}
+                  required={!editingUser}
+                  value={formData[key] || ""}
+                  onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                  disabled={editingUser && key === "ehrms_code"}
+                />
+              </Col>
+            ))}
 
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                required
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3 col-md-6">
-              <Form.Label>Mobile Number</Form.Label>
-              <Form.Control
-                required
-                type="tel"
-                value={formData.mobile}
-                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3 col-md-6">
+            <Col md={6} className="mb-3">
               <Form.Label>Institute</Form.Label>
               <Form.Select
-                required
-                value={formData.institute}
-                onChange={(e) => setFormData({ ...formData, institute: e.target.value })}
+                required={!editingUser}
+                value={formData.institute_name || ""}
+                onChange={(e) => setFormData({ ...formData, institute_name: e.target.value })}
               >
                 <option value="">Select Institute</option>
-                {institutes.map((inst, idx) => (
-                  <option key={idx} value={inst}>{inst}</option>
+                {polytechnics.map((inst, i) => (
+                  <option key={i} value={inst}>{inst}</option>
                 ))}
               </Form.Select>
-            </Form.Group>
-<Form.Group className="mb-3 col-md-6">
-  <Form.Label>Branch</Form.Label>
-  <Form.Select
-    required
-    value={formData.branch}
-    onChange={(e) =>
-      setFormData({ ...formData, branch: e.target.value })
-    }
-  >
-    <option value="">Select Branch</option>
-    {branches.map((b, i) => (
-      <option key={i} value={b}>{b}</option>
-    ))}
-  </Form.Select>
-</Form.Group>
+            </Col>
 
-<Form.Group className="mb-3 col-md-6">
-  <Form.Label>Designation</Form.Label>
-  <Form.Select
-    required
-    value={formData.designation}
-    onChange={(e) =>
-      setFormData({ ...formData, designation: e.target.value })
-    }
-  >
-    <option value="">Select Designation</option>
-    {designations.map((d, i) => (
-      <option key={i} value={d}>{d}</option>
-    ))}
-  </Form.Select>
-</Form.Group>
+            <Col md={6} className="mb-3">
+              <Form.Label>Branch</Form.Label>
+              <Form.Select
+                required={!editingUser}
+                value={formData.branch || ""}
+                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              >
+                <option value="">Select Branch</option>
+                {branches.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))}
+              </Form.Select>
+            </Col>
 
-            <Form.Group className="mb-3 col-md-6">
+            <Col md={6} className="mb-3">
+              <Form.Label>Designation</Form.Label>
+              <Form.Select
+                required={!editingUser}
+                value={formData.designation || ""}
+                onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+              >
+                <option value="">Select Designation</option>
+                {designations.map((d, i) => (
+                  <option key={i} value={d}>{d}</option>
+                ))}
+              </Form.Select>
+            </Col>
+
+            <Col md={6} className="mb-3">
               <Form.Label>Role</Form.Label>
               <Form.Select
                 required
-                value={formData.role}
+                value={formData.role || ""}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               >
                 <option value="">Select Role</option>
@@ -252,14 +240,34 @@ const UserModal = ({ show, onHide, editingUser, users, setUsers }) => {
                 <option value="Coordinator">Coordinator</option>
                 <option value="Trainer">Trainer</option>
               </Form.Select>
-            </Form.Group>
-          </div>
-        </Modal.Body>
+            </Col>
 
+            <Col md={6} className="mb-3">
+              <Form.Label>Security Question</Form.Label>
+              <Form.Control
+                type="text"
+                required={!editingUser}
+                value={formData.security_question || ""}
+                onChange={(e) => setFormData({ ...formData, security_question: e.target.value })}
+              />
+            </Col>
+
+            <Col md={6} className="mb-3">
+              <Form.Label>Security Answer</Form.Label>
+              <Form.Control
+                type="text"
+                required={!editingUser}
+                value={formData.security_answer || ""}
+                onChange={(e) => setFormData({ ...formData, security_answer: e.target.value })}
+              />
+            </Col>
+
+          </Row>
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onHide}>Cancel</Button>
-          <Button variant="primary" type="submit">
-            {editingUser ? "Update" : "Add"}
+          <Button type="submit" variant="primary">
+            {editingUser ? "Update User" : "Add User"}
           </Button>
         </Modal.Footer>
       </Form>

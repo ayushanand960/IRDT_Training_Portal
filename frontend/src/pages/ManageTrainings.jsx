@@ -27,10 +27,10 @@ const ManageTrainings = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (code) => {
     if (!window.confirm("Are you sure you want to delete this training?")) return;
     try {
-      await axiosInstance.delete(`training-programs/${id}/`);
+      await axiosInstance.delete(`/training/training-programs/${code}/`);
       toast.success("Training deleted successfully.");
       fetchTrainings();
     } catch (err) {
@@ -107,7 +107,7 @@ const ManageTrainings = () => {
                       <Button
                         size="sm"
                         variant="danger"
-                        onClick={() => handleDelete(t.id)}
+                        onClick={() => handleDelete(t.code)}
                       >
                         Delete
                       </Button>

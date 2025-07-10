@@ -14,7 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
 
 import ManageTrainings from "./pages/ManageTrainings";
-// import ManageUsers from "./pages/ManageUsers";
+import ManageUsers from "./pages/ManageUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 
 // import CoordinatorDashboard from "./pages/CoordinatorDashboard"; // Uncomment if this file exists
@@ -29,10 +29,10 @@ export default function App() {
 
         <ToastContainer position="top-center" autoClose={3000} />
       <Routes>
-        <Route path="/" element={<Home />} />  
+        {/* <Route path="/" element={<Home />} />  
         <Route path="/register/staff" element={<RegisterTemplate  />} />
       <ToastContainer position="top-center" autoClose={3000} />
-     
+      */}
         {/* Public Pages */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -45,7 +45,7 @@ export default function App() {
         {/* <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} /> */}
         <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
         <Route path="/admin-trainings" element={<ManageTrainings />  }/>
-        {/* <Route path="/manage-users" element={<ManageUsers />  }/> */}
+        <Route path="/manage-users" element={<ManageUsers />  }/>
         <Route path="/admin-dashboard" element={<AdminDashboard />  }/>
       </Routes>
     </Router>
