@@ -12,6 +12,10 @@ class TrainingProgram(models.Model):
         ('IRDT', 'IRDT'),
         ('NITTTR Chandigarh', 'NITTTR Chandigarh'),
         ('NITTTR Bhopal', 'NITTTR Bhopal'),
+        ('IUCTE, Varanasi(UP)', 'IUCTE, Varanasi(UP)'),
+        ('ESTC Ramnagar','ESTC Ramnagar'),
+        ('IET, Luckhnow(UP)', 'IET, Luckhnow(UP)'),
+        ('NCB Ballabgarh (Out Station)', 'NCB Ballabgarh (Out Station)'),
     ]
     venue = models.CharField(_("Venue"), max_length=100, choices=VENUE_CHOICES, blank=True, null=True)
 

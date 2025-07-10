@@ -11,6 +11,7 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
         fields = [
             'code',
             'name',
+            'target_group',
             'venue',
             'mode',
             'training_type',

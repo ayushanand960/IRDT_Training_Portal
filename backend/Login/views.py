@@ -189,10 +189,11 @@ class UserRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     serializer_class = EditUserSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    lookup_field = 'ehrms_code'  # ✅ REQUIRED so DRF uses ehrms_code instead of pk
 
     def put(self, request, ehrms_code):
         user = get_object_or_404(User, ehrms_code=ehrms_code)
-        serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ allow partial updates
+        serializer = self.get_serializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

@@ -27,6 +27,9 @@ const Sidebar = () => {
       <NavLink to="/settings" className="d-block mb-2 text-white text-decoration-none">
         <FaCog className="me-2" /> Settings
       </NavLink>
+        <NavLink to="/training-calendar" className="d-block mb-2 text-white text-decoration-none">
+        <FaCalendarAlt className="me-2" /> Training Calendar
+      </NavLink>
     </div>    
 
 
