@@ -13,6 +13,7 @@ const TrainingCalendar = () => {
     start_date: '',
   });
 
+  // Get Monday of the week for any date
   const getMonday = (d) => {
     const date = new Date(d);
     const day = date.getDay(); // Sunday = 0
@@ -36,7 +37,7 @@ const TrainingCalendar = () => {
 
   useEffect(() => {
     const filterDate = filters.start_date ? new Date(filters.start_date) : null;
-    const baseMonday = filterDate ? getMonday(filterDate) : getMonday(new Date());
+    const baseMonday = getMonday(filterDate || new Date());
     const nextMonday = new Date(baseMonday);
     nextMonday.setDate(baseMonday.getDate() + 7);
 
@@ -54,6 +55,7 @@ const TrainingCalendar = () => {
 
     const thisWeek = [];
     const upcoming = [];
+    const past = [];
 
     filtered.forEach((t) => {
       const start = new Date(t.start_date);
@@ -63,15 +65,20 @@ const TrainingCalendar = () => {
         thisWeek.push(t);
       } else if (start >= nextMonday) {
         upcoming.push(t);
+      } else {
+        past.push(t);
       }
     });
 
+    // Sort sections
     thisWeek.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
     upcoming.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    past.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
 
     setFilteredTrainings([
       { section: '🟢 Trainings This Week', items: thisWeek },
       { section: '🟡 Upcoming Week Trainings', items: upcoming },
+      { section: '🔴 Past Trainings', items: past },
     ]);
   }, [filters, trainings]);
 
