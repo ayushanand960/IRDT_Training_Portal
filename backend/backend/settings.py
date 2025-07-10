@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'api',
     'Login',
     'Training',
+    'Enrollment',
 ]
 
 MIDDLEWARE = [
