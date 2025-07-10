@@ -1,8 +1,11 @@
-// // Dashboard_sample.jsx
+
+
+
 // import React, { useEffect, useState } from 'react';
 // import axiosInstance from '../utils/axiosInstance';
 // import { useNavigate } from 'react-router-dom';
 // import { toast } from 'react-toastify';
+// import EnrollButton from '../components/EnrollButton'; // ✅ make sure you have this file
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import '../App.css';
 // import 'animate.css';
@@ -12,8 +15,6 @@
 //   const [trainings, setTrainings] = useState([]);
 //   const [enrolledTrainings, setEnrolledTrainings] = useState([]);
 //   const [profilePhoto, setProfilePhoto] = useState('');
-//   const [showPanel, setShowPanel] = useState(false);
-//   const [activeTab, setActiveTab] = useState('details');
 //   const navigate = useNavigate();
 
 //   useEffect(() => {
@@ -51,34 +52,6 @@
 //     }
 //   };
 
-//   const handleEnroll = async (code) => {
-//     try {
-//       if (!user?.ehrms_code) {
-//         toast.error("EHRMS code not found.");
-//         return;
-//       }
-
-//       if (enrolledTrainings.includes(code)) {
-//         toast.info("⚠️ Already enrolled.");
-//         return;
-//       }
-
-//       await axiosInstance.post('/enrollment/enroll/', {
-//         ehrms_code: user.ehrms_code,
-//         training: code
-//       });
-
-//       setEnrolledTrainings([...enrolledTrainings, code]);
-//       toast.success("✅ Successfully enrolled!");
-//     } catch (error) {
-//       if (error.response?.status === 400) {
-//         toast.error("⚠️ Already enrolled or invalid training.");
-//       } else {
-//         toast.error("Enrollment failed.");
-//       }
-//     }
-//   };
-
 //   const categorizeTrainings = () => {
 //     const now = new Date();
 //     const upcoming = [], ongoing = [], past = [];
@@ -95,7 +68,6 @@
 //   };
 
 //   const { upcoming, ongoing, past } = categorizeTrainings();
-//   const fullName = `${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`.trim();
 
 //   return (
 //     <>
@@ -125,8 +97,9 @@
 //               items={upcoming}
 //               color="info"
 //               showEnroll
-//               handleEnroll={handleEnroll}
 //               enrolledTrainings={enrolledTrainings}
+//               ehrmsCode={user?.ehrms_code}
+//               onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
 //             />
 //             <TrainingSection title="Past Trainings" items={past} color="secondary" />
 //           </div>
@@ -150,7 +123,7 @@
 //   );
 // };
 
-// const TrainingSection = ({ title, items, color, showEnroll = false, handleEnroll, enrolledTrainings = [] }) => {
+// const TrainingSection = ({ title, items, color, showEnroll = false, enrolledTrainings = [], ehrmsCode, onEnrollSuccess }) => {
 //   if (!items.length) return null;
 
 //   const borderColors = {
@@ -175,14 +148,13 @@
 //                   <p className="mb-1"><strong>🏁 End:</strong> {training.end_date}</p>
 //                   <p className="mb-2"><strong>📝 Description:</strong> {training.description || "—"}</p>
 
-//                   {showEnroll && (
-//                     <button
-//                       className={`btn btn-${isEnrolled ? "success" : "outline-primary"} btn-sm`}
-//                       onClick={() => !isEnrolled && handleEnroll(training.code)}
-//                       disabled={isEnrolled}
-//                     >
-//                       {isEnrolled ? "✅ Enrolled" : "Enroll"}
-//                     </button>
+//                   {showEnroll && ehrmsCode && (
+//                     <EnrollButton
+//                       trainingCode={training.code}
+//                       enrolledTrainings={enrolledTrainings}
+//                       ehrmsCode={ehrmsCode}
+//                       onEnrollSuccess={onEnrollSuccess}
+//                     />
 //                   )}
 //                 </div>
 //               </div>
@@ -199,11 +171,14 @@
 
 
 
+
+
+
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import EnrollButton from '../components/EnrollButton'; // ✅ make sure you have this file
+import TrainingCard from '../components/TrainingCard';
+import TrainingFilterBar from '../components/TrainingFilterBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 import 'animate.css';
@@ -211,9 +186,28 @@ import 'animate.css';
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [trainings, setTrainings] = useState([]);
+  const [filteredTrainings, setFilteredTrainings] = useState([]);
   const [enrolledTrainings, setEnrolledTrainings] = useState([]);
   const [profilePhoto, setProfilePhoto] = useState('');
+  const [showPanel, setShowPanel] = useState(false);
+  const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '' });
   const navigate = useNavigate();
+
+  let clickTimeout = null;
+
+  const handleProfileClick = () => {
+    if (clickTimeout !== null) {
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+      document.getElementById('profileUpload').click();
+    } else {
+      clickTimeout = setTimeout(() => {
+        setShowPanel(!showPanel);
+        clearTimeout(clickTimeout);
+        clickTimeout = null;
+      }, 250);
+    }
+  };
 
   useEffect(() => {
     fetchUser();
@@ -250,56 +244,106 @@ const Dashboard = () => {
     }
   };
 
-  const categorizeTrainings = () => {
-    const now = new Date();
-    const upcoming = [], ongoing = [], past = [];
-
-    trainings.forEach(t => {
-      const start = new Date(t.start_date);
-      const end = new Date(t.end_date);
-      if (end < now) past.push(t);
-      else if (start > now) upcoming.push(t);
-      else ongoing.push(t);
-    });
-
-    return { upcoming, ongoing, past };
+  const getMonday = (d) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = (day + 6) % 7;
+    date.setDate(date.getDate() - diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
   };
 
-  const { upcoming, ongoing, past } = categorizeTrainings();
+  useEffect(() => {
+    const filterDate = filters.start_date ? new Date(filters.start_date) : null;
+    const baseMonday = getMonday(filterDate || new Date());
+    const nextMonday = new Date(baseMonday);
+    nextMonday.setDate(baseMonday.getDate() + 7);
+
+    const filtered = trainings.filter((t) => {
+      const matchVenue = filters.venue ? t.venue === filters.venue : true;
+      const matchBranch = filters.target_group ? t.target_group?.toLowerCase().includes(filters.target_group.toLowerCase()) : true;
+      const matchMode = filters.mode ? t.mode?.toLowerCase() === filters.mode.toLowerCase() : true;
+      return matchVenue && matchBranch && matchMode;
+    });
+
+    const thisWeek = [], upcoming = [], past = [];
+    filtered.forEach((t) => {
+      const start = new Date(t.start_date);
+      start.setHours(0, 0, 0, 0);
+      if (start >= baseMonday && start < nextMonday) thisWeek.push(t);
+      else if (start >= nextMonday) upcoming.push(t);
+      else past.push(t);
+    });
+
+    thisWeek.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    upcoming.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    past.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+
+    setFilteredTrainings([
+      { section: '🟢 Trainings This Week', items: thisWeek },
+      { section: '🟡 Upcoming Week Trainings', items: upcoming },
+      { section: '🔴 Past Trainings', items: past },
+    ]);
+  }, [filters, trainings]);
+
+  const handleClear = () => {
+    setFilters({ venue: '', target_group: '', mode: '', start_date: '' });
+  };
 
   return (
     <>
-      {/* Navbar */}
       <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)' }}>
         <span className="navbar-brand text-info fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
         <div className="d-flex align-items-center">
-          <label onClick={() => document.getElementById('profileUpload').click()} style={{ cursor: 'pointer' }}>
+          <label onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <img
-              src={profilePhoto || "https://placehold.co/100x120?text=Upload"}
+              src={profilePhoto || 'https://placehold.co/100x120?text=Upload'}
               alt="Profile"
               className="profile-passport"
-              style={{ height: "60px", width: "48px", borderRadius: "6px", border: "2px solid #fff" }}
+              style={{ height: '60px', width: '48px', borderRadius: '6px', border: '2px solid #fff' }}
             />
           </label>
           <input id="profileUpload" type="file" accept="image/*" onChange={() => {}} style={{ display: 'none' }} />
         </div>
       </nav>
 
-      {/* Main Trainings */}
-      <div className="container mt-4">
+      {showPanel && (
+        <div className="profile-slide-panel animate__animated animate__slideInRight" style={{ position: 'fixed', top: '70px', right: '0', width: '360px', height: 'calc(100vh - 70px)', background: '#fff', borderLeft: '1px solid #dee2e6', zIndex: 1050, boxShadow: '-3px 0 10px rgba(0,0,0,0.08)', overflowY: 'auto', padding: '20px' }}>
+          <h6 className="text-primary mb-3">👤 Personal Details</h6>
+          <p><strong>Name:</strong> {`${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`}</p>
+          <p><strong>EHRMS:</strong> {user?.ehrms_code}</p>
+          <p><strong>Email:</strong> {user?.email}</p>
+          <p><strong>Mobile:</strong> {user?.mobile_number}</p>
+          <p><strong>Institute:</strong> {user?.institute_name}</p>
+          <button className="btn btn-outline-danger btn-sm mt-3" onClick={() => {
+            localStorage.removeItem('access');
+            localStorage.removeItem('refresh');
+            navigate('/login');
+          }}>🚪 Logout</button>
+        </div>
+      )}
+
+      <div className="container py-4">
+        <h3 className="text-center mb-4">IRDT Training Calendar 2025–26</h3>
+        <TrainingFilterBar filters={filters} setFilters={setFilters} handleClear={handleClear} trainings={trainings} />
+
         <div className="row">
           <div className="col-md-8">
-            <TrainingSection title="Ongoing Trainings" items={ongoing} color="primary" />
-            <TrainingSection
-              title="Upcoming Trainings"
-              items={upcoming}
-              color="info"
-              showEnroll
-              enrolledTrainings={enrolledTrainings}
-              ehrmsCode={user?.ehrms_code}
-              onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
-            />
-            <TrainingSection title="Past Trainings" items={past} color="secondary" />
+            {filteredTrainings.map((group, idx) => (
+              <div key={idx} className="mb-5">
+                <h5 className="border-bottom pb-2">{group.section}</h5>
+                {group.items.map((training, index) => (
+                  <TrainingCard
+                    key={index}
+                    training={training}
+                    showEnrollButton={group.section.includes("Upcoming Week")}
+                    enrolledTrainings={enrolledTrainings}
+                    ehrmsCode={user?.ehrms_code}
+                    onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
           <div className="col-md-4">
             <div className="card shadow border-info mb-3 bg-info-subtle p-3">
@@ -318,49 +362,6 @@ const Dashboard = () => {
         </div>
       </div>
     </>
-  );
-};
-
-const TrainingSection = ({ title, items, color, showEnroll = false, enrolledTrainings = [], ehrmsCode, onEnrollSuccess }) => {
-  if (!items.length) return null;
-
-  const borderColors = {
-    primary: '#007bff',
-    info: '#17a2b8',
-    secondary: '#6c757d'
-  };
-
-  return (
-    <div className="mb-4">
-      <h5 className={`text-${color} fw-bold mb-3`}>{title}</h5>
-      <div className="row">
-        {items.map((training, idx) => {
-          const isEnrolled = enrolledTrainings.includes(training.code);
-
-          return (
-            <div key={idx} className="col-12 mb-3">
-              <div className="card training-card shadow-sm" style={{ borderLeft: `6px solid ${borderColors[color]}` }}>
-                <div className="card-body">
-                  <h6 className="training-title">{training.name || training.title}</h6>
-                  <p className="mb-1"><strong>📅 Start:</strong> {training.start_date}</p>
-                  <p className="mb-1"><strong>🏁 End:</strong> {training.end_date}</p>
-                  <p className="mb-2"><strong>📝 Description:</strong> {training.description || "—"}</p>
-
-                  {showEnroll && ehrmsCode && (
-                    <EnrollButton
-                      trainingCode={training.code}
-                      enrolledTrainings={enrolledTrainings}
-                      ehrmsCode={ehrmsCode}
-                      onEnrollSuccess={onEnrollSuccess}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
   );
 };
 
