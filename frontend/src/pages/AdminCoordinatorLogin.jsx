@@ -29,7 +29,7 @@ const AdminCoordinatorLogin = () => {
       if (role === "admin" && is_superuser) {
         navigate("/admin-dashboard");
       } else if (role === "coordinator" && is_coordinator) {
-        navigate("/coordinator-dashboard");
+        navigate("/coordinator-dashboard/${ehrms_code}");
       } else {
         setError("Access denied: You selected the wrong role.");
       }

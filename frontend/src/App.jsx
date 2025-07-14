@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard_sample";           // renamed properly
 import TraineeDashboard from "./pages/TraineeDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 
 import ManageTrainings from "./pages/ManageTrainings";
 import ManageUsers from "./pages/ManageUsers";
@@ -43,7 +44,7 @@ export default function App() {
         {/* Dashboards */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/trainee-dashboard" element={<TraineeDashboard />} />
-        {/* <Route path="/coordinator-dashboard" element={<CoordinatorDashboard />} /> */}
+        <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
         <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
         <Route path="/admin-trainings" element={<ManageTrainings />  }/>
         <Route path="/manage-users" element={<ManageUsers />  }/>

@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, UserProfileView, VerifySecurityAnswerAPIView, ResetPasswordAPIView, GetSecurityQuestionAPIView, CustomTokenObtainPairView, UpdateUserRoleView, ListCreateUserView, CreateUserView, CoordinatorListAPIView, UserRetrieveUpdateDeleteView
+from .views import RegisterView, UserProfileView, VerifySecurityAnswerAPIView, ResetPasswordAPIView, GetSecurityQuestionAPIView, CustomTokenObtainPairView, UpdateUserRoleView, ListCreateUserView, CreateUserView, CoordinatorListAPIView, UserRetrieveUpdateDeleteView, CoordinatorProfileView, CoordinatorTrainingListView, AssignUserToTrainingView
 
 urlpatterns = [
     
@@ -18,5 +18,8 @@ urlpatterns = [
     # path("users/<int:pk>/", DeleteUserView.as_view(), name="delete-user"),
     path("users/<str:ehrms_code>/", UserRetrieveUpdateDeleteView.as_view(), name="user-update-delete"),
     
-    path("coordinators/", CoordinatorListAPIView.as_view(), name="coordinator-list"),
+   path('coordinator/<str:ehrms_code>/', CoordinatorProfileView.as_view(), name='coordinator-profile'),
+path('trainings/', CoordinatorTrainingListView.as_view(), name='coordinator-trainings'),
+path('trainings/<str:code>/assign/', AssignUserToTrainingView.as_view(), name='assign-user-training'),
+
 ]
