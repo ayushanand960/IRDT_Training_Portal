@@ -12,6 +12,10 @@ from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObt
 from .models import User
 import logging
 
+#harshit import for training
+from Training.models import TrainingProgram  # adjust if model is elsewhere
+from Training.serializers import TrainingProgramSerializer  # create if not exists
+
 logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
@@ -252,7 +256,7 @@ class ListCreateUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        if not request.user.is_superuser:
+        if not (request.user.is_superuser or request.user.is_coordinator):
             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
 
         users = User.objects.all()
@@ -303,3 +307,66 @@ class CoordinatorListAPIView(APIView):
             for u in coordinators
         ]
         return Response(data)
+
+
+
+# Harshit Initial Set Up for coordinator dashboard
+
+class CoordinatorProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, ehrms_code):
+        if not request.user.is_superuser and request.user.ehrms_code != ehrms_code:
+            return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            user = User.objects.get(ehrms_code=ehrms_code, is_coordinator=True)
+            data = {
+                "ehrms_code": user.ehrms_code,
+                "name": f"{user.first_name} {user.middle_name or ''} {user.last_name}".strip(),
+                "email": user.email,
+                "institute": getattr(user, "institute", None),
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Coordinator not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CoordinatorTrainingListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        ehrms_code = request.GET.get("coordinator")
+        if not ehrms_code:
+            return Response({"error": "Missing coordinator EHRMS code"}, status=400)
+
+        try:
+            # ✅ Use 'faculty' since it stores the ehrms_code
+            trainings = TrainingProgram.objects.filter(faculty=ehrms_code)
+            serializer = TrainingProgramSerializer(trainings, many=True)
+            return Response(serializer.data, status=200)
+        except Exception as e:
+            from traceback import format_exc
+            print("❌ Error in CoordinatorTrainingListView:", format_exc())
+            return Response({"error": str(e)}, status=500)
+
+
+class AssignUserToTrainingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, training_id):
+        user_id = request.data.get("user_id")
+        coordinator_code = request.data.get("coordinator_id")
+
+        if not user_id or not coordinator_code:
+            return Response({"error": "Missing user_id or coordinator_id"}, status=400)
+
+        try:
+            training = TrainingProgram.objects.get(id=training_id, coordinator__ehrms_code=coordinator_code)
+            user = User.objects.get(id=user_id)
+            training.participants.add(user)
+            return Response({"message": "User successfully nominated!"}, status=200)
+        except Training.DoesNotExist:
+            return Response({"error": "Training not found or not authorized"}, status=404)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
