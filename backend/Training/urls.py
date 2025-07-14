@@ -15,10 +15,12 @@ from .views import (
     TrainingProgramListCreateAPIView,
     TrainingProgramRetrieveUpdateDeleteAPIView,
     TrainingUploadExcelAPIView,
+    DashboardMetricsAPIView,
 )
 
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
     path('training-programs/<str:code>/', TrainingProgramRetrieveUpdateDeleteAPIView.as_view(), name='training-rud'),
     path('training-programs/upload/', TrainingUploadExcelAPIView.as_view(), name='training-upload'),
+    path("dashboard/metrics/", DashboardMetricsAPIView.as_view()),
 ]

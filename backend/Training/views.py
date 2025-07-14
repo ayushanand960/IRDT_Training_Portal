@@ -19,7 +19,9 @@ from rest_framework import status, permissions, throttling
 from rest_framework.parsers import MultiPartParser
 from rest_framework.authentication import SessionAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from rest_framework.permissions import IsAuthenticated  # Optional, based on your auth setup
+from datetime import date
+from Login.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.core.exceptions import ValidationError
@@ -152,3 +154,23 @@ class TrainingUploadExcelAPIView(APIView):
             logger.error(f"Excel processing failed: {str(e)}")
             return Response({"error": f"Failed to process file: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+class DashboardMetricsAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # ✅ Use this if your frontend passes JWT tokens
+
+    def get(self, request):
+        today = date.today()
+
+        total_users = User.objects.count()
+        total_trainings = TrainingProgram.objects.count()
+        conducted_trainings = TrainingProgram.objects.filter(end_date__lt=today).count()
+
+        return Response({
+            "total_users": total_users,
+            "total_trainings": total_trainings,
+            "conducted_trainings": conducted_trainings
+        })
