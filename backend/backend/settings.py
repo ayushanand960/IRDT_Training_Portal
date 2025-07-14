@@ -48,6 +48,8 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,
     'AUTH_HEADER_TYPES': ('Bearer',),
+    "USER_ID_FIELD": "ehrms_code",
+    "USER_ID_CLAIM": "ehrms_code",
 }
 
 # Application definition
@@ -63,6 +65,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'api',
     'Login',
+    'Training',
+    'Enrollment',
 ]
 
 MIDDLEWARE = [
@@ -131,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE =  'Asia/Kolkata'
 
 USE_I18N = True
 

@@ -22,14 +22,14 @@ const AdminCoordinatorLogin = () => {
       const { access, refresh, is_superuser, is_coordinator } = response.data;
 
       // Store tokens
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
 
       // ✅ Validate selected role matches backend response
       if (role === "admin" && is_superuser) {
         navigate("/admin-dashboard");
       } else if (role === "coordinator" && is_coordinator) {
-        navigate("/coordinator-dashboard");
+        navigate("/coordinator-dashboard/${ehrms_code}");
       } else {
         setError("Access denied: You selected the wrong role.");
       }
