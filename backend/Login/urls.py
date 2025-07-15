@@ -12,14 +12,16 @@ urlpatterns = [
     path('get-security-question/', GetSecurityQuestionAPIView.as_view(), name='get-security-question'),
     path('verify-security/', VerifySecurityAnswerAPIView.as_view(), name='verify-security'),
     path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),
-     path('update-role/', UpdateUserRoleView.as_view(), name='update-user-role'),
-     path("users/", ListCreateUserView.as_view(), name="list-create-users"),
+    path('update-role/', UpdateUserRoleView.as_view(), name='update-user-role'),
+    path("users/", ListCreateUserView.as_view(), name="list-create-users"),
+    path('coordinators/', CoordinatorListAPIView.as_view(), name='coordinator-list'),
+
     # path("users/<int:pk>/", UpdateUserView.as_view(), name="update-user"),
     # path("users/<int:pk>/", DeleteUserView.as_view(), name="delete-user"),
     path("users/<str:ehrms_code>/", UserRetrieveUpdateDeleteView.as_view(), name="user-update-delete"),
     
-   path('coordinator/<str:ehrms_code>/', CoordinatorProfileView.as_view(), name='coordinator-profile'),
-path('trainings/', CoordinatorTrainingListView.as_view(), name='coordinator-trainings'),
-path('trainings/<str:code>/assign/', AssignUserToTrainingView.as_view(), name='assign-user-training'),
+    path('coordinator/<str:ehrms_code>/', CoordinatorProfileView.as_view(), name='coordinator-profile'),
+    path('trainings/', CoordinatorTrainingListView.as_view(), name='coordinator-trainings'),
+    path('trainings/<str:code>/assign/', AssignUserToTrainingView.as_view(), name='assign-user-training'),
 
 ]
