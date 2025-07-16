@@ -26,7 +26,12 @@ from django.core.exceptions import ValidationError
 
 from .models import TrainingProgram
 from .serializers import TrainingProgramSerializer
-
+from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+from Training.models import Nomination
+from Enrollment.models import Enrollment
+from rest_framework import serializers
+from Login.serializers import UserSerializer
 import pandas as pd
 import logging
 
@@ -150,5 +155,95 @@ class TrainingUploadExcelAPIView(APIView):
 
         except Exception as e:
             logger.error(f"Excel processing failed: {str(e)}")
-            return Response({"error": f"Failed to process file: {str(e)}"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": f"Failed to process file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from rest_framework import generics
+from .models import Nomination
+from .serializers import NominationSerializer
+
+class NominationCreateAPIView(generics.CreateAPIView):
+    queryset = Nomination.objects.all()
+    serializer_class = NominationSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+User = get_user_model()
+
+class CoordinatorTrainingDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        coordinator = request.user
+        trainings = TrainingProgram.objects.filter(coordinator=coordinator)
+
+        data = []
+        for training in trainings:
+            nominations = Nomination.objects.filter(training=training)
+            trainees = [{
+                "ehrms_code": nom.trainee.ehrms_code,
+                "name": nom.trainee.name
+            } for nom in nominations]
+
+            data.append({
+                "training_title": training.name,
+                "venue": training.venue,
+                "dates": f"{training.start_date} to {training.end_date}",
+                "trainee_count": nominations.count(),
+                "trainees": trainees
+            })
+
+        return Response(data)
+
+
+class EnrolledTraineesByTrainingAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not authorized."}, status=status.HTTP_403_FORBIDDEN)
+
+        enrollments = Enrollment.objects.filter(training=training).select_related('trainee')
+        trainees = [e.trainee for e in enrollments]
+        serializer = UserSerializer(trainees, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BulkNominationSerializer(serializers.Serializer):
+    training_code = serializers.CharField()
+    trainee_ehrms_codes = serializers.ListField(child=serializers.CharField())
+
+class BulkNominationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BulkNominationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        training_code = serializer.validated_data['training_code']
+        ehrms_codes = serializer.validated_data['trainee_ehrms_codes']
+
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Not authorized or training not found."}, status=status.HTTP_403_FORBIDDEN)
+
+        created = []
+        for ehrms_code in ehrms_codes:
+            try:
+                trainee = User.objects.get(ehrms_code=ehrms_code)
+                nomination, created_flag = Nomination.objects.get_or_create(
+                    training=training,
+                    trainee=trainee,
+                    defaults={"coordinator": request.user, "nominated_by": request.user}
+                )
+                if created_flag:
+                    created.append(ehrms_code)
+            except User.DoesNotExist:
+                continue
+
+        return Response({
+            "nominated": created,
+            "message": f"{len(created)} trainee(s) nominated."
+        }, status=status.HTTP_200_OK)

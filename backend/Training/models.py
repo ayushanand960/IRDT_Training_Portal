@@ -70,4 +70,19 @@ class TrainingProgram(models.Model):
         # Participants should be realistic (0–1000 limit)
         if self.number_of_participants and (self.number_of_participants > 1000):
             raise ValidationError(_("Participant number seems too high. Please verify."))
-#         
+        
+#-----------------------------------------------------------------------------------------------
+from django.db import models
+from Login.models import User
+from .models import TrainingProgram
+
+class Nomination(models.Model):
+    trainee = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'is_coordinator': False})
+    training = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE)
+    nominated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='nominations_made')
+    coordinator = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True,related_name="coordinator_trainings")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.trainee} → {self.training.name}"

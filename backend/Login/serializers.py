@@ -26,12 +26,15 @@ class UserSerializer(serializers.ModelSerializer):
         validators=[validate_password], 
         style={'input_type': 'password'}
     )
+    name = serializers.SerializerMethodField()
 
-
+    def get_name(self, obj):
+        full = f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
+        return " ".join(full.split())
     class Meta:
         model = User
         fields = [
-            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer"
+            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer","name"
             ]
         extra_kwargs = {
             "password": {"write_only": True},#this will write the password from client to database but will not ready the password for security

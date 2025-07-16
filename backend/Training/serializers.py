@@ -82,3 +82,60 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
                 f"{faculty.first_name} {faculty.middle_name or ''} {faculty.last_name}".strip()
             )
         return super().update(instance, validated_data)
+
+#------------------------------------------------------------------------------------------------------
+from .models import Nomination
+from datetime import timedelta
+from Enrollment.models import Enrollment
+
+class NominationSerializer(serializers.ModelSerializer):
+    trainee = serializers.SlugRelatedField(
+        slug_field='ehrms_code',
+        queryset=User.objects.filter(is_coordinator=False)
+    )
+    training = serializers.SlugRelatedField(
+        slug_field='code',
+        queryset=TrainingProgram.objects.all()
+    )
+
+    class Meta:
+        model = Nomination
+        fields = ['trainee', 'training', 'nominated_by', 'created_at']
+        read_only_fields = ['nominated_by', 'created_at']
+
+    def validate(self, data):
+        trainee = data.get('trainee')
+        training = data.get('training')
+
+        if not trainee or not training:
+            return data
+
+        start_date = training.start_date
+        end_date = training.end_date
+
+        # Exclude current instance (for update case)
+        nomination_qs = Nomination.objects.filter(
+            trainee=trainee,
+            training__start_date__lte=end_date,
+            training__end_date__gte=start_date
+        )
+        if self.instance:
+            nomination_qs = nomination_qs.exclude(pk=self.instance.pk)
+
+        # Check overlapping enrollments
+        enrollment_qs = Enrollment.objects.filter(
+            trainee=trainee,
+            training__start_date__lte=end_date,
+            training__end_date__gte=start_date
+        )
+
+        if nomination_qs.exists() or enrollment_qs.exists():
+            raise serializers.ValidationError({
+                "trainee": "This trainee is already nominated or enrolled in another training."
+            })
+
+        return data
+
+    def create(self, validated_data):
+        validated_data['nominated_by'] = self.context['request'].user
+        return super().create(validated_data)
