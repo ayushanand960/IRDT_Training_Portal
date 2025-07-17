@@ -16,7 +16,7 @@ from .views import (
     TrainingProgramRetrieveUpdateDeleteAPIView,
     TrainingUploadExcelAPIView,
 )
-from .views import NominationCreateAPIView,CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView
+from .views import NominationCreateAPIView,CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView
 
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
@@ -26,4 +26,7 @@ urlpatterns = [
     path('coordinator/trainings/', CoordinatorTrainingDetailView.as_view(), name='coordinator-trainings'),
     path('enrolled-trainees/<str:training_code>/', EnrolledTraineesByTrainingAPIView.as_view(), name='enrolled-trainees'),
     path('nominate-multiple/', BulkNominationView.as_view(), name='bulk-nominate'),
+    path('nominated/<str:training_code>/', NominatedTraineesByTrainingAPIView.as_view()),
+    path('nomination/remove/<str:training_code>/<str:ehrms_code>/', RemoveNominationAPIView.as_view()),
+
 ]

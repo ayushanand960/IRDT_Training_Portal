@@ -1,18 +1,3 @@
-# from rest_framework import viewsets, permissions, throttling
-# from .models import TrainingProgram
-# from .serializers import TrainingProgramSerializer
-
-# class TrainingProgramViewSet(viewsets.ModelViewSet):
-#     queryset = TrainingProgram.objects.all()
-#     serializer_class = TrainingProgramSerializer
-
-#     # ✅ Restrict API access to authenticated users only
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     # ✅ Rate limiting per user (defined globally or here)
-#     throttle_classes = [throttling.UserRateThrottle]
-
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, throttling
@@ -247,3 +232,40 @@ class BulkNominationView(APIView):
             "nominated": created,
             "message": f"{len(created)} trainee(s) nominated."
         }, status=status.HTTP_200_OK)
+
+class NominatedTraineesByTrainingAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not authorized."}, status=403)
+
+        nominations = Nomination.objects.filter(training=training).select_related('trainee')
+        trainees = [n.trainee for n in nominations]
+        serializer = UserSerializer(trainees, many=True)
+        return Response(serializer.data)
+
+
+class RemoveNominationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, training_code, ehrms_code):
+        try:
+            # Confirm the training is assigned to this coordinator
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            trainee = User.objects.get(ehrms_code=ehrms_code)
+        except User.DoesNotExist:
+            return Response({"error": "Trainee not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            nomination = Nomination.objects.get(training=training, trainee=trainee)
+            nomination.delete()
+            return Response({"message": "Nomination removed."}, status=status.HTTP_204_NO_CONTENT)
+        except Nomination.DoesNotExist:
+            return Response({"error": "Nomination not found."}, status=status.HTTP_404_NOT_FOUND)

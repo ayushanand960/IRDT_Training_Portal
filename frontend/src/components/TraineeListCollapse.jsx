@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 export default function TraineeListCollapse({ trainingCode }) {
   const [trainees, setTrainees] = useState([]);
   const [selectedTrainees, setSelectedTrainees] = useState([]);
   const [showList, setShowList] = useState(false);
+  const [nominatedTrainees, setNominatedTrainees] = useState([]);
+  const [showNominatedModal, setShowNominatedModal] = useState(false);
 
+  // Fetch enrolled trainees
   useEffect(() => {
     if (showList) {
       axiosInstance
@@ -14,7 +19,7 @@ export default function TraineeListCollapse({ trainingCode }) {
         .then((res) => {
           setTrainees(res.data);
         })
-        .catch((err) => {
+        .catch(() => {
           toast.error("⚠️ Failed to fetch enrolled trainees");
         });
     }
@@ -38,9 +43,14 @@ export default function TraineeListCollapse({ trainingCode }) {
       })
       .then(() => {
         toast.success("✅ Nomination successful!");
+        setSelectedTrainees([]);
       })
-      .catch((err) => {
-        toast.error("⚠️ Nomination failed!");
+      .catch((error) => {
+        if (error.response?.data?.error) {
+          toast.error(`⚠️ ${error.response.data.error}`);
+        } else {
+          toast.error("⚠️ Nomination failed!");
+        }
       });
   };
 
@@ -60,45 +70,109 @@ export default function TraineeListCollapse({ trainingCode }) {
     link.click();
   };
 
+  const openNominatedModal = () => {
+    axiosInstance
+      .get(`/training/nominated/${trainingCode}/`)
+      .then((res) => {
+        setNominatedTrainees(res.data);
+        setShowNominatedModal(true);
+      })
+      .catch(() => {
+        toast.error("⚠️ Failed to fetch nominated trainees");
+      });
+  };
+
+  const handleRemoveNominee = (ehrms_code) => {
+    axiosInstance
+      .delete(`/training/nomination/remove/${trainingCode}/${ehrms_code}/`)
+      .then(() => {
+        toast.success("❌ Nomination removed");
+        setNominatedTrainees((prev) =>
+          prev.filter((t) => t.ehrms_code !== ehrms_code)
+        );
+      })
+      .catch(() => {
+        toast.error("⚠️ Failed to remove nominee");
+      });
+  };
+
   return (
-    <div className="card mb-3 border shadow">
-      <div
-        className="card-header d-flex justify-content-between align-items-center"
-        onClick={toggleList}
-        style={{ cursor: 'pointer' }}
-      >
-        <span className="fw-bold">{trainingCode}</span>
-        <span>{showList ? '▲' : '▼'}</span>
+    <>
+      <div className="card mb-3 border shadow">
+        <div
+          className="card-header d-flex justify-content-between align-items-center"
+          onClick={toggleList}
+          style={{ cursor: 'pointer' }}
+        >
+          <span className="fw-bold">{trainingCode}</span>
+          <span>{showList ? '▲' : '▼'}</span>
+        </div>
+
+        {showList && (
+          <div className="card-body">
+            {trainees.length === 0 ? (
+              <p>No trainees enrolled.</p>
+            ) : (
+              <>
+                <ul className="list-group mb-3">
+                  {trainees.map((trainee) => (
+                    <li key={trainee.ehrms_code} className="list-group-item d-flex justify-content-between">
+                      <span>{trainee.name} ({trainee.ehrms_code})</span>
+                      <input
+                        type="checkbox"
+                        checked={selectedTrainees.includes(trainee.ehrms_code)}
+                        onChange={() => handleCheckboxChange(trainee.ehrms_code)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+                <div className="d-flex flex-wrap gap-2">
+                  <button className="btn btn-primary" onClick={handleNominate}>
+                    Nominate Selected
+                  </button>
+                  <button className="btn btn-secondary" onClick={openNominatedModal}>
+                    Nominated Trainees
+                  </button>
+                  <button className="btn btn-outline-secondary" onClick={handleDownloadCSV}>
+                    Download CSV
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {showList && (
-        <div className="card-body">
-          {trainees.length === 0 ? (
-            <p>No trainees enrolled.</p>
+      {/* Modal for nominated trainees */}
+      <Modal show={showNominatedModal} onHide={() => setShowNominatedModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Nominated Trainees - {trainingCode}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {nominatedTrainees.length === 0 ? (
+            <p>No one nominated yet.</p>
           ) : (
-            <>
-              <ul className="list-group mb-3">
-                {trainees.map((trainee) => (
-                  <li key={trainee.ehrms_code} className="list-group-item d-flex justify-content-between">
-                    <span>{trainee.name} ({trainee.ehrms_code})</span>
-                    <input
-                      type="checkbox"
-                      checked={selectedTrainees.includes(trainee.ehrms_code)}
-                      onChange={() => handleCheckboxChange(trainee.ehrms_code)}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <button className="btn btn-primary me-2" onClick={handleNominate}>
-                Nominate Selected
-              </button>
-              <button className="btn btn-outline-secondary" onClick={handleDownloadCSV}>
-                Download CSV
-              </button>
-            </>
+            <ul className="list-group">
+              {nominatedTrainees.map((trainee) => (
+                <li key={trainee.ehrms_code} className="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{trainee.full_name} ({trainee.ehrms_code})</span>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleRemoveNominee(trainee.ehrms_code)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
-        </div>
-      )}
-    </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowNominatedModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
