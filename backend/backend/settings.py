@@ -35,7 +35,8 @@ ALLOWED_HOSTS = ["*"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",
+         "Login.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
@@ -45,11 +46,18 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False,
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "ehrms_code",
     "USER_ID_CLAIM": "ehrms_code",
+
+    # ✅ Needed for cookie-based token reading (not used directly by DRF but good convention)
+    "AUTH_COOKIE": "access",  # access token cookie name
+    "AUTH_COOKIE_REFRESH": "refresh",  # refresh token cookie name
+    "AUTH_COOKIE_SECURE": False,  # set to True in production
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_SAMESITE": "Lax",
 }
 
 # Application definition
@@ -152,16 +160,28 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5173",  # React frontend
+]
+CORS_ALLOW_CREDENTIALS = True  # ✅ Needed to accept cookies cross-origin
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_ALL_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:5173", 
+]
+
+SESSION_COOKIE_SECURE = False  # For local testing
+CSRF_COOKIE_SECURE = False
+# ✅ Secure cookies
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+# ✅ Cross-site cookie protection
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 AUTH_USER_MODEL = 'Login.User'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # React frontend
-]
-
-CORS_ALLOW_CREDENTIALS = True
 
 APPEND_SLASH = True
+

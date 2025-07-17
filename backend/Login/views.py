@@ -4,8 +4,14 @@ from rest_framework import status
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings
+# from rest_framework_simplejwt.authentication import JWTAuthentication
+from .authentication import CookieJWTAuthentication 
+# from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer, UserListSerializer, UserRoleUpdateSerializer, EditUserSerializer
@@ -33,14 +39,41 @@ class RegisterView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class UserProfileView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         serializer = UserSerializer(request.user)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UserProfileView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # 🔍 Debug Print: Cookies sent by the browser
+        print("🍪 Cookies received:", request.COOKIES)
 
+        # 🔍 Debug Print: Check if access token is present
+        access_token = request.COOKIES.get("access")
+        print("🔐 Access token from cookie:", access_token)
+
+        # 🔍 Debug Print: Authenticated user
+        print("👤 Authenticated user:", request.user)
+
+        serializer = UserSerializer(request.user)
+        return Response({
+            **serializer.data,
+            "role": (
+                "admin" if request.user.is_superuser else
+                "coordinator" if request.user.is_coordinator else
+                "user"
+            ),
+            "is_superuser": request.user.is_superuser,
+            "is_coordinator": request.user.is_coordinator
+        }, status=status.HTTP_200_OK)
 
 class VerifySecurityAnswerAPIView(APIView):
     def post(self, request):
@@ -104,10 +137,107 @@ class GetSecurityQuestionAPIView(APIView):
             logger.warning(f"User not found for EHRMS code: {ehrms_code}")
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
+@method_decorator(csrf_exempt, name='dispatch')
+class CookieTokenObtainPairView(APIView):
+    permission_classes = [AllowAny]
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
+    def post(self, request):
+        ehrms_code = request.data.get("ehrms_code")
+        password = request.data.get("password")
 
+        user = authenticate(request, ehrms_code=ehrms_code, password=password)
+        if user is None:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        response = Response({
+            "message": "Login successful",
+            "is_superuser": user.is_superuser,
+            "is_coordinator": getattr(user, 'is_coordinator', False)
+        }, status=status.HTTP_200_OK)
+
+        # 🔐 Set tokens as HttpOnly cookies
+        response.set_cookie(
+            key='access',
+            value=access_token,
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+            max_age=300,  # 5 min
+            path='/'
+        )
+        response.set_cookie(
+            key='refresh',
+            value=str(refresh),
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+            max_age=86400,  # 1 day
+            path='/'
+        )
+
+        return response
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CookieTokenRefreshView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh")
+
+        if not refresh_token:
+            # 🔴 Refresh token missing — clear cookies
+            response = Response({"error": "No refresh token found. Session expired."}, status=status.HTTP_401_UNAUTHORIZED)
+            response.delete_cookie("access")
+            response.delete_cookie("refresh")
+            return response
+
+        try:
+            token = RefreshToken(refresh_token)
+            access_token = str(token.access_token)
+
+            response = Response({
+                "access": access_token
+            }, status=status.HTTP_200_OK)
+
+            # 🔐 Set new access token
+            response.set_cookie(
+                key="access",
+                value=access_token,
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite="Lax",
+                max_age=300  # 5 minutes
+            )
+
+            return response
+
+        except Exception:
+            # 🔴 Token invalid/expired — clear cookies
+            response = Response({"error": "Invalid or expired refresh token. Please login again."}, status=status.HTTP_403_FORBIDDEN)
+            response.delete_cookie("access")
+            response.delete_cookie("refresh")
+            return response
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"message": "Logged out"}, status=200)
+        response.delete_cookie("access")
+        response.delete_cookie("refresh")
+        return response
+
+
+class CheckAuthView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"authenticated": True}, status=200)
 
 
 
@@ -116,7 +246,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 # Create a new user
 class CreateUserView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -130,68 +260,10 @@ class CreateUserView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Update user by ID
-# class UpdateUserView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def put(self, request, pk):
-#         if not request.user.is_superuser:
-#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
-
-#         try:
-#             user = User.objects.get(pk=pk)
-#         except User.DoesNotExist:
-#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = UserSerializer(user, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
-#         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class UpdateUserView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def put(self, request, pk):
-#         if not request.user.is_superuser:
-#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
-
-#         try:
-#             user = User.objects.get(pk=pk)
-#         except User.DoesNotExist:
-#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = EditUserSerializer(user, data=request.data, partial=True)  # ✅ Partial allows field-wise update
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({"message": "User updated successfully"}, status=status.HTTP_200_OK)
-#         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-# Delete user by ID
-# class DeleteUserView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def delete(self, request, pk):
-#         if not request.user.is_superuser:
-#             return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
-
-#         try:
-#             user = User.objects.get(pk=pk)
-#             user.delete()
-#             return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
-#         except User.DoesNotExist:
-#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
 class UserRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = EditUserSerializer
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = 'ehrms_code'  # ✅ REQUIRED so DRF uses ehrms_code instead of pk
 
@@ -211,7 +283,7 @@ class UserRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 
 class UpdateUserRoleView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -238,21 +310,10 @@ class UpdateUserRoleView(APIView):
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class ListUsersView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         if not request.user.is_superuser:
-#             return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
-
-#         users = User.objects.all()
-#         serializer = UserListSerializer(users, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 class ListCreateUserView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -276,7 +337,7 @@ class ListCreateUserView(APIView):
 
 class GetUserRoleView(APIView):
 
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, ehrms_code):
@@ -312,24 +373,24 @@ class CoordinatorListAPIView(APIView):
 
 # Harshit Initial Set Up for coordinator dashboard
 
-class CoordinatorProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+# class CoordinatorProfileView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request, ehrms_code):
-        if not request.user.is_superuser and request.user.ehrms_code != ehrms_code:
-            return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+#     def get(self, request, ehrms_code):
+#         if not request.user.is_superuser and request.user.ehrms_code != ehrms_code:
+#             return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
 
-        try:
-            user = User.objects.get(ehrms_code=ehrms_code, is_coordinator=True)
-            data = {
-                "ehrms_code": user.ehrms_code,
-                "name": f"{user.first_name} {user.middle_name or ''} {user.last_name}".strip(),
-                "email": user.email,
-                "institute": getattr(user, "institute", None),
-            }
-            return Response(data, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"error": "Coordinator not found"}, status=status.HTTP_404_NOT_FOUND)
+#         try:
+#             user = User.objects.get(ehrms_code=ehrms_code, is_coordinator=True)
+#             data = {
+#                 "ehrms_code": user.ehrms_code,
+#                 "name": f"{user.first_name} {user.middle_name or ''} {user.last_name}".strip(),
+#                 "email": user.email,
+#                 "institute": getattr(user, "institute", None),
+#             }
+#             return Response(data, status=status.HTTP_200_OK)
+#         except User.DoesNotExist:
+#             return Response({"error": "Coordinator not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CoordinatorTrainingListView(APIView):
