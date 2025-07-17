@@ -18,7 +18,8 @@ from rest_framework.response import Response
 from rest_framework import status, permissions, throttling
 from rest_framework.parsers import MultiPartParser
 from rest_framework.authentication import SessionAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
+# from rest_framework_simplejwt.authentication import JWTAuthentication
+from Login.authentication import CookieJWTAuthentication
 from rest_framework.permissions import IsAuthenticated  # Optional, based on your auth setup
 from datetime import date
 from Login.models import User
@@ -37,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 # ✅ List & Create Trainings
 class TrainingProgramListCreateAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [throttling.UserRateThrottle]
 
@@ -58,7 +59,7 @@ class TrainingProgramListCreateAPIView(APIView):
 
 # ✅ Retrieve, Update, Delete Single Training
 class TrainingProgramRetrieveUpdateDeleteAPIView(APIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [throttling.UserRateThrottle]
 
@@ -90,7 +91,7 @@ class TrainingProgramRetrieveUpdateDeleteAPIView(APIView):
 # ✅ Upload Excel for Bulk Training Upload (Admin Only)
 class TrainingUploadExcelAPIView(APIView):
     parser_classes = [MultiPartParser]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [throttling.UserRateThrottle]
 
