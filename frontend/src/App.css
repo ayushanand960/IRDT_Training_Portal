@@ -104,6 +104,9 @@ input[type="file"] {
 
 /* ===== Profile Photo in Dashboard Sidebar ===== */
  
+input, textarea {
+  caret-color: transparent;
+}
 
  
 
@@ -213,6 +216,8 @@ input[type="file"] {
 }
 body {
   background: linear-gradient(to right, #f5f7fa, #dfe9f3);
+  
+ 
 }
 
 .training-card {

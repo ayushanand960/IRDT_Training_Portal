@@ -8,8 +8,12 @@ export default function Home() {
   return (
     <>
       <Header />
-     <section className="bg-light text-center py-5">
+     <section className="bg-#F4F7FE text-center py-5">
   <div className="container"   >
+      {/* Add image above the heading */}
+  <img src="/images/irdt_logo_01.png"style={{ maxWidth: '250px', marginBottom: '20px' }} />
+
+
   <h1 className="display-5 fw-bold" style={{ color: '#4DA8DA' }}>
   Institute of Research, Development & Training
 </h1>
@@ -26,7 +30,7 @@ export default function Home() {
         </div>
       </section>
 
-  <section className="py-5 bg-white text-center">
+  <section className="py-5 bg-#E8F6FA text-center">
   <div className="container">
     <h2 className="mb-4">Comprehensive Training Management</h2>
     <div className="row justify-content-center">
@@ -37,7 +41,7 @@ export default function Home() {
   </div>
 </section>
 
-      <section className="py-5 bg-light text-center">
+      <section className="py-5 bg-#F4F7FE text-center">
   <div className="container">
     <h2 className="mb-4">Training Partners</h2>
     <div className="d-flex justify-content-center gap-4 flex-wrap text-muted">
