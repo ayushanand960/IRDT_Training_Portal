@@ -3,6 +3,8 @@ import { Table, Button, Modal, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axiosInstance from "../utils/axiosInstance";
 import TrainingForm from "../components/TrainingForm";
+import DashboardLayout from "../components/DashboardLayout";
+
 
 const ManageTrainings = () => {
   const [trainings, setTrainings] = useState([]);
@@ -54,6 +56,7 @@ const ManageTrainings = () => {
   }, []);
 
   return (
+    <DashboardLayout>
     <div className="p-4">
       <h2 className="mb-3 text-center">Admin - Manage Trainings</h2>
       <Button variant="primary" className="mb-3" onClick={handleAdd}>
@@ -138,6 +141,7 @@ const ManageTrainings = () => {
         </Modal.Body>
       </Modal>
     </div>
+    </DashboardLayout>
   );
 };
 

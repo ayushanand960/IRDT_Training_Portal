@@ -5,6 +5,7 @@ import axiosInstance from "../utils/axiosInstance";
 import { polytechnics } from "../data/polytechnics";
 import { branches } from "../data/branches";
 import designations from "../data/designations";
+import DashboardLayout from "../components/DashboardLayout";
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -47,6 +48,7 @@ const ManageUsers = () => {
   };
 
   return (
+    <DashboardLayout>
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3>Manage Users</h3>
@@ -103,6 +105,7 @@ const ManageUsers = () => {
         fetchUsers={fetchUsers}
       />
     </div>
+    </DashboardLayout>
   );
 };
 
@@ -162,116 +165,118 @@ const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
   };
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered>
-      <Form onSubmit={handleSubmit}>
-        <Modal.Header closeButton>
-          <Modal.Title>{editingUser ? "Edit User" : "Add User"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row>
-            {[{ label: "EHRMS Code", key: "ehrms_code" },
+    
+      <Modal show={show} onHide={onHide} size="lg" centered>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title>{editingUser ? "Edit User" : "Add User"}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row>
+              {[{ label: "EHRMS Code", key: "ehrms_code" },
               { label: "Name", key: "name" },
               { label: "Email", key: "email", type: "email" },
               { label: "Mobile", key: "mobile_number", type: "tel" }
-            ].map(({ label, key, type = "text" }) => (
-              <Col md={6} className="mb-3" key={key}>
-                <Form.Label>{label}</Form.Label>
-                <Form.Control
-                  type={type}
+              ].map(({ label, key, type = "text" }) => (
+                <Col md={6} className="mb-3" key={key}>
+                  <Form.Label>{label}</Form.Label>
+                  <Form.Control
+                    type={type}
+                    required={!editingUser}
+                    value={formData[key] || ""}
+                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                    disabled={editingUser && key === "ehrms_code"}
+                  />
+                </Col>
+              ))}
+
+              <Col md={6} className="mb-3">
+                <Form.Label>Institute</Form.Label>
+                <Form.Select
                   required={!editingUser}
-                  value={formData[key] || ""}
-                  onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                  disabled={editingUser && key === "ehrms_code"}
+                  value={formData.institute_name || ""}
+                  onChange={(e) => setFormData({ ...formData, institute_name: e.target.value })}
+                >
+                  <option value="">Select Institute</option>
+                  {polytechnics.map((inst, i) => (
+                    <option key={i} value={inst}>{inst}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              <Col md={6} className="mb-3">
+                <Form.Label>Branch</Form.Label>
+                <Form.Select
+                  required={!editingUser}
+                  value={formData.branch || ""}
+                  onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+                >
+                  <option value="">Select Branch</option>
+                  {branches.map((b, i) => (
+                    <option key={i} value={b}>{b}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              <Col md={6} className="mb-3">
+                <Form.Label>Designation</Form.Label>
+                <Form.Select
+                  required={!editingUser}
+                  value={formData.designation || ""}
+                  onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                >
+                  <option value="">Select Designation</option>
+                  {designations.map((d, i) => (
+                    <option key={i} value={d}>{d}</option>
+                  ))}
+                </Form.Select>
+              </Col>
+
+              <Col md={6} className="mb-3">
+                <Form.Label>Role</Form.Label>
+                <Form.Select
+                  required
+                  value={formData.role || ""}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                >
+                  <option value="">Select Role</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Coordinator">Coordinator</option>
+                  <option value="Trainer">Trainer</option>
+                </Form.Select>
+              </Col>
+
+              <Col md={6} className="mb-3">
+                <Form.Label>Security Question</Form.Label>
+                <Form.Control
+                  type="text"
+                  required={!editingUser}
+                  value={formData.security_question || ""}
+                  onChange={(e) => setFormData({ ...formData, security_question: e.target.value })}
                 />
               </Col>
-            ))}
 
-            <Col md={6} className="mb-3">
-              <Form.Label>Institute</Form.Label>
-              <Form.Select
-                required={!editingUser}
-                value={formData.institute_name || ""}
-                onChange={(e) => setFormData({ ...formData, institute_name: e.target.value })}
-              >
-                <option value="">Select Institute</option>
-                {polytechnics.map((inst, i) => (
-                  <option key={i} value={inst}>{inst}</option>
-                ))}
-              </Form.Select>
-            </Col>
+              <Col md={6} className="mb-3">
+                <Form.Label>Security Answer</Form.Label>
+                <Form.Control
+                  type="text"
+                  required={!editingUser}
+                  value={formData.security_answer || ""}
+                  onChange={(e) => setFormData({ ...formData, security_answer: e.target.value })}
+                />
+              </Col>
 
-            <Col md={6} className="mb-3">
-              <Form.Label>Branch</Form.Label>
-              <Form.Select
-                required={!editingUser}
-                value={formData.branch || ""}
-                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-              >
-                <option value="">Select Branch</option>
-                {branches.map((b, i) => (
-                  <option key={i} value={b}>{b}</option>
-                ))}
-              </Form.Select>
-            </Col>
-
-            <Col md={6} className="mb-3">
-              <Form.Label>Designation</Form.Label>
-              <Form.Select
-                required={!editingUser}
-                value={formData.designation || ""}
-                onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-              >
-                <option value="">Select Designation</option>
-                {designations.map((d, i) => (
-                  <option key={i} value={d}>{d}</option>
-                ))}
-              </Form.Select>
-            </Col>
-
-            <Col md={6} className="mb-3">
-              <Form.Label>Role</Form.Label>
-              <Form.Select
-                required
-                value={formData.role || ""}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="">Select Role</option>
-                <option value="Admin">Admin</option>
-                <option value="Coordinator">Coordinator</option>
-                <option value="Trainer">Trainer</option>
-              </Form.Select>
-            </Col>
-
-            <Col md={6} className="mb-3">
-              <Form.Label>Security Question</Form.Label>
-              <Form.Control
-                type="text"
-                required={!editingUser}
-                value={formData.security_question || ""}
-                onChange={(e) => setFormData({ ...formData, security_question: e.target.value })}
-              />
-            </Col>
-
-            <Col md={6} className="mb-3">
-              <Form.Label>Security Answer</Form.Label>
-              <Form.Control
-                type="text"
-                required={!editingUser}
-                value={formData.security_answer || ""}
-                onChange={(e) => setFormData({ ...formData, security_answer: e.target.value })}
-              />
-            </Col>
-
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={onHide}>Cancel</Button>
-          <Button type="submit" variant="primary">
-            {editingUser ? "Update User" : "Add User"}
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={onHide}>Cancel</Button>
+            <Button type="submit" variant="primary">
+              {editingUser ? "Update User" : "Add User"}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+    
   );
 };
 

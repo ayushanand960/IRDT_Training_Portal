@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
 import axiosInstance from '../utils/axiosInstance';
+import DashboardLayout from "../components/DashboardLayout";
+
 
 const TrainingCalendar = () => {
   const [trainings, setTrainings] = useState([]);
@@ -92,6 +94,7 @@ const TrainingCalendar = () => {
   };
 
   return (
+    <DashboardLayout>
     <div className="container py-4">
       <h3 className="text-center mb-4">IRDT Training Calendar 2025–26</h3>
 
@@ -118,6 +121,7 @@ const TrainingCalendar = () => {
         })
       )}
     </div>
+    </DashboardLayout>
   );
 };
 

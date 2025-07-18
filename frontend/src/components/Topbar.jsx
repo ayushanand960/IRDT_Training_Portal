@@ -1,10 +1,24 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Topbar = () => {
+const Topbar = ({ profilePhoto, user, showPanel, handleProfileClick }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="bg-light border-bottom p-3">
-      <h5 className="mb-0">Admin Dashboard</h5>
-    </div>
+    <>
+      {/* Top Navbar */}
+      <nav
+        className="navbar navbar-dark px-4"
+        style={{
+          background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)',
+          height: '70px',
+        }}
+      >
+        <span className="navbar-brand text-info fw-bold fs-4">
+          📘 ADMIN DASHBOARD
+        </span>
+      </nav>
+    </>
   );
 };
 

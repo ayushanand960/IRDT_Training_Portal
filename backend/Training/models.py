@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from Login.models import User
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -72,9 +73,9 @@ class TrainingProgram(models.Model):
             raise ValidationError(_("Participant number seems too high. Please verify."))
         
 #-----------------------------------------------------------------------------------------------
-from django.db import models
-from Login.models import User
-from .models import TrainingProgram
+# from django.db import models
+
+# from .models import TrainingProgram
 
 class Nomination(models.Model):
     trainee = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'is_coordinator': False})
