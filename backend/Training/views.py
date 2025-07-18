@@ -1,18 +1,3 @@
-# from rest_framework import viewsets, permissions, throttling
-# from .models import TrainingProgram
-# from .serializers import TrainingProgramSerializer
-
-# class TrainingProgramViewSet(viewsets.ModelViewSet):
-#     queryset = TrainingProgram.objects.all()
-#     serializer_class = TrainingProgramSerializer
-
-#     # ✅ Restrict API access to authenticated users only
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     # ✅ Rate limiting per user (defined globally or here)
-#     throttle_classes = [throttling.UserRateThrottle]
-
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, throttling
@@ -29,7 +14,12 @@ from django.core.exceptions import ValidationError
 
 from .models import TrainingProgram
 from .serializers import TrainingProgramSerializer
-
+from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
+from Training.models import Nomination
+from Enrollment.models import Enrollment
+from rest_framework import serializers
+from Login.serializers import UserSerializer
 import pandas as pd
 import logging
 
@@ -153,6 +143,7 @@ class TrainingUploadExcelAPIView(APIView):
 
         except Exception as e:
             logger.error(f"Excel processing failed: {str(e)}")
+
             return Response({"error": f"Failed to process file: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -175,3 +166,132 @@ class DashboardMetricsAPIView(APIView):
             "total_trainings": total_trainings,
             "conducted_trainings": conducted_trainings
         })
+        return Response({"error": f"Failed to process file: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from rest_framework import generics
+from .models import Nomination
+from .serializers import NominationSerializer
+
+class NominationCreateAPIView(generics.CreateAPIView):
+    queryset = Nomination.objects.all()
+    serializer_class = NominationSerializer
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+User = get_user_model()
+
+class CoordinatorTrainingDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        coordinator = request.user
+        trainings = TrainingProgram.objects.filter(coordinator=coordinator)
+
+        data = []
+        for training in trainings:
+            nominations = Nomination.objects.filter(training=training)
+            trainees = [{
+                "ehrms_code": nom.trainee.ehrms_code,
+                "name": nom.trainee.name
+            } for nom in nominations]
+
+            data.append({
+                "training_title": training.name,
+                "venue": training.venue,
+                "dates": f"{training.start_date} to {training.end_date}",
+                "trainee_count": nominations.count(),
+                "trainees": trainees
+            })
+
+        return Response(data)
+
+
+class EnrolledTraineesByTrainingAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not authorized."}, status=status.HTTP_403_FORBIDDEN)
+
+        enrollments = Enrollment.objects.filter(training=training).select_related('trainee')
+        trainees = [e.trainee for e in enrollments]
+        serializer = UserSerializer(trainees, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class BulkNominationSerializer(serializers.Serializer):
+    training_code = serializers.CharField()
+    trainee_ehrms_codes = serializers.ListField(child=serializers.CharField())
+
+class BulkNominationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = BulkNominationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        training_code = serializer.validated_data['training_code']
+        ehrms_codes = serializer.validated_data['trainee_ehrms_codes']
+
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Not authorized or training not found."}, status=status.HTTP_403_FORBIDDEN)
+
+        created = []
+        for ehrms_code in ehrms_codes:
+            try:
+                trainee = User.objects.get(ehrms_code=ehrms_code)
+                nomination, created_flag = Nomination.objects.get_or_create(
+                    training=training,
+                    trainee=trainee,
+                    defaults={"coordinator": request.user, "nominated_by": request.user}
+                )
+                if created_flag:
+                    created.append(ehrms_code)
+            except User.DoesNotExist:
+                continue
+
+        return Response({
+            "nominated": created,
+            "message": f"{len(created)} trainee(s) nominated."
+        }, status=status.HTTP_200_OK)
+
+class NominatedTraineesByTrainingAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not authorized."}, status=403)
+
+        nominations = Nomination.objects.filter(training=training).select_related('trainee')
+        trainees = [n.trainee for n in nominations]
+        serializer = UserSerializer(trainees, many=True)
+        return Response(serializer.data)
+
+
+class RemoveNominationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, training_code, ehrms_code):
+        try:
+            # Confirm the training is assigned to this coordinator
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            trainee = User.objects.get(ehrms_code=ehrms_code)
+        except User.DoesNotExist:
+            return Response({"error": "Trainee not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            nomination = Nomination.objects.get(training=training, trainee=trainee)
+            nomination.delete()
+            return Response({"message": "Nomination removed."}, status=status.HTTP_204_NO_CONTENT)
+        except Nomination.DoesNotExist:
+            return Response({"error": "Nomination not found."}, status=status.HTTP_404_NOT_FOUND)

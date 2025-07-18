@@ -140,6 +140,7 @@ import CoordinatorProfile from "../components/CoordinatorProfile";
 import AssignedTrainings from "../components/AssignedTrainings";
 import TraineeManager from "../components/TraineeManager";
 
+
 const CoordinatorDashboard = () => {
   const [coordinator, setCoordinator] = useState(null);
   const [trainings, setTrainings] = useState([]);
@@ -195,6 +196,7 @@ const CoordinatorDashboard = () => {
               <AssignedTrainings trainings={trainings} />
             </Card.Body>
           </Card>
+          
         </Col>
 
         {/* Right Column - Profile + Nominate */}
@@ -203,7 +205,7 @@ const CoordinatorDashboard = () => {
             <CoordinatorProfile coordinator={coordinator} />
 
             <div className="mt-4">
-              <div
+              {/* <div
                 className="px-4 py-2 mb-3 bg-secondary text-white rounded shadow-sm border"
                 style={{
                   fontWeight: "600",
@@ -213,14 +215,14 @@ const CoordinatorDashboard = () => {
                 }}
               >
                 Nominate Users to Trainings
-              </div>
+              </div> */}
 
               {/* Only the Form component without extra card */}
-              <TraineeManager
+              {/* <TraineeManager
                 users={users}
                 trainings={trainings}
                 coordinatorId={coordinator?.ehrms_code}
-              />
+              /> */}
             </div>
           </div>
         </Col>
