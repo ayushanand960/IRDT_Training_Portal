@@ -17,7 +17,9 @@ import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import ManageTrainings from "./pages/ManageTrainings";
 import ManageUsers from "./pages/ManageUsers";
 import AdminDashboard from "./pages/AdminDashboard";
-import TrainingCalendar from "./pages/TrainingCalendar";
+import TrainingCalendar from "./pages/TrainingCalendar"; 
+
+import TrainingNominationPage from "./pages/TrainingNominationPage";
 
 // import CoordinatorDashboard from "./pages/CoordinatorDashboard"; // Uncomment if this file exists
 
@@ -50,6 +52,9 @@ export default function App() {
         <Route path="/manage-users" element={<ManageUsers />  }/>
         <Route path="/admin-dashboard" element={<AdminDashboard />  }/>
         <Route path="/training-calendar" element={<TrainingCalendar />  }/>
+
+
+         <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
       </Routes>
     </Router>
   );
