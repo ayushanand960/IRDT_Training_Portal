@@ -39,41 +39,57 @@ class RegisterView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class UserProfileView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         serializer = UserSerializer(request.user)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class UserProfileView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # 🔍 Debug Print: Cookies sent by the browser
-        print("🍪 Cookies received:", request.COOKIES)
+        user = request.user
 
-        # 🔍 Debug Print: Check if access token is present
-        access_token = request.COOKIES.get("access")
-        print("🔐 Access token from cookie:", access_token)
+        if user.is_superuser:
+            role = "admin"
+        elif user.is_coordinator:
+            role = "coordinator"
+        else:
+            role = "trainee"
 
-        # 🔍 Debug Print: Authenticated user
-        print("👤 Authenticated user:", request.user)
-
-        serializer = UserSerializer(request.user)
+        serializer = UserSerializer(user)
         return Response({
             **serializer.data,
-            "role": (
-                "admin" if request.user.is_superuser else
-                "coordinator" if request.user.is_coordinator else
-                "user"
-            ),
-            "is_superuser": request.user.is_superuser,
-            "is_coordinator": request.user.is_coordinator
+            "role": role,
+            "is_superuser": user.is_superuser,
+            "is_coordinator": user.is_coordinator,
         }, status=status.HTTP_200_OK)
+
+
+
+# class UserProfileView(APIView):
+#     authentication_classes = [CookieJWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+
+#         # ✅ Determine user role
+#         if user.is_superuser:
+#             role = "admin"
+#         elif user.is_coordinator:
+#             role = "coordinator"
+#         else:
+#             role = "trainee"
+
+#         # ✅ Serialize basic user data
+#         serializer = UserSerializer(user)
+
+#         # ✅ Return structured response
+#         return Response({
+#             "user": serializer.data,
+#             "ehrms_code": user.ehrms_code,
+#             "role": role,
+#         }, status=status.HTTP_200_OK)
+
+
 
 class VerifySecurityAnswerAPIView(APIView):
     def post(self, request):
@@ -144,8 +160,8 @@ class CookieTokenObtainPairView(APIView):
     def post(self, request):
         ehrms_code = request.data.get("ehrms_code")
         password = request.data.get("password")
-
         user = authenticate(request, ehrms_code=ehrms_code, password=password)
+
         if user is None:
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 

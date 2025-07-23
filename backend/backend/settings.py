@@ -175,6 +175,7 @@ CSRF_COOKIE_SECURE = False
 # ✅ Secure cookies
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
 
 # ✅ Cross-site cookie protection
 CSRF_COOKIE_SAMESITE = 'Lax'
