@@ -15,8 +15,13 @@ const Dashboard = () => {
   const [profilePhoto, setProfilePhoto] = useState('');
   const [showPanel, setShowPanel] = useState(false);
   const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '' });
-  const navigate = useNavigate();
+  const [visibleCounts, setVisibleCounts] = useState({
+    '🟢 Trainings This Week': 6,
+    '🟡 Upcoming Week Trainings': 6,
+    '🔴 Past Trainings': 6,
+  });
 
+  const navigate = useNavigate();
   let clickTimeout = null;
 
   const handleProfileClick = () => {
@@ -110,6 +115,13 @@ const Dashboard = () => {
     ]);
   }, [filters, trainings]);
 
+  const handleShowMore = (sectionName) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [sectionName]: prev[sectionName] + 6,
+    }));
+  };
+
   const handleClear = () => {
     setFilters({ venue: '', target_group: '', mode: '', start_date: '' });
   };
@@ -156,19 +168,30 @@ const Dashboard = () => {
             {filteredTrainings.map((group, idx) => (
               <div key={idx} className="mb-5">
                 <h5 className="border-bottom pb-2">{group.section}</h5>
-                {group.items.map((training, index) => (
-                  <TrainingCard
-                    key={index}
-                    training={training}
-                    showEnrollButton={group.section.includes("Upcoming Week")}
-                    enrolledTrainings={enrolledTrainings}
-                    ehrmsCode={user?.ehrms_code}
-                    onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
-                  />
-                ))}
+                <div className="row">
+                  {group.items.slice(0, visibleCounts[group.section]).map((training, index) => (
+                    <div key={index} className="col-md-4 mb-4">
+                      <TrainingCard
+                        training={training}
+                        showEnrollButton={group.section.includes("Upcoming Week")}
+                        enrolledTrainings={enrolledTrainings}
+                        ehrmsCode={user?.ehrms_code}
+                        onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
+                      />
+                    </div>
+                  ))}
+                </div>
+                {group.items.length > visibleCounts[group.section] && (
+                  <div className="text-center mt-2">
+                    <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                      Show More
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
+
           <div className="col-md-4">
             <div className="card shadow border-info mb-3 bg-info-subtle p-3">
               <h5 className="text-info">📢 Announcements</h5>

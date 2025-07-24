@@ -22,6 +22,7 @@ import TrainingNominationPage from "./pages/TrainingNominationPage";
 
 
 
+
 // Components
 import PrivateRoute from './components/PrivateRoute';
 import Header from "./components/Header";
@@ -53,6 +54,7 @@ export default function App() {
         {/* Trainee Routes */}
         <Route element={<PrivateRoute allowedRoles={['trainee']} />}>
           <Route path="/dashboard" element={<Dashboard />} />
+         
         </Route>
 
         {/* Coordinator Routes */}
