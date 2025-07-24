@@ -1,8 +1,6 @@
-
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
-import { useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
@@ -11,26 +9,23 @@ const Login = () => {
   const [credentials, setCredentials] = useState({ ehrms_code: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const { setUser } = useAuth();
 
-  const { setUser } = useAuth(); // ✅ Removed `user` since it's not needed anymore
-
-  // useEffect(() => {
-  //   const logoutReason = localStorage.getItem("logoutReason");
-  //   if (logoutReason) {
-  //     setError(logoutReason);
-  //     setTimeout(() => localStorage.removeItem("logoutReason"), 100);
-  //   }
-  // }, []);
+  // ✅ Handle sessionExpired passed from homepage
   useEffect(() => {
-  const logoutReason = localStorage.getItem("logoutReason");
+    if (location.state?.sessionExpired) {
+      setSessionExpired(true);
 
-  if (logoutReason) {
-    setError(logoutReason);
-    localStorage.removeItem("logoutReason");  // Clear immediately
-  }
-}, []);
-
+      // Remove sessionExpired from history after first render
+      setTimeout(() => {
+        navigate(location.pathname, { replace: true, state: {} });
+      }, 100);
+    }
+  }, [location, navigate]);
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -56,11 +51,10 @@ const Login = () => {
       // ✅ Step 3: Set user in context
       setUser({ ehrms_code, role: "trainee" });
 
-      // ✅ Mark that user has logged in at least once
-localStorage.setItem("hasLoggedInBefore", "true");
+      // ✅ Optional: Remember that user logged in
+      localStorage.setItem("hasLoggedInBefore", "true");
 
-
-      // ✅ Step 4: Navigate after successful login
+      // ✅ Step 4: Navigate to dashboard
       navigate("/dashboard");
 
     } catch (err) {
@@ -77,6 +71,21 @@ localStorage.setItem("hasLoggedInBefore", "true");
 
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#c1e4f9" }}>
+      <button
+        onClick={() => navigate('/')}
+        className="btn btn-outline-dark btn-lg fw-semibold"
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          zIndex: 1000,
+          fontSize: "1.1rem",
+          padding: "6px 16px",
+        }}
+      >
+        🏠 Home
+      </button>
+
       <div className="card shadow-lg" style={{ width: "100%", maxWidth: "400px", height: "500px", borderRadius: "20px", display: "flex", justifyContent: "center", padding: "30px" }}>
         <div style={{ width: "100%" }}>
           <h3 className="text-center mb-3">Login</h3>
@@ -121,7 +130,13 @@ localStorage.setItem("hasLoggedInBefore", "true");
             </Link>
           </div>
 
+          {/* ✅ Error Messages */}
           {error && <div className="text-danger text-center mb-2">{error}</div>}
+          {sessionExpired && (
+            <div className="text-danger text-center mb-2">
+              Session expired. Please login again.
+            </div>
+          )}
 
           <button type="submit" className="btn btn-primary w-100">Login</button>
 
@@ -140,7 +155,6 @@ localStorage.setItem("hasLoggedInBefore", "true");
 };
 
 export default Login;
-
 
 
 // import React, { useEffect, useState } from "react";

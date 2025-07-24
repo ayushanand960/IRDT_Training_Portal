@@ -1,74 +1,4 @@
-// // src/pages/Dashboard.jsx
-// import React from "react";
-// import { Row, Col } from "react-bootstrap";
-// import { FaUsers, FaCalendarAlt, FaCertificate, FaBell } from "react-icons/fa";
-// import Sidebar from "../components/Sidebar";
-// import Topbar from "../components/Topbar";
-// import MetricCard from "../components/MetricCard";
 
-// const Dashboard = () => {
-//   const metrics = [
-//     {
-//       title: "Total Users",
-//       value: 128,
-//       icon: <FaUsers size={30} />,
-//       bg: "primary",
-//     },
-//     {
-//       title: "Trainings Conducted",
-//       value: 24,
-//       icon: <FaCalendarAlt size={30} />,
-//       bg: "success",
-//     },
-//     {
-//       title: "Certificates Issued",
-//       value: 310,
-//       icon: <FaCertificate size={30} />,
-//       bg: "warning",
-//     },
-//     {
-//       title: "New Notifications",
-//       value: 5,
-//       icon: <FaBell size={30} />,
-//       bg: "danger",
-//     },
-//   ];
-
-//   return (
-//     <div className="d-flex" style={{ minHeight: "100vh" }}>
-//       <Sidebar />
-//       <div className="flex-grow-1" style={{ width: "100%" }}>
-//         <Topbar />
-//         <div className="p-4" style={{ background: "#f8f9fa", minHeight: "calc(100vh - 56px)" }}>
-//           <h3 className="mb-4">Welcome to the IRDT Admin Dashboard</h3>
-//           <Row>
-//             {metrics.map((metric, index) => (
-//               <Col key={index} md={6} lg={3} className="mb-4">
-//                 <MetricCard
-//                   title={metric.title}
-//                   value={metric.value}
-//                   icon={metric.icon}
-//                   bg={metric.bg}
-//                 />
-//               </Col>
-//             ))}
-//           </Row>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
-
-
-
-
-
-
-
-// src/pages/adminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { Row, Col, Spinner, Alert } from "react-bootstrap";
 import { FaUsers, FaCalendarAlt, FaCertificate } from "react-icons/fa";
@@ -79,24 +9,30 @@ import UpcomingTrainings from "../components/UpcomingTrainings";
 import axiosInstance from "../utils/axiosInstance";
 
 const Dashboard = () => {
+  const [adminUser, setAdminUser] = useState(null);
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axiosInstance.get("/training/dashboard/metrics/");
-        setMetrics(res.data);
+        // ✅ Fetch admin user info
+        const userRes = await axiosInstance.get("/login/user/profile/");
+        setAdminUser(userRes.data);
+
+        // ✅ Fetch dashboard metrics
+        const metricsRes = await axiosInstance.get("/training/dashboard/metrics/");
+        setMetrics(metricsRes.data);
       } catch (err) {
-        console.error("Failed to fetch dashboard metrics:", err);
-        setError("Unable to load dashboard metrics.");
+        console.error("Failed to load dashboard data:", err);
+        setError("Unable to load dashboard data.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMetrics();
+    fetchData();
   }, []);
 
   const iconMap = {
@@ -121,10 +57,12 @@ const Dashboard = () => {
     <div className="d-flex" style={{ minHeight: "100vh" }}>
       <Sidebar />
       <div className="flex-grow-1" style={{ width: "100%" }}>
-        <Topbar />
+        {/* ✅ Render Topbar when adminUser is loaded */}
+        {adminUser && <Topbar user={adminUser} role="admin" />}
+
         <div
           className="p-4"
-          style={{ background: "#f8f9fa", minHeight: "calc(100vh - 56px)" }}
+          style={{ background: "#f8f9fa", minHeight: "calc(100vh - 70px)" }}
         >
           <h3 className="mb-4">Welcome to the IRDT Admin Dashboard</h3>
 
@@ -147,7 +85,6 @@ const Dashboard = () => {
             </Row>
           )}
 
-          {/* ✅ Restore Upcoming Trainings Section */}
           <div className="mt-5">
             <UpcomingTrainings />
           </div>

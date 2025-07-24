@@ -19,6 +19,20 @@ const Dashboard = () => {
 
   let clickTimeout = null;
 
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/login/logout/'); // Invalidate session on backend
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
+      navigate('/', { replace: true }); // Replace history to prevent back button
+    }
+  };
+
+
   const handleProfileClick = () => {
     if (clickTimeout !== null) {
       clearTimeout(clickTimeout);
@@ -116,10 +130,16 @@ const Dashboard = () => {
 
   return (
     <>
-      <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)' }}>
+      <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
         <span className="navbar-brand text-info fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
-        <div className="d-flex align-items-center">
-          <label onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
+        <div className="d-flex align-items-center gap-2">
+          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">
+            🏠 Home
+          </button>
+          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>
+            🚪 Logout
+          </button>
+          <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
             <img
               src={profilePhoto || 'https://placehold.co/100x120?text=Upload'}
               alt="Profile"
@@ -127,9 +147,12 @@ const Dashboard = () => {
               style={{ height: '60px', width: '48px', borderRadius: '6px', border: '2px solid #fff' }}
             />
           </label>
-          <input id="profileUpload" type="file" accept="image/*" onChange={() => {}} style={{ display: 'none' }} />
+          <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} />
+
+
         </div>
       </nav>
+
 
       {showPanel && (
         <div className="profile-slide-panel animate__animated animate__slideInRight" style={{ position: 'fixed', top: '70px', right: '0', width: '360px', height: 'calc(100vh - 70px)', background: '#fff', borderLeft: '1px solid #dee2e6', zIndex: 1050, boxShadow: '-3px 0 10px rgba(0,0,0,0.08)', overflowY: 'auto', padding: '20px' }}>
@@ -139,11 +162,10 @@ const Dashboard = () => {
           <p><strong>Email:</strong> {user?.email}</p>
           <p><strong>Mobile:</strong> {user?.mobile_number}</p>
           <p><strong>Institute:</strong> {user?.institute_name}</p>
-          <button className="btn btn-outline-danger btn-sm mt-3" onClick={() => {
-            localStorage.removeItem('access');
-            localStorage.removeItem('refresh');
-            navigate('/login');
-          }}>🚪 Logout</button>
+          <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleLogout}>
+            🚪 Logout
+          </button>
+
         </div>
       )}
 

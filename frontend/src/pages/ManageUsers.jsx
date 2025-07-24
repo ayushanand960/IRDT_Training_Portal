@@ -77,7 +77,7 @@ const ManageUsers = () => {
             <tr key={user.ehrms_code}>
               <td>{idx + 1}</td>
               <td>{user.ehrms_code}</td>
-              <td>{user.name}</td>
+              <td>{[user.first_name, user.middle_name, user.last_name].filter(Boolean).join(" ")}</td>
               <td>{user.email}</td>
               <td>{user.mobile_number}</td>
               <td>{user.institute_name}</td>

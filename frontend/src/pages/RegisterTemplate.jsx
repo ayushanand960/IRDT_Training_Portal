@@ -2,11 +2,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
+import { useNavigate } from "react-router-dom"; // ✅ Add this line
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { polytechnics } from "../data/polytechnics";
 import { securityQuestions } from "../data/securityQuestions";
 import { branches } from "../data/branches";
+
+ // ✅ Add this inside the Register component
+
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -24,6 +28,7 @@ const Register = () => {
     security_question: '',
     security_answer: '',
   });
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -115,6 +120,22 @@ const Register = () => {
 
   return (
     <div style={{ backgroundColor: '#c1e4f9', minHeight: '100vh', paddingTop: '50px', paddingBottom: '50px' }}>
+      <button
+  onClick={() => navigate('/')}
+  className="btn btn-outline-dark btn-lg fw-semibold"
+  style={{
+    position: "absolute",
+    top: "20px",
+    right: "20px",
+    zIndex: 1000,
+    fontSize: "1.1rem",
+    padding: "6px 16px",
+  }}
+>
+  🏠 Home
+</button>
+
+
     <div className="container mt-5">
       <div className="card p-4 shadow" >
         <h3 className="text-center text-primary">Trainee Registration</h3>
