@@ -19,6 +19,9 @@ import ManageUsers from "./pages/ManageUsers";
 import AdminDashboard from "./pages/AdminDashboard";
 import TrainingCalendar from "./pages/TrainingCalendar";
 
+
+import CoordinatorCertificatePage from './pages/CoordinatorCertificatePage';
+
 // import CoordinatorDashboard from "./pages/CoordinatorDashboard"; // Uncomment if this file exists
 
 // Components
@@ -50,6 +53,7 @@ export default function App() {
         <Route path="/manage-users" element={<ManageUsers />  }/>
         <Route path="/admin-dashboard" element={<AdminDashboard />  }/>
         <Route path="/training-calendar" element={<TrainingCalendar />  }/>
+        <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} /> 
       </Routes>
     </Router>
   );
