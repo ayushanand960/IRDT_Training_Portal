@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'Login',
     'Training',
     'Enrollment',
+    'Certificate',
 ]
 
 MIDDLEWARE = [
@@ -185,4 +186,9 @@ AUTH_USER_MODEL = 'Login.User'
 
 
 APPEND_SLASH = True
+
+# ✅ Media settings for user-uploaded files (certificates, templates, etc.)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 

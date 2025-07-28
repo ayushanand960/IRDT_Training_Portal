@@ -1,5 +1,8 @@
+// src/pages/TraineeDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
+import { toast } from 'react-toastify';
+import AllCertificatesModal from '../components/AllCertificatesModal';
 import { useNavigate } from 'react-router-dom';
 import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
@@ -7,7 +10,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 import 'animate.css';
 
-const Dashboard = () => {
+const TraineeDashboard = () => {
+  const [assignedTrainings, setAssignedTrainings] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCode, setSelectedCode] = useState(null);
+  const [certificateURL, setCertificateURL] = useState(null);
+
+  const [showAllCertificatesModal, setShowAllCertificatesModal] = useState(false);
+  const [allCertificates, setAllCertificates] = useState([]);
   const [user, setUser] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [filteredTrainings, setFilteredTrainings] = useState([]);
@@ -16,8 +26,8 @@ const Dashboard = () => {
   const [showPanel, setShowPanel] = useState(false);
   const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '' });
   const navigate = useNavigate();
-
   let clickTimeout = null;
+
 
 
   const handleLogout = async () => {
@@ -47,10 +57,57 @@ const Dashboard = () => {
     }
   };
 
+
+  const fetchAssignedTrainings = async () => {
+    try {
+      const res = await axiosInstance.get('/trainings/assigned/');
+      setAssignedTrainings(res.data);
+    } catch (err) {
+      toast.error("Failed to load assigned trainings");
+    }
+  };
+
+  // 🧾 Fetch all certificates
+  const fetchAllCertificates = async () => {
+    try {
+      const res = await axiosInstance.get('/certificate/my-certificates/');
+      setAllCertificates(res.data);
+      setShowAllCertificatesModal(true);
+    } catch (err) {
+      toast.error("Failed to load certificates");
+    }
+  };
+
+  // 👁️ Open modal with certificate preview
+  const handlePreview = async (code) => {
+    setSelectedCode(code);
+    try {
+      const res = await axiosInstance.get(`/certificate/download/${code}/`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      setCertificateURL(url);
+      setShowModal(true);
+    } catch (error) {
+      toast.error("Failed to load certificate preview");
+    }
+  };
+
+  // ⬇️ Trigger browser download
+  const handleDownload = () => {
+    if (!certificateURL || !selectedCode) return;
+    const a = document.createElement('a');
+    a.href = certificateURL;
+    a.download = `${selectedCode}_certificate.pdf`;
+    a.click();
+  };
+
   useEffect(() => {
     fetchUser();
     fetchTrainings();
     fetchEnrollments();
+    fetchAssignedTrainings();
   }, []);
 
   const fetchUser = async () => {
@@ -148,11 +205,8 @@ const Dashboard = () => {
             />
           </label>
           <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} />
-
-
         </div>
       </nav>
-
 
       {showPanel && (
         <div className="profile-slide-panel animate__animated animate__slideInRight" style={{ position: 'fixed', top: '70px', right: '0', width: '360px', height: 'calc(100vh - 70px)', background: '#fff', borderLeft: '1px solid #dee2e6', zIndex: 1050, boxShadow: '-3px 0 10px rgba(0,0,0,0.08)', overflowY: 'auto', padding: '20px' }}>
@@ -165,7 +219,6 @@ const Dashboard = () => {
           <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleLogout}>
             🚪 Logout
           </button>
-
         </div>
       )}
 
@@ -191,6 +244,7 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
+
           <div className="col-md-4">
             <div className="card shadow border-info mb-3 bg-info-subtle p-3">
               <h5 className="text-info">📢 Announcements</h5>
@@ -206,8 +260,54 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* ✅ Certificate Module Starts Here */}
+        <div className="mt-5">
+          <h4>Your Trainings & Certificates</h4>
+
+          <div className="text-end mb-3">
+            <button className="btn btn-primary" onClick={fetchAllCertificates}>
+              View All Certificates
+            </button>
+          </div>
+
+          <ul className="list-group">
+            {assignedTrainings.length === 0 && (
+              <li className="list-group-item text-muted">No trainings assigned.</li>
+            )}
+            {assignedTrainings.map((training) => (
+              <li
+                key={training.id}
+                className="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <div>
+                  <strong>{training.name}</strong><br />
+                  <span>{training.venue} | {training.start_date} to {training.end_date}</span>
+                </div>
+
+                {training.certificate_generated && (
+                  <button
+                    className="btn btn-sm btn-success"
+                    onClick={() => handlePreview(training.code)}
+                  >
+                    View Certificate
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* 📋 All Certificates Modal */}
+          <AllCertificatesModal
+            show={showAllCertificatesModal}
+            onClose={() => setShowAllCertificatesModal(false)}
+            certificates={allCertificates}
+          />
+        </div>
+        {/* ✅ Certificate Module Ends Here */}
       </div>
     </>
+
   );
 };
 

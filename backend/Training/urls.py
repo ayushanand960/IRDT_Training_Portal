@@ -18,7 +18,7 @@ from .views import (
     DashboardMetricsAPIView,
 )
 from .views import NominationCreateAPIView,CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView
-
+from .views import AssignedTrainingsView
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
     path('training-programs/<str:code>/', TrainingProgramRetrieveUpdateDeleteAPIView.as_view(), name='training-rud'),
@@ -30,4 +30,7 @@ urlpatterns = [
     path('nominate-multiple/', BulkNominationView.as_view(), name='bulk-nominate'),
     path('nominated/<str:training_code>/', NominatedTraineesByTrainingAPIView.as_view()),
     path('nomination/remove/<str:training_code>/<str:ehrms_code>/', RemoveNominationAPIView.as_view()),
+    path('trainings/assigned/', AssignedTrainingsView.as_view(), name='assigned-trainings'),
+
+
 ]

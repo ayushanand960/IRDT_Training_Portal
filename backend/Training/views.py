@@ -295,3 +295,27 @@ class RemoveNominationAPIView(APIView):
             return Response({"message": "Nomination removed."}, status=status.HTTP_204_NO_CONTENT)
         except Nomination.DoesNotExist:
             return Response({"error": "Nomination not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+from Certificate.models import Certificate
+
+class AssignedTrainingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        assigned_trainings = TrainingProgram.objects.filter(registered_users=user)
+
+        data = []
+        for training in assigned_trainings:
+            cert_exists = Certificate.objects.filter(user=user, training=training).exists()
+            data.append({
+                "id": training.id,
+                "name": training.name,
+                "venue": training.venue,
+                "start_date": training.start_date,
+                "end_date": training.end_date,
+                "code": training.code,
+                "certificate_generated": cert_exists,  # ✅ Include this
+            })
+        return Response(data)
