@@ -8,7 +8,7 @@ const TrainingCalendar = () => {
   const [trainings, setTrainings] = useState([]);
   const [filteredTrainings, setFilteredTrainings] = useState([]);
   const [filters, setFilters] = useState({
-   name:'',
+    name: '',
     venue: '',
     target_group: '',
     mode: '',
@@ -34,6 +34,7 @@ const TrainingCalendar = () => {
     const fetchData = async () => {
       try {
         const res = await axiosInstance.get('/training/training-programs');
+        console.log("Training API Response:", res.data);
         setTrainings(res.data);
       } catch (err) {
         console.error('Error fetching trainings:', err);
@@ -55,7 +56,14 @@ const TrainingCalendar = () => {
         ? t.target_group?.toLowerCase().includes(filters.target_group.toLowerCase()) : true;
       const matchMode = filters.mode
         ? t.mode?.toLowerCase() === filters.mode.toLowerCase() : true;
-      return matchVenue && matchBranch && matchMode;
+      const matchCoordinator = filters.faculty
+        ? t.faculty?.trim() === filters.faculty.trim()
+        : true;
+
+
+
+
+      return matchVenue && matchBranch && matchMode && matchCoordinator;
     });
 
     const thisWeek = [];
@@ -92,6 +100,7 @@ const TrainingCalendar = () => {
       target_group: '',
       mode: '',
       start_date: '',
+      faculty: '',
     });
   };
 
@@ -145,10 +154,10 @@ const TrainingCalendar = () => {
                 )}
 
 
-                
+
               </div>
 
-              
+
             );
           })
         )}

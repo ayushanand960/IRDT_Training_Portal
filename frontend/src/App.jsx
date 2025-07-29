@@ -19,6 +19,8 @@ import TrainingCalendar from "./pages/TrainingCalendar";
 import Logout from "./pages/Logout";
 import CoordinatorCertificatePage from './pages/CoordinatorCertificatePage';
 import TrainingNominationPage from "./pages/TrainingNominationPage";
+import AllUsersPage from './pages/AllUsersPage';
+
 
 
 // Components
@@ -58,7 +60,8 @@ export default function App() {
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
          <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
-         <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} /> 
+         <Route path="/users/all/:code" element={<AllUsersPage />} />
+         <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} />
         </Route>
 
         {/* Admin Routes */}
