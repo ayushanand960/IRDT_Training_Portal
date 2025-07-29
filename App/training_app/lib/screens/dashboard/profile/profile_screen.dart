@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isLoading = false;
       });
     } else {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 

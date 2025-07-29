@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
-
-import 'screens/home/home_page.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
-import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/dashboard/login_home_page.dart';
 import 'screens/dashboard/profile/profile_screen.dart';
-
-// import 'screens/auth/reset_password_screen.dart';
 import 'screens/training/training_list_screen.dart';
 
 void main() {
@@ -62,12 +57,10 @@ class TrainingApp extends StatelessWidget {
             ),
             darkTheme: ThemeData.dark(), // optional: add a custom dark theme
             debugShowCheckedModeBanner: false,
-            initialRoute: '/home',
+            initialRoute: '/login',
             routes: {
               '/login': (context) => const LoginScreen(),
               '/register': (context) =>  RegisterScreen(),
-              '/dashboard': (context) =>  DashboardScreen(),
-              '/home': (context) => const HomePage(),
               '/login-home': (context) => const LoginHomePage(),
               '/profile': (context) => const ProfileScreen(), // replace with ProfilePage()
               '/trainings': (context) => const Placeholder(), // replace with TrainingsPage()
