@@ -61,7 +61,7 @@ export default function App() {
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
          <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
-         <Route path="/users/all" element={<AllUsersPage />} />
+         <Route path="/users/all/:code" element={<AllUsersPage />} />
 
         </Route>
 

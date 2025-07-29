@@ -33,7 +33,7 @@ const TrainingNominationPage = () => {
   });
   const handleShowAllUsers = (e) => {
     e.stopPropagation();
-    navigate("/users/all?code=${code}");
+    navigate(`/users/all/${code}`);
   };
 
   useEffect(() => {

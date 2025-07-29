@@ -75,13 +75,13 @@ import {
   Form,
   Button,
 } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const AllUsersPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const trainingCode = new URLSearchParams(location.search).get("code");
+  const { code: trainingCode } = useParams();
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -139,7 +139,7 @@ const AllUsersPage = () => {
       });
 
       toast.success(`✅ Nominated ${selectedUsers.length} user(s)`);
-      navigate(`/training/nomination/${trainingCode}`);
+      navigate(`/trainings/${trainingCode}`);
     } catch (err) {
       console.error("Nomination Error:", err.response || err.message);
       toast.error(err.response?.data?.error || "Nomination failed.");
