@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [enrolledTrainings, setEnrolledTrainings] = useState([]);
   const [profilePhoto, setProfilePhoto] = useState('');
   const [showPanel, setShowPanel] = useState(false);
-  const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '' });
+  const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '',faculty: '' });
   const navigate = useNavigate();
 
   let clickTimeout = null;
@@ -87,7 +87,8 @@ const Dashboard = () => {
       const matchVenue = filters.venue ? t.venue === filters.venue : true;
       const matchBranch = filters.target_group ? t.target_group?.toLowerCase().includes(filters.target_group.toLowerCase()) : true;
       const matchMode = filters.mode ? t.mode?.toLowerCase() === filters.mode.toLowerCase() : true;
-      return matchVenue && matchBranch && matchMode;
+      const matchCoordinator = filters.faculty? t.faculty?.trim() === filters.faculty.trim() : true;
+      return matchVenue && matchBranch && matchMode && matchCoordinator;
     });
 
     const thisWeek = [], upcoming = [], past = [];
@@ -111,7 +112,7 @@ const Dashboard = () => {
   }, [filters, trainings]);
 
   const handleClear = () => {
-    setFilters({ venue: '', target_group: '', mode: '', start_date: '' });
+    setFilters({ venue: '', target_group: '', mode: '', start_date: '', faculty:'' });
   };
 
   return (

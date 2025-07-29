@@ -20,6 +20,8 @@ import Logout from "./pages/Logout";
 
 import TrainingNominationPage from "./pages/TrainingNominationPage";
 
+import AllUsersPage from './pages/AllUsersPage';
+
 
 
 // Components
@@ -59,6 +61,8 @@ export default function App() {
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
          <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
+         <Route path="/users/all" element={<AllUsersPage />} />
+
         </Route>
 
         {/* Admin Routes */}

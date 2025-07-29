@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import axiosInstance from "../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { polytechnics } from "../data/polytechnics";
@@ -24,6 +25,9 @@ const Register = () => {
     security_question: '',
     security_answer: '',
   });
+  const navigate = useNavigate();
+
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -71,6 +75,9 @@ const Register = () => {
         }
       );
       alert("Registration successful");
+       navigate("/login"); 
+      // window.location.reload();
+      
     } catch (err) {
       const errorData = err.response?.data;
   console.error("Registration error response:", errorData); // for debugging

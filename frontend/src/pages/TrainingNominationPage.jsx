@@ -2,9 +2,9 @@
 
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { Row, Col,  Card,Button,ListGroup,Spinner, Form,} from "react-bootstrap";
+import { Row, Col, Card, Button, ListGroup, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import "./TrainingNominationPage.css";
 
@@ -17,6 +17,8 @@ const TrainingNominationPage = () => {
   const [trainees, setTrainees] = useState([]);
   const [nominated, setNominated] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
 
   const [filters, setFilters] = useState({
     institute: "",
@@ -29,6 +31,10 @@ const TrainingNominationPage = () => {
     branchList: [],
     designationList: [],
   });
+  const handleShowAllUsers = (e) => {
+    e.stopPropagation();
+    navigate("/users/all?code=${code}");
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,6 +102,7 @@ const TrainingNominationPage = () => {
     }
   };
 
+
   const handleRemove = async (ehrms_code) => {
     try {
       await axiosInstance.delete(
@@ -150,6 +157,15 @@ const TrainingNominationPage = () => {
             <p>
               <strong>Dates:</strong> {training.start_date} to {training.end_date}
             </p>
+            <div className="text-end">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={handleShowAllUsers}
+              >
+                Show All Users
+              </Button>
+            </div>
 
             <hr />
             <h5>Available Trainees</h5>
@@ -233,6 +249,7 @@ const TrainingNominationPage = () => {
                         <strong>Designation:</strong>{" "}
                         {trainee.designation || "N/A"}
                       </div>
+
                     </Col>
                     <Col md={2} className="text-end">
                       {isAlreadyNominated(trainee.ehrms_code) ? (
@@ -274,7 +291,7 @@ const TrainingNominationPage = () => {
                       <div className="fw-bold">{trainee.first_name} {trainee.last_name}</div>
                       <small className="text-muted">
                         {trainee.designation} | {trainee.institute}
-                     
+
                         EHRMS: {trainee.ehrms_code}
                       </small>
                     </div>
@@ -284,7 +301,7 @@ const TrainingNominationPage = () => {
                       onClick={() => handleRemove(trainee.ehrms_code)}
                     >
                       Remove
-                    </Button>
+                    </Button>                                
                   </ListGroup.Item>
                 ))}
               </ListGroup>
