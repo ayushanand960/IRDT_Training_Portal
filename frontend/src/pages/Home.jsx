@@ -125,7 +125,7 @@ export default function Home() {
           await axiosInstance.post("/login/logout/");
           setUser(null);
           // Redirect with session_expired message
-          navigate("/admin-login?session_expired=true");
+          navigate("/");
         }
       } catch (err) {
         logoutDone.current = true;

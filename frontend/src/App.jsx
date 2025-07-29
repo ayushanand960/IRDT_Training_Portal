@@ -8,7 +8,7 @@ import { useAuth } from './components/AuthContext';
 import Home from './pages/Home';
 import Login from "./pages/Login";
 import RegisterTemplate from './pages/RegisterTemplate';
-import Dashboard from "./pages/TraineeDashboard";
+import TraineeDashbaord from "./pages/TraineeDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
@@ -51,7 +51,7 @@ export default function App() {
 
         {/* Trainee Routes */}
         <Route element={<PrivateRoute allowedRoles={['trainee']} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<TraineeDashbaord />} />
         </Route>
 
         {/* Coordinator Routes */}

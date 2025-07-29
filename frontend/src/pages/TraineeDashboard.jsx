@@ -311,4 +311,4 @@ const TraineeDashboard = () => {
   );
 };
 
-export default Dashboard;
+export default TraineeDashboard;
