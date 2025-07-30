@@ -12,6 +12,7 @@ from Login.models import User
 from Certificate.utils.utils import replace_placeholders
 import pythoncom
 import win32com.client
+from zipfile import ZipFile
 
 
 def convert_docx_to_pdf(docx_path, pdf_path):
@@ -86,7 +87,8 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
     generated_certificates = []
 
     # Iterate over each row in Excel
-    for _, row in tqdm(df.iterrows(), total=len(df)):
+    for index, row in tqdm(df.iterrows(), total=len(df)):
+
         ehrms_code = row.get('ehrms_code') or row.get('EHRMS')
         email = row.get('email') or row.get('Email')
 
@@ -110,8 +112,13 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
             designation = user.designation or ''
             branch = user.branch or ''
             institution = user.institute_name or ''
-            certificate_no = f"{training.code}-{user.ehrms_code or 'N/A'}"
             year = training.start_date.year if training.start_date else datetime.now().year
+            start_date = training.start_date or datetime.now()
+            day = start_date.strftime("%d")         # 14
+            month = start_date.strftime("%m")       # 06
+            year_suffix = start_date.strftime("%y") # 25
+            serial = str(index + 1).zfill(2)        # 2-digit serial number like 01, 10, etc.
+            reference_number = f"{training.code}-{day}{month}{year_suffix}-{serial}"
 
             # Define replacements for placeholders
             replacements = {
@@ -119,7 +126,7 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
                 '{{designation}}': designation,
                 '{{branch}}': branch,
                 '{{institute name}}': institution,
-                '{{certificate no}}': certificate_no,
+                '{{certificate no}}': reference_number,
             }
 
             # Replace placeholders in paragraphs and tables
@@ -185,14 +192,16 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
 
             # Create and save certificate object in DB
             cert = Certificate.objects.create(
-                user=user,
-                training=training,
-                uploaded_by=coordinator_user,
-                full_name=name,
-                designation=designation,
-                institution=institution,
+            user=user,
+            training=training,
+            uploaded_by=coordinator_user,
+            full_name=name,
+            designation=designation,
+            institution=institution,
+            reference_number=reference_number,# ✅ Use the correct variable
             )
             
+
 
             # Save final cleaned PDF
             final_cert_path = os.path.join(settings.MEDIA_ROOT, 'certificates', db_file_name)
@@ -224,7 +233,25 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
     except:
         pass
 
-    return generated_certificates
+    zip_file_path = create_zip_for_training(training_code)
+
+    return generated_certificates, zip_file_path
+
+def create_zip_for_training(training_code):
+    cert_folder = os.path.join(settings.MEDIA_ROOT, "certificates")
+    zip_folder = os.path.join(settings.MEDIA_ROOT, "certificates", "zips")
+    os.makedirs(zip_folder, exist_ok=True)
+
+    zip_file_path = os.path.join(zip_folder, f"{training_code}_certificates.zip")
+
+    with ZipFile(zip_file_path, 'w') as zipf:
+        for filename in os.listdir(cert_folder):
+            if filename.startswith(training_code) and filename.endswith('.pdf'):
+                filepath = os.path.join(cert_folder, filename)
+                zipf.write(filepath, arcname=filename)
+
+    return zip_file_path
+
 
 
 
