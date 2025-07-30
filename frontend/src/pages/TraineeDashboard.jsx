@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import quotes from '../data/quotes';
 import { toast } from 'react-toastify';
-// import AllCertificatesModal from '../components/AllCertificatesModal';
 import { useNavigate } from 'react-router-dom';
 import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
@@ -69,15 +68,8 @@ const TraineeDashboard = () => {
     }
   };
 
-  // const fetchAllCertificates = async () => {
-  //   try {
-  //     const res = await axiosInstance.get('/certificate/my-certificates/');
-  //     setAllCertificates(res.data);
-  //     setShowAllCertificatesModal(true);
-  //   } catch (err) {
-  //     toast.error("Failed to load certificates");
-  //   }
-  // };
+
+  // 🧾 Fetch all certificates
   const fetchAllCertificates = async () => {
     try {
       setShowProfileModal(false);  // ✅ Close profile modal first
@@ -205,9 +197,10 @@ const TraineeDashboard = () => {
           </label>
           {/* <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} /> */}
         </div>
+
       </nav>
 
-      {showProfileModal && (
+   {showProfileModal && (
         <div
           className="modal d-block fade show"
           tabIndex="-1"
@@ -341,7 +334,7 @@ const TraineeDashboard = () => {
             </div>
           </div>
 
-          {/* Second Row: Upcoming & Past Trainings (Full-width) */}
+         {/* Second Row: Upcoming & Past Trainings (Full-width) */}
           {filteredTrainings
             .filter((group) => group.section !== '🟢 Trainings This Week')
             .map((group, idx) => (
@@ -379,15 +372,16 @@ const TraineeDashboard = () => {
             ))}
 
         </div>
-        <AllCertificatesModal
-          show={showAllCertificatesModal}
-          certificates={allCertificates}
-          onClose={() => setShowAllCertificatesModal(false)}
-        />
 
-
-
-      </div>
+          {/* 📋 All Certificates Modal */}
+          <AllCertificatesModal
+            show={showAllCertificatesModal}
+            onClose={() => setShowAllCertificatesModal(false)}
+            certificates={allCertificates}
+          />
+        </div>
+        {/* ✅ Certificate Module Ends Here */}
+      
     </>
 
   );

@@ -209,7 +209,7 @@ const CoordinatorDashboard = () => {
           <div style={{ position: "sticky", top: "20px" }}>
             <CoordinatorProfile coordinator={coordinator} />
 
-            <div className="mt-4 d-grid">
+            {/* <div className="mt-4 d-grid">
               
               <Button
                 variant="success"
@@ -218,7 +218,7 @@ const CoordinatorDashboard = () => {
               >
                 🧾 Generate Certificates
               </Button>
-            </div>
+            </div> */}
           </div>
         </Col>
       </Row>

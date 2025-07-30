@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import { Card, Row, Col } from "react-bootstrap";
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers } from "react-icons/fa";
@@ -27,9 +29,7 @@ const AssignedTrainings = ({ trainings }) => {
     return <p>No trainings assigned yet.</p>;
   }
 
-  // Convert to Date for sorting and filtering
-  const today = new Date();
-
+  // Sort and categorize trainings
   const sortedTrainings = [...trainings].sort(
     (a, b) => new Date(a.start_date) - new Date(b.start_date)
   );
@@ -82,6 +82,17 @@ const AssignedTrainings = ({ trainings }) => {
                       <FaUsers className="me-2 text-warning" />
                       <strong>Target Group:</strong> {training.target_group}
                     </p>
+
+                    {/* ✅ Specific Generate Certificates button inside the card */}
+                    <button
+                      className="btn btn-outline-primary mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent full card click
+                        navigate(`/generate-certificate/${training.code}`);
+                      }}
+                    >
+                      Generate Certificates
+                    </button>
                   </Card.Body>
                 </Card>
               </Col>
@@ -102,3 +113,4 @@ const AssignedTrainings = ({ trainings }) => {
 };
 
 export default AssignedTrainings;
+

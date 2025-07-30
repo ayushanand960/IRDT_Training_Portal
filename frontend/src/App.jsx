@@ -60,8 +60,8 @@ export default function App() {
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
          <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
+         <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} /> 
          <Route path="/users/all/:code" element={<AllUsersPage />} />
-         <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} />
         </Route>
 
         {/* Admin Routes */}
