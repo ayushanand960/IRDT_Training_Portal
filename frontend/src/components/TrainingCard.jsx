@@ -172,7 +172,7 @@ const TrainingCard = ({
 
         {/* Title - Centered */}
         <h6 className="fw-bold text-primary text-center mb-2" style={{ fontSize: '1rem' }}>
-          {name}
+          ({code}) {name} 
         </h6>
 
         {/* Badges - Right aligned */}
@@ -201,7 +201,7 @@ const TrainingCard = ({
             <strong>Group:</strong> {target_group}
           </p>
           <p className="mb-1">
-            <strong>🧑🏻‍💻 Faculty:</strong> {faculty_name_display || faculty || 'N/A'}
+            <strong>🧑🏻‍💻 Coordinator:</strong> {faculty_name_display || faculty || 'N/A'}
           </p>
           <p className="mb-2">
             <strong>📈 Participants:</strong> {registered_count}/{number_of_participants}
@@ -220,6 +220,7 @@ const TrainingCard = ({
             enrolledTrainings={enrolledTrainings}
             ehrmsCode={ehrmsCode}
             onEnrollSuccess={onEnrollSuccess}
+            trainingDetails={training}
           />
         )}
       </div>

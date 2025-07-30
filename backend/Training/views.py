@@ -241,6 +241,7 @@ class BulkNominationView(APIView):
             return Response({"error": "Not authorized or training not found."}, status=status.HTTP_403_FORBIDDEN)
 
         created = []
+        skipped = []
         for ehrms_code in ehrms_codes:
             try:
                 trainee = User.objects.get(ehrms_code=ehrms_code)
@@ -249,8 +250,19 @@ class BulkNominationView(APIView):
                     trainee=trainee,
                     defaults={"coordinator": request.user, "nominated_by": request.user}
                 )
+                from Enrollment.models import Enrollment
+                enrollment, enrollment_created = Enrollment.objects.get_or_create(
+                    trainee=trainee,
+                    training=training,
+                    defaults={"status": "nominated"}
+                )
+                if not enrollment_created and enrollment.status != 'nominated':
+                    enrollment.status = 'nominated'
+                    enrollment.save()
                 if created_flag:
                     created.append(ehrms_code)
+                else:
+                    skipped.append(ehrms_code)
             except User.DoesNotExist:
                 continue
 
@@ -268,8 +280,9 @@ class NominatedTraineesByTrainingAPIView(APIView):
         except TrainingProgram.DoesNotExist:
             return Response({"error": "Training not found or not authorized."}, status=403)
 
-        nominations = Nomination.objects.filter(training=training).select_related('trainee')
-        trainees = [n.trainee for n in nominations]
+        # nominations = Nomination.objects.filter(training=training).select_related('trainee')
+        enrollments = Enrollment.objects.filter(training=training, status='nominated').select_related('trainee')
+        trainees = [e.trainee for e in enrollments]
         serializer = UserSerializer(trainees, many=True)
         return Response(serializer.data)
 
@@ -278,24 +291,32 @@ class RemoveNominationAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, training_code, ehrms_code):
-        try:
-            # Confirm the training is assigned to this coordinator
-            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
-        except TrainingProgram.DoesNotExist:
-            return Response({"error": "Training not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+        print(f"➡️ Incoming DELETE request for training_code={training_code}, ehrms_code={ehrms_code}")
 
-        try:
-            trainee = User.objects.get(ehrms_code=ehrms_code)
-        except User.DoesNotExist:
+        # Step 1: Fetch training safely
+        training = TrainingProgram.objects.filter(code=training_code).first()
+        if not training:
+            return Response({"error": "Training not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Step 2: Validate coordinator permission
+        if request.user != training.faculty and not request.user.is_superuser:
+            return Response({"error": "Unauthorized."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Step 3: Fetch trainee
+        trainee = User.objects.filter(ehrms_code=ehrms_code).first()
+        if not trainee:
             return Response({"error": "Trainee not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        try:
-            nomination = Nomination.objects.get(training=training, trainee=trainee)
-            nomination.delete()
-            return Response({"message": "Nomination removed."}, status=status.HTTP_204_NO_CONTENT)
-        except Nomination.DoesNotExist:
-            return Response({"error": "Nomination not found."}, status=status.HTTP_404_NOT_FOUND)
+        # Step 4: Delete Nomination
+        Nomination.objects.filter(training=training, trainee=trainee).delete()
 
+        # Step 5: Update Enrollment status to 'applied' if it was 'nominated'
+        enrollment = Enrollment.objects.filter(training=training, trainee=trainee).first()
+        if enrollment and enrollment.status == "nominated":
+            enrollment.status = "applied"
+            enrollment.save()
+
+        return Response({"message": "Nomination removed and enrollment updated."}, status=status.HTTP_204_NO_CONTENT)
 
 from Certificate.models import Certificate
 

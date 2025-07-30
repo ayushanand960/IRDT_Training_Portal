@@ -192,6 +192,7 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
                 designation=designation,
                 institution=institution,
             )
+            
 
             # Save final cleaned PDF
             final_cert_path = os.path.join(settings.MEDIA_ROOT, 'certificates', db_file_name)
@@ -201,6 +202,15 @@ def generate_certificates_from_excel(file_path, template_path, training_code, co
             # Update DB with correct file path
             cert.certificate_file.name = f"certificates/{db_file_name}"
             cert.save()
+            from Enrollment.models import Enrollment
+            enrollment, created = Enrollment.objects.get_or_create(
+                trainee=user,
+                training=training,
+                defaults={'status': 'attended'}
+            )
+            if not created and enrollment.status != 'attended':
+                enrollment.status = 'attended'
+                enrollment.save()
 
             generated_certificates.append(cert)
 

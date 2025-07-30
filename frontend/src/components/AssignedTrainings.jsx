@@ -65,7 +65,7 @@ const AssignedTrainings = ({ trainings }) => {
                   onClick={() => handleCardClick(training.code)}
                 >
                   <Card.Body>
-                    <h5 className="fw-bold mb-2 text-primary">{training.name}</h5>
+                    <h5 className="fw-bold mb-2 text-primary">({training.code}) {training.name}</h5>
 
                     <p className="mb-1">
                       <FaMapMarkerAlt className="me-2 text-danger" />

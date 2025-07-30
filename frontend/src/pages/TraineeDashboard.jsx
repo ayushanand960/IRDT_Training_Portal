@@ -1,11 +1,14 @@
 // src/pages/TraineeDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
+import quotes from '../data/quotes';
 import { toast } from 'react-toastify';
-import AllCertificatesModal from '../components/AllCertificatesModal';
+// import AllCertificatesModal from '../components/AllCertificatesModal';
 import { useNavigate } from 'react-router-dom';
 import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
+import AllCertificatesModal from '../components/AllCertificatesModal';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 import 'animate.css';
@@ -18,17 +21,41 @@ const TraineeDashboard = () => {
 
   const [showAllCertificatesModal, setShowAllCertificatesModal] = useState(false);
   const [allCertificates, setAllCertificates] = useState([]);
+
+
+
   const [user, setUser] = useState(null);
   const [trainings, setTrainings] = useState([]);
   const [filteredTrainings, setFilteredTrainings] = useState([]);
   const [enrolledTrainings, setEnrolledTrainings] = useState([]);
   const [profilePhoto, setProfilePhoto] = useState('');
-  const [showPanel, setShowPanel] = useState(false);
-  const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '',faculty: '' });
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // const today = new Date();
+  // const quoteIndex = today.getDate() % quotes.length;
+  // const dailyQuote = quotes[quoteIndex];
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+
+
+  // const [showPanel, setShowPanel] = useState(false);
+  const [filters, setFilters] = useState({ venue: '', target_group: '', mode: '', start_date: '', faculty: '' });
+
+  const [visibleCounts, setVisibleCounts] = useState({
+    '🟢 Trainings This Week': 6,
+    '🟡 Upcoming Week Trainings': 8,
+    '🔴 Past Trainings': 8,
+  });
   const navigate = useNavigate();
   let clickTimeout = null;
 
+  const handleProfileClick = () => {
+    setShowProfileModal(true);
+  };
 
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -42,34 +69,18 @@ const TraineeDashboard = () => {
     }
   };
 
-
-  const handleProfileClick = () => {
-    if (clickTimeout !== null) {
-      clearTimeout(clickTimeout);
-      clickTimeout = null;
-      document.getElementById('profileUpload').click();
-    } else {
-      clickTimeout = setTimeout(() => {
-        setShowPanel(!showPanel);
-        clearTimeout(clickTimeout);
-        clickTimeout = null;
-      }, 250);
-    }
-  };
-
-
-  const fetchAssignedTrainings = async () => {
-    try {
-      const res = await axiosInstance.get('/trainings/assigned/');
-      setAssignedTrainings(res.data);
-    } catch (err) {
-      toast.error("Failed to load assigned trainings");
-    }
-  };
-
-  // 🧾 Fetch all certificates
+  // const fetchAllCertificates = async () => {
+  //   try {
+  //     const res = await axiosInstance.get('/certificate/my-certificates/');
+  //     setAllCertificates(res.data);
+  //     setShowAllCertificatesModal(true);
+  //   } catch (err) {
+  //     toast.error("Failed to load certificates");
+  //   }
+  // };
   const fetchAllCertificates = async () => {
     try {
+      setShowProfileModal(false);  // ✅ Close profile modal first
       const res = await axiosInstance.get('/certificate/my-certificates/');
       setAllCertificates(res.data);
       setShowAllCertificatesModal(true);
@@ -78,23 +89,7 @@ const TraineeDashboard = () => {
     }
   };
 
-  // 👁️ Open modal with certificate preview
-  const handlePreview = async (code) => {
-    setSelectedCode(code);
-    try {
-      const res = await axiosInstance.get(`/certificate/download/${code}/`, {
-        responseType: 'blob',
-      });
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      setCertificateURL(url);
-      setShowModal(true);
-    } catch (error) {
-      toast.error("Failed to load certificate preview");
-    }
-  };
 
-  // ⬇️ Trigger browser download
   const handleDownload = () => {
     if (!certificateURL || !selectedCode) return;
     const a = document.createElement('a');
@@ -107,7 +102,7 @@ const TraineeDashboard = () => {
     fetchUser();
     fetchTrainings();
     fetchEnrollments();
-    fetchAssignedTrainings();
+    // fetchAssignedTrainings();
   }, []);
 
   const fetchUser = async () => {
@@ -158,7 +153,7 @@ const TraineeDashboard = () => {
       const matchVenue = filters.venue ? t.venue === filters.venue : true;
       const matchBranch = filters.target_group ? t.target_group?.toLowerCase().includes(filters.target_group.toLowerCase()) : true;
       const matchMode = filters.mode ? t.mode?.toLowerCase() === filters.mode.toLowerCase() : true;
-      const matchCoordinator = filters.faculty? t.faculty?.trim() === filters.faculty.trim() : true;
+      const matchCoordinator = filters.faculty ? t.faculty?.trim() === filters.faculty.trim() : true;
       return matchVenue && matchBranch && matchMode && matchCoordinator;
     });
 
@@ -182,8 +177,15 @@ const TraineeDashboard = () => {
     ]);
   }, [filters, trainings]);
 
+  const handleShowMore = (sectionName) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [sectionName]: prev[sectionName] + 8,
+    }));
+  };
+
   const handleClear = () => {
-    setFilters({ venue: '', target_group: '', mode: '', start_date: '', faculty:'' });
+    setFilters({ venue: '', target_group: '', mode: '', start_date: '', faculty: '' });
   };
 
   return (
@@ -191,121 +193,200 @@ const TraineeDashboard = () => {
       <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
         <span className="navbar-brand text-info fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
         <div className="d-flex align-items-center gap-2">
-          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">
-            🏠 Home
-          </button>
-          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>
-            🚪 Logout
-          </button>
+          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">🏠 Home</button>
+          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>🚪 Logout</button>
           <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
             <img
               src={profilePhoto || 'https://placehold.co/100x120?text=Upload'}
               alt="Profile"
-              className="profile-passport"
-              style={{ height: '60px', width: '48px', borderRadius: '6px', border: '2px solid #fff' }}
+              className="rounded-circle border"
+              style={{ height: '50px', width: '50px', objectFit: 'cover' }}
             />
           </label>
-          <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} />
+          {/* <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} /> */}
         </div>
       </nav>
 
-      {showPanel && (
-        <div className="profile-slide-panel animate__animated animate__slideInRight" style={{ position: 'fixed', top: '70px', right: '0', width: '360px', height: 'calc(100vh - 70px)', background: '#fff', borderLeft: '1px solid #dee2e6', zIndex: 1050, boxShadow: '-3px 0 10px rgba(0,0,0,0.08)', overflowY: 'auto', padding: '20px' }}>
-          <h6 className="text-primary mb-3">👤 Personal Details</h6>
-          <p><strong>Name:</strong> {`${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`}</p>
-          <p><strong>EHRMS:</strong> {user?.ehrms_code}</p>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>Mobile:</strong> {user?.mobile_number}</p>
-          <p><strong>Institute:</strong> {user?.institute_name}</p>
-          <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleLogout}>
-            🚪 Logout
-          </button>
+      {showProfileModal && (
+        <div
+          className="modal d-block fade show"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content p-3">
+              <div className="modal-header">
+                <h5 className="modal-title text-primary">👤 Profile Info</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCloseProfileModal}
+                ></button>
+              </div>
+              <div className="modal-body text-center">
+                <img
+                  src={profilePhoto || 'https://placehold.co/100x100?text=Photo'}
+                  alt="Profile"
+                  className="rounded-circle border mb-3"
+                  style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                />
+                <input
+                  type="file"
+                  id="uploadInput"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setProfilePhoto(reader.result);
+                        // TODO: Upload the image to the backend here
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="form-control mb-3"
+                />
+                <div className="text-start">
+                  <p><strong>Name:</strong> {`${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`}</p>
+                  <p><strong>EHRMS:</strong> {user?.ehrms_code}</p>
+                  <p><strong>Email:</strong> {user?.email}</p>
+                  <p><strong>Mobile:</strong> {user?.mobile_number}</p>
+                  <p><strong>Institute:</strong> {user?.institute_name}</p>
+                </div>
+                <div className="d-flex justify-content-center gap-3">
+                  <button
+                    className="btn btn-outline-success btn-sm"
+                    onClick={fetchAllCertificates}
+                  >
+                    🎓 View Certificates
+                  </button>
+                  <button
+                    className="btn btn-outline-info btn-sm"
+                    onClick={() => {
+                      handleCloseProfileModal();
+                      setTimeout(() => {
+                        document
+                          .querySelector('#past-trainings-section')
+                          ?.scrollIntoView({ behavior: 'smooth' });
+                      }, 100);
+                    }}
+                  >
+                    📚 Past Trainings
+                  </button>
+                </div>
+              </div>
+              <div className="modal-footer justify-content-center">
+                <button className="btn btn-secondary" onClick={handleCloseProfileModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
+
 
       <div className="container py-4">
         <h3 className="text-center mb-4">IRDT Training Calendar 2025–26</h3>
         <TrainingFilterBar filters={filters} setFilters={setFilters} handleClear={handleClear} trainings={trainings} />
 
         <div className="row">
-          <div className="col-md-8">
-            {filteredTrainings.map((group, idx) => (
+          {/* First Row: Trainings This Week + Announcements */}
+          <div className="row">
+            {/* Left: Trainings This Week */}
+            <div className="col-md-8">
+              {filteredTrainings
+                .filter((group) => group.section === '🟢 Trainings This Week')
+                .map((group, idx) => (
+                  <div key={idx} className="mb-4">
+                    <h5 className="border-bottom pb-2">{group.section}</h5>
+                    <div className="row">
+                      {group.items.slice(0, visibleCounts[group.section]).map((training, index) => (
+                        <div key={index} className="col-md-6 col-lg-4 mb-4">
+                          <TrainingCard
+                            training={training}
+                            showEnrollButton={false}
+                            enrolledTrainings={enrolledTrainings}
+                            ehrmsCode={user?.ehrms_code}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    {group.items.length > visibleCounts[group.section] && (
+                      <div className="text-center mt-2">
+                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                          Show More
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            {/* Right: Announcement + Quote */}
+            <div className="col-md-4">
+              <div className="card shadow border-info mb-3 bg-info-subtle p-3">
+                <h5 className="text-info">📢 Announcements</h5>
+                <ul>
+                  <li>📅 AI in Education begins July 7</li>
+                  <li>📝 OBE Workshop due July 10</li>
+                  <li>🎓 Cert Review July 12</li>
+                </ul>
+              </div>
+              <div className="card bg-light shadow-sm border border-primary p-3">
+                <h6 className="text-primary">🌟 Quote of the Moment</h6>
+                <p className="mb-0">"{randomQuote}"</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Second Row: Upcoming & Past Trainings (Full-width) */}
+          {filteredTrainings
+            .filter((group) => group.section !== '🟢 Trainings This Week')
+            .map((group, idx) => (
               <div key={idx} className="mb-5">
                 <h5 className="border-bottom pb-2">{group.section}</h5>
-                {group.items.map((training, index) => (
-                  <TrainingCard
-                    key={index}
-                    training={training}
-                    showEnrollButton={group.section.includes("Upcoming Week")}
-                    enrolledTrainings={enrolledTrainings}
-                    ehrmsCode={user?.ehrms_code}
-                    onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
-                  />
-                ))}
+                <div className="row">
+                  {group.items.slice(0, visibleCounts[group.section]).map((training, index) => (
+                    <div
+                      key={index}
+                      className="col-6 col-md-4 mb-4"
+                      style={
+                        group.section !== '🟢 Trainings This Week'
+                          ? { flex: '0 0 25%', maxWidth: '25%' }  // 4 cards per row
+                          : { flex: '0 0 33.3333%', maxWidth: '33.3333%' } // 3 cards per row for This Week
+                      }
+                    >
+                      <TrainingCard
+                        training={training}
+                        showEnrollButton={group.section.includes("Upcoming Week")}
+                        enrolledTrainings={enrolledTrainings}
+                        ehrmsCode={user?.ehrms_code}
+                        onEnrollSuccess={(code) => setEnrolledTrainings([...enrolledTrainings, code])}
+                      />
+                    </div>
+                  ))}
+                </div>
+                {group.items.length > visibleCounts[group.section] && (
+                  <div className="text-center mt-2">
+                    <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                      Show More
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
-          </div>
 
-          <div className="col-md-4">
-            <div className="card shadow border-info mb-3 bg-info-subtle p-3">
-              <h5 className="text-info">📢 Announcements</h5>
-              <ul>
-                <li>📅 AI in Education begins July 7</li>
-                <li>📝 OBE Workshop due July 10</li>
-                <li>🎓 Cert Review July 12</li>
-              </ul>
-            </div>
-            <div className="card bg-light shadow-sm border border-primary p-3">
-              <h6 className="text-primary">🌟 Quote of the Day</h6>
-              <p className="mb-0">"Success is no accident. It’s hard work, perseverance, and love of what you are doing."</p>
-            </div>
-          </div>
         </div>
+        <AllCertificatesModal
+          show={showAllCertificatesModal}
+          certificates={allCertificates}
+          onClose={() => setShowAllCertificatesModal(false)}
+        />
 
-        {/* ✅ Certificate Module Starts Here */}
-        <div className="mt-5">
-          <h4>Your Trainings & Certificates</h4>
 
-          <div className="text-end mb-3">
-            <button className="btn btn-primary" onClick={fetchAllCertificates}>
-              View All Certificates
-            </button>
-          </div>
 
-          <ul className="list-group">
-            {assignedTrainings.length === 0 && (
-              <li className="list-group-item text-muted">No trainings assigned.</li>
-            )}
-            {assignedTrainings.map((training) => (
-              <li
-                key={training.id}
-                className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <strong>{training.name}</strong><br />
-                  <span>{training.venue} | {training.start_date} to {training.end_date}</span>
-                </div>
-
-                {training.certificate_generated && (
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => handlePreview(training.code)}
-                  >
-                    View Certificate
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {/* 📋 All Certificates Modal */}
-          <AllCertificatesModal
-            show={showAllCertificatesModal}
-            onClose={() => setShowAllCertificatesModal(false)}
-            certificates={allCertificates}
-          />
-        </div>
-        {/* ✅ Certificate Module Ends Here */}
       </div>
     </>
 

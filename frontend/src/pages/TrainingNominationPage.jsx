@@ -105,9 +105,8 @@ const TrainingNominationPage = () => {
 
   const handleRemove = async (ehrms_code) => {
     try {
-      await axiosInstance.delete(
-        `/training/nomination/remove/${code}/${ehrms_code}/`
-      );
+      await axiosInstance.delete(`/training/nomination/remove/${encodeURIComponent(code)}/${ehrms_code}/`)
+
       setNominated((prev) =>
         prev.filter((trainee) => trainee.ehrms_code !== ehrms_code)
       );
@@ -290,7 +289,7 @@ const TrainingNominationPage = () => {
                     <div className="ms-2 me-auto">
                       <div className="fw-bold">{trainee.first_name} {trainee.last_name}</div>
                       <small className="text-muted">
-                        {trainee.designation} | {trainee.institute}
+                        {trainee.designation} 
 
                         EHRMS: {trainee.ehrms_code}
                       </small>
