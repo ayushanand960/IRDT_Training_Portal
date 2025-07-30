@@ -8,7 +8,7 @@ import { useAuth } from './components/AuthContext';
 import Home from './pages/Home';
 import Login from "./pages/Login";
 import RegisterTemplate from './pages/RegisterTemplate';
-import Dashboard from "./pages/TraineeDashboard";
+import TraineeDashboard from "./pages/TraineeDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import AdminCoordinatorLogin from "./pages/AdminCoordinatorLogin";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
@@ -51,14 +51,15 @@ export default function App() {
 
         {/* Trainee Routes */}
         <Route element={<PrivateRoute allowedRoles={['trainee']} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<TraineeDashboard />} />
         </Route>
 
         {/* Coordinator Routes */}
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
          <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
-         <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} /> 
+         <Route path="/generate-certificate/:code" element={<CoordinatorCertificatePage />} />
+
         </Route>
 
         {/* Admin Routes */}

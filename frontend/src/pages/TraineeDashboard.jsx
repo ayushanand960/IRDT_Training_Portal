@@ -58,14 +58,7 @@ const TraineeDashboard = () => {
   };
 
 
-  const fetchAssignedTrainings = async () => {
-    try {
-      const res = await axiosInstance.get('/trainings/assigned/');
-      setAssignedTrainings(res.data);
-    } catch (err) {
-      toast.error("Failed to load assigned trainings");
-    }
-  };
+
 
   // 🧾 Fetch all certificates
   const fetchAllCertificates = async () => {
@@ -107,7 +100,7 @@ const TraineeDashboard = () => {
     fetchUser();
     fetchTrainings();
     fetchEnrollments();
-    fetchAssignedTrainings();
+
   }, []);
 
   const fetchUser = async () => {
@@ -206,6 +199,7 @@ const TraineeDashboard = () => {
           </label>
           <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} />
         </div>
+
       </nav>
 
       {showPanel && (
@@ -216,9 +210,13 @@ const TraineeDashboard = () => {
           <p><strong>Email:</strong> {user?.email}</p>
           <p><strong>Mobile:</strong> {user?.mobile_number}</p>
           <p><strong>Institute:</strong> {user?.institute_name}</p>
-          <button className="btn btn-outline-danger btn-sm mt-3" onClick={handleLogout}>
-            🚪 Logout
-          </button>
+          <div className="d-flex justify-content-center mb-3">
+            <button className="btn btn-primary" onClick={fetchAllCertificates}>
+              View All Certificates
+            </button>
+          </div>
+
+
         </div>
       )}
 
@@ -261,49 +259,16 @@ const TraineeDashboard = () => {
           </div>
         </div>
 
-        {/* ✅ Certificate Module Starts Here */}
-        <div className="mt-5">
-          <h4>Your Trainings & Certificates</h4>
 
-          <div className="text-end mb-3">
-            <button className="btn btn-primary" onClick={fetchAllCertificates}>
-              View All Certificates
-            </button>
-          </div>
 
-          <ul className="list-group">
-            {assignedTrainings.length === 0 && (
-              <li className="list-group-item text-muted">No trainings assigned.</li>
-            )}
-            {assignedTrainings.map((training) => (
-              <li
-                key={training.id}
-                className="list-group-item d-flex justify-content-between align-items-center"
-              >
-                <div>
-                  <strong>{training.name}</strong><br />
-                  <span>{training.venue} | {training.start_date} to {training.end_date}</span>
-                </div>
 
-                {training.certificate_generated && (
-                  <button
-                    className="btn btn-sm btn-success"
-                    onClick={() => handlePreview(training.code)}
-                  >
-                    View Certificate
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+        {/* 📋 All Certificates Modal */}
+        <AllCertificatesModal
+          show={showAllCertificatesModal}
+          onClose={() => setShowAllCertificatesModal(false)}
+          certificates={allCertificates}
+        />
 
-          {/* 📋 All Certificates Modal */}
-          <AllCertificatesModal
-            show={showAllCertificatesModal}
-            onClose={() => setShowAllCertificatesModal(false)}
-            certificates={allCertificates}
-          />
-        </div>
         {/* ✅ Certificate Module Ends Here */}
       </div>
     </>
@@ -311,4 +276,4 @@ const TraineeDashboard = () => {
   );
 };
 
-export default Dashboard;
+export default TraineeDashboard;
