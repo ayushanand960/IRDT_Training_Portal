@@ -6,8 +6,11 @@ import 'screens/auth/register_screen.dart';
 import 'screens/dashboard/login_home_page.dart';
 import 'screens/dashboard/profile/profile_screen.dart';
 import 'screens/training/training_list_screen.dart';
+import 'package:training_app/core/services/api_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ApiService().init();
   runApp(const TrainingApp());
 }
 
@@ -17,9 +20,7 @@ class TrainingApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
           return MaterialApp(
@@ -46,9 +47,7 @@ class TrainingApp extends StatelessWidget {
                 ),
               ),
               textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
               ),
               appBarTheme: const AppBarTheme(
                 backgroundColor: Colors.indigo,
@@ -60,11 +59,14 @@ class TrainingApp extends StatelessWidget {
             initialRoute: '/login',
             routes: {
               '/login': (context) => const LoginScreen(),
-              '/register': (context) =>  RegisterScreen(),
+              '/register': (context) => RegisterScreen(),
               '/login-home': (context) => const LoginHomePage(),
-              '/profile': (context) => const ProfileScreen(), // replace with ProfilePage()
-              '/trainings': (context) => const Placeholder(), // replace with TrainingsPage()
-              '/certificate': (context) => const Placeholder(), // replace with CertificatePage()
+              '/profile': (context) =>
+                  const ProfileScreen(), // replace with ProfilePage()
+              '/trainings': (context) =>
+                  const Placeholder(), // replace with TrainingsPage()
+              '/certificate': (context) =>
+                  const Placeholder(), // replace with CertificatePage()
               '/training-list': (context) => const TrainingListScreen(),
             },
           );

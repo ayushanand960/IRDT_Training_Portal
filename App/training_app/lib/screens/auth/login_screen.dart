@@ -230,8 +230,6 @@
 
 
 
-
-
 import 'package:flutter/material.dart';
 import '../../widgets/ui_helpers.dart';
 import 'reset_password_screen.dart';
@@ -255,23 +253,33 @@ class _LoginScreenState extends State<LoginScreen> {
     _checkSession();
   }
 
-  /// Auto-redirect if already logged in
   void _checkSession() async {
-    final loggedIn = await _api.isLoggedIn();
-    if (loggedIn) {
-      final prefs = await SharedPreferences.getInstance();
-      Navigator.pushReplacementNamed(
-        context,
-        '/login-home',
-        arguments: {
-          'ehrms_code': prefs.getString('ehrms_code') ?? '',
-          'full_name': prefs.getString('full_Name') ?? 'User',
-        },
+    try {
+      final loggedIn = await _api.isLoggedIn();
+      if (loggedIn) {
+        final profile = await _api.fetchProfile();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('ehrms_code', profile['ehrms_code']);
+        await prefs.setString('full_Name', profile['name'] ?? 'User');
+        await prefs.setString('profile_photo_url', profile['photo'] ?? '');
+
+        Navigator.pushReplacementNamed(
+          context,
+          '/login-home',
+          arguments: {
+            'ehrms_code': prefs.getString('ehrms_code') ?? '',
+            'full_name': prefs.getString('full_Name') ?? 'User',
+          },
+        );
+      }
+    } catch (e) {
+      // Session expired or network error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
       );
     }
   }
 
-  /// ------------------- LOGIN -------------------
   void loginUser() async {
     final ehrms = ehrmsController.text.trim();
     final password = passwordController.text.trim();
@@ -284,23 +292,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      // Login & get session (cookies stored automatically)
-      final loginData = await _api.login(ehrms, password);
-
-      // Fetch profile
+      await _api.login(ehrms, password);
       final profile = await _api.fetchProfile();
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('ehrms_code', ehrms);
-      await prefs.setString('full_Name', profile['full_name'] ?? 'User');
+      await prefs.setString('ehrms_code', profile['ehrms_code']);
+      await prefs.setString('full_Name', profile['name'] ?? 'User');
       await prefs.setString('profile_photo_url', profile['photo'] ?? '');
 
-      // Navigate to home
       Navigator.pushReplacementNamed(
         context,
         '/login-home',
         arguments: {
-          'ehrms_code': ehrms,
-          'full_name': prefs.getString('full_Name'),
+          'ehrms_code': profile['ehrms_code'],
+          'full_name': profile['name'],
         },
       );
     } catch (e) {
@@ -310,10 +315,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// ------------------- FORGOT PASSWORD -------------------
   void forgotPassword() async {
     final ehrms = ehrmsController.text.trim();
-
     if (ehrms.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Enter your EHRMS Code first")),
@@ -385,7 +388,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// ------------------- UI -------------------
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -394,18 +396,16 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(title: const Text("Login"), backgroundColor: Colors.indigo),
       body: Stack(
         children: [
-          // Background watermark
           Opacity(
             opacity: 0.08,
             child: Center(
               child: Image.asset(
-                'assets/images/logo.png',
+                'assets/images/bg_logo.png',
                 width: MediaQuery.of(context).size.width * 0.7,
                 fit: BoxFit.contain,
               ),
             ),
           ),
-          // Card-style login form
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),

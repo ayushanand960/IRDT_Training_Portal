@@ -163,12 +163,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",  # React frontend
+    "http://10.0.2.2:8000",  
 ]
 CORS_ALLOW_CREDENTIALS = True  # ✅ Needed to accept cookies cross-origin
 
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:5173", 
+    "http://127.0.0.1:5173",
+    "http://10.0.2.2:8000",   
 ]
 
 SESSION_COOKIE_SECURE = False  # For local testing

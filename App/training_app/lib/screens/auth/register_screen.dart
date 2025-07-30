@@ -572,7 +572,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Opacity(
               opacity: 0.08,
               child: Image.asset(
-                'assets/images/watermark_logo.png',
+                'assets/images/bg_logo.png',
                 fit: BoxFit.cover,
               ),
             ),
