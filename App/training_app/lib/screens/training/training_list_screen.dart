@@ -194,10 +194,6 @@
 //   }
 // }
 
-
-
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -249,7 +245,9 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
           'start_date': DateFormat('yyyy-MM-dd').format(selectedDate!),
       };
 
-      final uri = Uri.parse('$baseUrl/training-list/').replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        '$baseUrl/training-list/',
+      ).replace(queryParameters: queryParams);
 
       // Use cookie-based authenticated request
       final response = await CookieService.get(uri);
@@ -291,10 +289,10 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
       value: value,
       decoration: InputDecoration(labelText: label),
       items: items
-          .map((item) => DropdownMenuItem<T>(
-        value: item,
-        child: Text(item.toString()),
-      ))
+          .map(
+            (item) =>
+                DropdownMenuItem<T>(value: item, child: Text(item.toString())),
+          )
           .toList(),
       onChanged: onChanged,
     );
@@ -378,10 +376,10 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
                   : trainings.isEmpty
                   ? const Center(child: Text('No trainings found'))
                   : ListView.builder(
-                itemCount: trainings.length,
-                itemBuilder: (context, index) =>
-                    _buildTrainingCard(trainings[index]),
-              ),
+                      itemCount: trainings.length,
+                      itemBuilder: (context, index) =>
+                          _buildTrainingCard(trainings[index]),
+                    ),
             ),
           ],
         ),
