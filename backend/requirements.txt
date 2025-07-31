@@ -13,3 +13,4 @@ python-dotenv
 tqdm
 python-docx
 pywin32
+pandas
