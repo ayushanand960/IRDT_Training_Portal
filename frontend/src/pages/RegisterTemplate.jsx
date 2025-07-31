@@ -7,6 +7,9 @@ import Footer from '../components/Footer';
 import { polytechnics } from "../data/polytechnics";
 import { securityQuestions } from "../data/securityQuestions";
 import { branches } from "../data/branches";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import logo from "../assets/irdt-logo.png";
+import { Link } from "react-router-dom";
 
  // ✅ Add this inside the Register component
 
@@ -119,192 +122,250 @@ const Register = () => {
     }
   };
 
-  return (
-    <div style={{ backgroundColor: '#c1e4f9', minHeight: '100vh', paddingTop: '50px', paddingBottom: '50px' }}>
-      <button
-  onClick={() => navigate('/')}
-  className="btn btn-outline-dark btn-lg fw-semibold"
-  style={{
-    position: "absolute",
-    top: "20px",
-    right: "20px",
-    zIndex: 1000,
-    fontSize: "1.1rem",
-    padding: "6px 16px",
-  }}
->
-  🏠 Home
-</button>
+ return (
+  <>
+    {/* NAVBAR */}
+    <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom" style={{ backgroundColor: "#006666" }}>
+      <div className="d-flex align-items-center gap-3">
+        <img src={logo} alt="IRDT Logo" style={{ height: "8vw", filter: "invert(1) brightness(2)" }} />
+        <div>
+          <h2 className="fw-bold mb-0" style={{ color: "white", marginLeft: "2in" }}>
+            Institute for Research, Development & Training (IRDT)
+          </h2>
+          <big className="fw-semibold" style={{ color: "white", marginLeft: "2in" }}>
+            Government of Uttar Pradesh
+          </big>
+        </div>
+      </div>
+      <Link to="/" className="btn btn-outline-light fw-semibold">Home</Link>
+    </div>
 
+    {/* FORM WRAPPER */}
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', paddingTop: '40px', paddingBottom: '40px' }}>
+      <div className="container">
+        <div className="bg-white shadow-lg rounded-4 px-5 py-4" style={{ maxWidth: "1000px", margin: "auto", borderRadius: "15px", boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" }}>
+          <h4 className="mb-1 text-left fw-bold" style={{ color: "#006666", fontSize: "1.8rem" }}>Trainee Registration</h4>
+          <p className="text-left text-muted mb-4" style={{ fontSize: "1rem" }}>Create your IRDT Portal account</p>
 
-    <div className="container mt-5">
-      <div className="card p-4 shadow" >
-        <h3 className="text-center text-primary">Trainee Registration</h3>
-        <p className="text-center mb-4">Create your IRDT Portal account</p>
-        <form onSubmit={handleSubmit} className="row g-3 needs-validation" noValidate>
-          <div className="col-md-6">
-            <input type="text" name="ehrms_code" required onChange={handleChange} className="form-control" placeholder="EHRMS Code" />
-          </div>
+          <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+            <div className="row g-3">
+              {/* EHRMS Code */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">EHRMS Code <span className="text-danger">*</span></label>
+                <input type="text" name="ehrms_code" required onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <input type="text" name="first_name" required onChange={handleChange} className="form-control" placeholder="First Name" />
-          </div>
+              {/* First Name */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">First Name <span className="text-danger">*</span></label>
+                <input type="text" name="first_name" required onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <input type="text" name="middle_name" onChange={handleChange} className="form-control" placeholder="Middle Name" />
-          </div>
+              {/* Middle Name */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Middle Name</label>
+                <input type="text" name="middle_name" onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <input type="text" name="last_name" required onChange={handleChange} className="form-control" placeholder="Last Name" />
-          </div>
+              {/* Last Name */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Last Name  <span className="text-danger">*</span> </label>
+                <input type="text" name="last_name" required onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <input type="email" name="email" required onChange={handleChange} className="form-control" placeholder="Email ID" />
-          </div>
+              {/* Email ID */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Email ID <span className="text-danger">*</span></label>
+                <input type="email" name="email" required onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <input type="tel" name="mobile_number" pattern="[0-9]{10}" required onChange={handleChange} className="form-control" placeholder="Mobile No."  />
-          </div>
+              {/* Mobile No. */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
+                <input type="tel" name="mobile_number" pattern="[0-9]{10}" required onChange={handleChange} className="form-control input-dark" />
+              </div>
 
-          <div className="col-md-6">
-            <select name="gender" onChange={handleChange} required className="form-select">
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+              {/* Gender */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Gender <span className="text-danger">*</span></label>
+                <select name="gender" onChange={handleChange} required className="form-select input-dark">
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
-          <div className="col-md-6">
-            <select name="institute_name" onChange={handleChange} required className="form-select">
-              <option value="">Select Polytechnic</option>
-              {polytechnics.map((item, idx) => (
-                <option key={idx} value={item}>{item}</option>
-              ))}
-            </select>
-          </div>
+              {/* Select Polytechnic */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Select Polytechnic <span className="text-danger">*</span></label>
+                <select name="institute_name" onChange={handleChange} required className="form-select input-dark">
+                  <option value="">Select Polytechnic</option>
+                  {polytechnics.map((item, idx) => (
+                    <option key={idx} value={item}>{item}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-md-6">
-            <select name="branch" onChange={handleChange} required className="form-select">
-              <option value="">Select Branch</option>
-              {branches.map((branch, idx) => (
-                <option key={idx} value={branch}>{branch}</option>
-              ))}
-            </select>
-          </div>
+              {/* Select Branch */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Select Branch <span className="text-danger">*</span></label>
+                <select name="branch" onChange={handleChange} required className="form-select input-dark">
+                  <option value="">Select Branch</option>
+                  {branches.map((branch, idx) => (
+                    <option key={idx} value={branch}>{branch}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="col-md-6">
-            <select
-              className="form-select"
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setSelectedDesignation("");
-              }}
-              required
-            >
-              <option value="">Select Category</option>
-              <option value="A">Group A</option>
-              <option value="B">Group B</option>
-              <option value="C">Group C</option>
-            </select>
-          </div>
+              {/* Category */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Category <span className="text-danger">*</span></label>
+                <select className="form-select input-dark" value={selectedCategory} onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setSelectedDesignation("");
+                }} required>
+                  <option value="">Select Category</option>
+                  <option value="A">Group A</option>
+                  <option value="B">Group B</option>
+                  <option value="C">Group C</option>
+                </select>
+              </div>
 
-          <div className="col-md-6">
-            <select
-              className="form-select"
-              value={selectedDesignation}
-              onChange={(e) => setSelectedDesignation(e.target.value)}
-              required
-            >
-              <option value="">Select Designation</option>
-              {selectedCategory === 'A' && (
-                <>
-                  <option>Principal</option>
-                  <option>HOD</option>
-                </>
+              {/* Designation */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Designation <span className="text-danger">*</span></label>
+                <select className="form-select input-dark" value={selectedDesignation} onChange={(e) => setSelectedDesignation(e.target.value)} required>
+                  <option value="">Select Designation</option>
+                  {selectedCategory === 'A' && <><option>Principal</option><option>HOD</option></>}
+                  {selectedCategory === 'B' && <><option>Lecturer</option><option>Librarian</option><option>Workshop Superintendent</option></>}
+                  {selectedCategory === 'C' && <><option>Workshop Instructor</option><option>Office Employee/Worker</option><option>Computer Instructor</option><option>Computer Operator</option><option>Others</option></>}
+                </select>
+              </div>
+
+              {/* Password Fields */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Create Password <span className="text-danger">*</span></label>
+                <input type="password" name="password" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" onChange={(e) => {
+                  setPassword(e.target.value);
+                  setForm((prev) => ({ ...prev, password: e.target.value }));
+                }} className="form-control input-dark" />
+              </div>
+
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Confirm Password <span className="text-danger">*</span></label>
+                <input type="password" name="confirmPassword" required onChange={(e) => setConfirmPassword(e.target.value)} className="form-control input-dark" />
+              </div>
+
+              {/* Security Question */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Security Question <span className="text-danger">*</span></label>
+                <select name="security_question" onChange={handleChange} required className="form-select input-dark">
+                  <option value="">Select Security Question</option>
+                  {securityQuestions.map((q, idx) => (
+                    <option key={idx} value={q.value}>{q.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Security Answer */}
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Security Answer <span className="text-danger">*</span></label>
+                <input type="text" name="security_answer" required onChange={handleChange} className="form-control input-dark" />
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="col-md-12 mb-3">
+                  <div className="alert alert-danger" role="alert">{error}</div>
+                </div>
               )}
-              {selectedCategory === 'B' && (
-                <>
-                  <option>Lecturer</option>
-                  <option>Librarian</option>
-                  <option>Workshop Superintendent</option>
-                </>
-              )}
-              {selectedCategory === 'C' && (
-                <>
-                  <option>Workshop Instructor</option>
-                  <option>Office Employee/Worker</option>
-                  <option>Computer Instructor</option>
-                  <option>Computer Operator</option>
-                  <option>Others</option>
-                </>
-              )}
-            </select>
-          </div>
 
-          <div className="col-md-6">
-            <input
-              type="password"
-              name="password"
-              required
-              pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}"
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setForm((prev) => ({ ...prev, password: e.target.value }));
-              }}
-              className="form-control"
-              placeholder="Create Password"
-            />
-          </div>
+              {/* Submit Button */}
+              <div className="col-md-12 mt-3">
+                <button type="submit" className="btn btn-success w-100 btn-lg">Create Account</button>
+              </div>
 
-          <div className="col-md-6">
-            <input
-              type="password"
-              name="confirmPassword"
-              required
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="form-control"
-              placeholder="Confirm Password"
-            />
-          </div>
-
-          <div className="col-md-6">
-            <select name="security_question" onChange={handleChange} required className="form-select">
-              <option value="">Select Security Question</option>
-              {securityQuestions.map((q, idx) => (
-                <option key={idx} value={q.value}>{q.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-md-6">
-            <input type="text" name="security_answer" required onChange={handleChange} className="form-control" placeholder="Security Answer" />
-          </div>
-
-          {error && (
-            <div className="col-md-12">
-              <div className="alert alert-danger" role="alert">{error}</div>
+              {/* Login Link */}
+              <div className="col-md-12 text-center mt-3">
+                <p className="text-muted" style={{ color: "#006666" }}>
+                  Already have an account? <a href="/login" className="text-decoration-none" style={{ color: "#006666" }}>Login</a>
+                </p>
+              </div>
             </div>
-          )}
-
-          <div className="col-md-12">
-            <button type="submit" className="btn btn-primary w-100">Create Account</button>
-          </div>
-
-          <div className="col-md-12 text-center">
-            <p className="mt-3">
-              Already have an account? <a href="/login">Login</a>
-            </p>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-    </div>
-  );
+
+    {/* CSS Styling */}
+    <style>
+      {`
+        .input-dark {
+          color: #333;
+          background-color: #f8f9fa;
+          border: 1px solid #ccc;
+          border-radius: 10px;
+          transition: all 0.3s ease;
+        }
+
+        .input-dark:focus {
+          border-color: #006666;
+          box-shadow: 0 0 5px rgba(0, 102, 102, 0.5);
+          outline: none;
+        }
+
+        .form-label {
+          font-weight: 600;
+          text-align: left;
+          display: block;
+          font-size: 1rem;
+        }
+
+        .form-select {
+          color: #333;
+          background-color: #f8f9fa;
+          border-radius: 10px;
+          font-size: 1rem;
+        }
+
+        .form-select:focus {
+          border-color: #006666;
+          box-shadow: 0 0 5px rgba(0, 102, 102, 0.5);
+        }
+
+        .btn {
+          border-radius: 10px;
+          font-size: 1.1rem;
+          padding: 12px;
+          transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+          background-color: #004d4d;
+        }
+
+        .text-danger {
+          color: #e74c3c;
+        }
+
+        .btn-success {
+          background-color: #28a745;
+        }
+
+        .btn-success:hover {
+          background-color: #218838;
+        }
+
+        .alert-danger {
+          border-radius: 5px;
+        }
+      `}
+    </style>
+  </>
+);
+
+
+
 };
-
 export default Register;
-
-
-

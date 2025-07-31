@@ -92,7 +92,7 @@ class UserProfileView(APIView):
 
 
 class VerifySecurityAnswerAPIView(APIView):
-    permission_classes = [AllowAny]  #Piyush
+    permission_classes = [AllowAny]
     def post(self, request):
         ehrms_code = request.data.get("ehrms_code", "").strip()
         answer = request.data.get("security_answer", "").strip().lower()

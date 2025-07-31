@@ -20,6 +20,10 @@ import Logout from "./pages/Logout";
 import CoordinatorCertificatePage from './pages/CoordinatorCertificatePage';
 import TrainingNominationPage from "./pages/TrainingNominationPage";
 import AllUsersPage from './pages/AllUsersPage';
+import ZoneTable from "./pages/ZoneTable";
+import AboutUs from "./pages/AboutUs";
+import PhotoGallery from "./pages/PhotoGallery";
+import ELearning from "./pages/ELearning";
 
 
 
@@ -50,6 +54,11 @@ export default function App() {
         <Route path="/register/staff" element={<RegisterTemplate />} />
         <Route path="/admin-coordinator-login" element={<AdminCoordinatorLogin />} />
         <Route path="/logout" element={<Logout />} />
+        {/* <Route path="/home2" element={<Home2 />} /> */}
+        <Route path="/zonetable" element={<ZoneTable />} />
+        <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/PhotoGallery" element={<PhotoGallery />} />
+        <Route path="/ELearning" element={<ELearning />} />
 
         {/* Trainee Routes */}
         <Route element={<PrivateRoute allowedRoles={['trainee']} />}>
@@ -59,10 +68,10 @@ export default function App() {
         {/* Coordinator Routes */}
         <Route element={<PrivateRoute allowedRoles={['coordinator']} />}>
           <Route path="/coordinator-dashboard/:ehrms_code" element={<CoordinatorDashboard />} />
-         <Route path="/trainings/:code" element={<TrainingNominationPage />} /> 
-         {/* <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} />  */}
-         <Route path="/generate-certificate/:code" element={<CoordinatorCertificatePage />} /> 
-         <Route path="/users/all/:code" element={<AllUsersPage />} />
+          <Route path="/trainings/:code" element={<TrainingNominationPage />} />
+          {/* <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} />  */}
+          <Route path="/generate-certificate/:code" element={<CoordinatorCertificatePage />} />
+          <Route path="/users/all/:code" element={<AllUsersPage />} />
         </Route>
 
         {/* Admin Routes */}
@@ -71,7 +80,7 @@ export default function App() {
           <Route path="/admin-trainings" element={<ManageTrainings />} />
           <Route path="/training-calendar" element={<TrainingCalendar />} />
           <Route path="/manage-users" element={<ManageUsers />} />
-          </Route>
+        </Route>
       </Routes>
     </Router>
   );
