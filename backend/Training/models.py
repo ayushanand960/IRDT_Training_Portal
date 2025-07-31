@@ -87,3 +87,15 @@ class Nomination(models.Model):
 
     def __str__(self):
         return f"{self.trainee} → {self.training.name}"
+    
+
+class Rejection(models.Model):
+    trainee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rejections")
+    training = models.ForeignKey(TrainingProgram, on_delete=models.CASCADE, related_name="rejections")
+    rejected_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="rejections_made")
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.trainee} rejected from {self.training.name}"

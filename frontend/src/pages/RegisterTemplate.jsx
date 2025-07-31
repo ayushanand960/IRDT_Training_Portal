@@ -75,11 +75,11 @@ const Register = () => {
       );
       alert("Registration successful");
        navigate("/login"); 
-      // window.location.reload();
+      // window.location.reload();  
       
     } catch (err) {
       const errorData = err.response?.data;
-  console.error("Registration error response:", errorData); // for debugging
+      // console.error("Registration error response:", errorData); // for debugging
 
   let errorMsg = "Registration failed";
 

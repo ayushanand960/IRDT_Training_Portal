@@ -193,3 +193,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+
+# Email backend to print emails to the console (for development only)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

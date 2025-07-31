@@ -139,3 +139,12 @@ class NominationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['nominated_by'] = self.context['request'].user
         return super().create(validated_data)
+
+
+from .models import Rejection
+
+class RejectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rejection
+        fields = ['trainee', 'training', 'rejected_by', 'reason', 'created_at']
+        read_only_fields = ['rejected_by', 'created_at']

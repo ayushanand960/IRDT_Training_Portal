@@ -340,3 +340,63 @@ class AssignedTrainingsView(APIView):
                 "certificate_generated": cert_exists,  # ✅ Include this
             })
         return Response(data)
+
+
+from .models import Rejection
+from .serializers import RejectionSerializer
+from django.core.mail import send_mail
+
+class RejectTraineeAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = RejectionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        trainee = serializer.validated_data['trainee']
+        training = serializer.validated_data['training']
+        reason = serializer.validated_data['reason']
+
+        # Check permission
+        if training.faculty != request.user:
+            return Response(
+                {"error": "You are not authorized to reject this trainee for this training."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Delete enrollment
+        Enrollment.objects.filter(trainee=trainee, training=training).delete()
+
+        # Save rejection
+        rejection = Rejection.objects.create(
+            trainee=trainee,
+            training=training,
+            rejected_by=request.user,
+            reason=reason
+        )
+
+        # Send polite, personalized email
+        subject = "Training Rejection Notification"
+        message = f"""Dear {trainee},
+
+We regret to inform you that your nomination for the training program titled 
+"{training.name}" has been declined.
+
+Reason: {reason}
+
+We appreciate your interest, and we encourage you to apply for future opportunities.
+
+Warm regards,
+Training Coordination Team
+"""
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email="harshittiwari309@gmail.com",
+            recipient_list=[trainee.email],
+            fail_silently=False,
+        )
+
+        return Response({"message": "Trainee rejected and notified."}, status=status.HTTP_200_OK)
