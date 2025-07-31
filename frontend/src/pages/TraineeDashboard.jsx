@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
 import AllCertificatesModal from '../components/AllCertificatesModal';
+import NotificationBell from '../components/NotificationBell';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
@@ -187,6 +188,7 @@ const TraineeDashboard = () => {
         <div className="d-flex align-items-center gap-2">
           <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">🏠 Home</button>
           <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>🚪 Logout</button>
+          <NotificationBell />
           <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
             <img
               src={profilePhoto || 'https://placehold.co/100x120?text=Upload'}
@@ -200,7 +202,7 @@ const TraineeDashboard = () => {
 
       </nav>
 
-   {showProfileModal && (
+      {showProfileModal && (
         <div
           className="modal d-block fade show"
           tabIndex="-1"
@@ -334,7 +336,7 @@ const TraineeDashboard = () => {
             </div>
           </div>
 
-         {/* Second Row: Upcoming & Past Trainings (Full-width) */}
+          {/* Second Row: Upcoming & Past Trainings (Full-width) */}
           {filteredTrainings
             .filter((group) => group.section !== '🟢 Trainings This Week')
             .map((group, idx) => (
@@ -344,11 +346,10 @@ const TraineeDashboard = () => {
                   {group.items.slice(0, visibleCounts[group.section]).map((training, index) => (
                     <div
                       key={index}
-                      className="col-6 col-md-4 mb-4"
-                      style={
-                        group.section !== '🟢 Trainings This Week'
-                          ? { flex: '0 0 25%', maxWidth: '25%' }  // 4 cards per row
-                          : { flex: '0 0 33.3333%', maxWidth: '33.3333%' } // 3 cards per row for This Week
+                      className={
+                        group.section === '🟢 Trainings This Week'
+                          ? 'col-12 col-md-6 col-lg-4 mb-4'
+                          : 'col-12 col-md-6 col-lg-4 col-xl-3 mb-4'
                       }
                     >
                       <TrainingCard
@@ -373,15 +374,15 @@ const TraineeDashboard = () => {
 
         </div>
 
-          {/* 📋 All Certificates Modal */}
-          <AllCertificatesModal
-            show={showAllCertificatesModal}
-            onClose={() => setShowAllCertificatesModal(false)}
-            certificates={allCertificates}
-          />
-        </div>
-        {/* ✅ Certificate Module Ends Here */}
-      
+        {/* 📋 All Certificates Modal */}
+        <AllCertificatesModal
+          show={showAllCertificatesModal}
+          onClose={() => setShowAllCertificatesModal(false)}
+          certificates={allCertificates}
+        />
+      </div>
+      {/* ✅ Certificate Module Ends Here */}
+
     </>
 
   );

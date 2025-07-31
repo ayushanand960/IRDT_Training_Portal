@@ -144,7 +144,38 @@ class NominationSerializer(serializers.ModelSerializer):
 from .models import Rejection
 
 class RejectionSerializer(serializers.ModelSerializer):
+    training_name = serializers.CharField(source='training.name', read_only=True)
+    coordinator_name = serializers.SerializerMethodField()
+    trainee_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Rejection
-        fields = ['trainee', 'training', 'rejected_by', 'reason', 'created_at']
-        read_only_fields = ['rejected_by', 'created_at']
+        fields = [
+            'id',
+            'trainee',
+            'trainee_name',
+            'training',
+            'training_name',
+            'rejected_by',
+            'coordinator_name',
+            'reason',
+            'created_at',
+            'is_read'
+        ]
+        read_only_fields = ['rejected_by', 'created_at', 'is_read']
+
+    def get_coordinator_name(self, obj):
+        if obj.rejected_by:
+            first = obj.rejected_by.first_name or ""
+            middle = obj.rejected_by.middle_name or ""
+            last = obj.rejected_by.last_name or ""
+            return " ".join(part for part in [first, middle, last] if part).strip()
+        return "Unknown"
+
+    def get_trainee_name(self, obj):
+        if obj.trainee:
+            first = obj.trainee.first_name or ""
+            middle = obj.trainee.middle_name or ""
+            last = obj.trainee.last_name or ""
+            return " ".join(part for part in [first, middle, last] if part).strip()
+        return "Unknown"

@@ -1,0 +1,49 @@
+.zone-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.zone-header {
+  background-color: #c1272d;
+  color: white;
+  padding: 8px 16px;
+  font-weight: bold;
+  width: fit-content;
+}
+
+h2 {
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.zone-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  border: 1px solid #ccc;
+}
+
+.zone-table th {
+  background-color: #f57c00;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+.zone-table td {
+  padding: 10px;
+  vertical-align: top;
+  border: 1px solid #ccc;
+}
+
+.section-row td {
+  background-color: #f3f3f3;
+  font-weight: bold;
+}
+
+.available-courses p,
+.seat-numbers p {
+  margin: 2px 0;
+  line-height: 1.3;
+}

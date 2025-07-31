@@ -18,7 +18,7 @@ from .views import (
     DashboardMetricsAPIView,
 )
 from .views import NominationCreateAPIView,CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView
-from .views import AssignedTrainingsView , RejectTraineeAPIView
+from .views import AssignedTrainingsView , RejectTraineeAPIView, RejectionNotificationAPIView, MarkRejectionAsReadAPIView, DeleteRejectionAPIView
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
     path('training-programs/<str:code>/', TrainingProgramRetrieveUpdateDeleteAPIView.as_view(), name='training-rud'),
@@ -32,5 +32,9 @@ urlpatterns = [
     path('nomination/remove/<str:training_code>/<str:ehrms_code>/', RemoveNominationAPIView.as_view()),
     path('trainings/assigned/', AssignedTrainingsView.as_view(), name='assigned-trainings'),
     path('rejections/', RejectTraineeAPIView.as_view(), name='reject-trainee'),
-
+    path('notification/rejections/', RejectionNotificationAPIView.as_view(), name='reject-notification'),
+    path('notification/rejections/<int:pk>/read/', MarkRejectionAsReadAPIView.as_view(), name='mark-rejection-read'),
+      path('notification/rejections/<int:pk>/delete/', DeleteRejectionAPIView.as_view(), name='delete-rejection'),
 ]
+
+

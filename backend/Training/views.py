@@ -364,6 +364,13 @@ class RejectTraineeAPIView(APIView):
                 {"error": "You are not authorized to reject this trainee for this training."},
                 status=status.HTTP_403_FORBIDDEN
             )
+        
+         # Prevent duplicate rejections
+        if Rejection.objects.filter(trainee=trainee, training=training).exists():
+            return Response(
+                {"error": "This trainee has already been rejected for this training."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Delete enrollment
         Enrollment.objects.filter(trainee=trainee, training=training).delete()
@@ -399,4 +406,54 @@ Training Coordination Team
             fail_silently=False,
         )
 
-        return Response({"message": "Trainee rejected and notified."}, status=status.HTTP_200_OK)
+        response_data = RejectionSerializer(rejection).data
+        return Response(
+            {"message": "Trainee rejected and notified.", "rejection": response_data},
+            status=status.HTTP_200_OK
+        )
+
+
+
+class RejectionNotificationAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Fetch all rejections for the logged-in trainee
+        rejections = Rejection.objects.filter(trainee=request.user).order_by('-created_at')
+        serializer = RejectionSerializer(rejections, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Mark all unread rejections as read
+        Rejection.objects.filter(trainee=request.user, is_read=False).update(is_read=True)
+        return Response({'message': 'Notifications marked as read'})
+    
+
+
+class MarkRejectionAsReadAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            rejection = Rejection.objects.get(pk=pk, trainee=request.user)
+            rejection.is_read = True
+            rejection.save()
+            return Response({"message": "Marked as read."}, status=status.HTTP_200_OK)
+        except Rejection.DoesNotExist:
+            return Response({"error": "Not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+class DeleteRejectionAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        try:
+            rejection = Rejection.objects.get(pk=pk, trainee=request.user)
+            rejection.delete()
+            return Response({'message': 'Rejection deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Rejection.DoesNotExist:
+            return Response({'error': 'Rejection not found'}, status=status.HTTP_404_NOT_FOUND)

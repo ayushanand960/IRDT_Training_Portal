@@ -3,6 +3,8 @@ import axiosInstance from "../utils/axiosInstance";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import logo from "../assets/irdt-logo.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import './Login.css';
 
 const Login = () => {
@@ -70,92 +72,118 @@ const Login = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", backgroundColor: "#c1e4f9" }}>
-      <button
-        onClick={() => navigate('/')}
-        className="btn btn-outline-dark btn-lg fw-semibold"
-        style={{
-          position: "absolute",
-          top: "20px",
-          right: "20px",
-          zIndex: 1000,
-          fontSize: "1.1rem",
-          padding: "6px 16px",
-        }}
-      >
-        🏠 Home
-      </button>
+    <div className="container-fluid min-vh-100 bg-light p-0">
+      {/* Navbar */}
+      <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom" style={{ backgroundColor: "#006666" }}>
+        <div className="d-flex align-items-center gap-3">
+          <img src={logo} alt="IRDT Logo" style={{ height: "8vw", filter: "invert(1) brightness(2)" }} />
 
-      <div className="card shadow-lg" style={{ width: "100%", maxWidth: "400px", height: "500px", borderRadius: "20px", display: "flex", justifyContent: "center", padding: "30px" }}>
-        <div style={{ width: "100%" }}>
-          <h3 className="text-center mb-3">Login</h3>
+          <div>
+            <h2 className="fw-bold mb-0" style={{ color: "white", marginLeft: "2in" }}>
+              Institute for Research, Development & Training (IRDT)
+            </h2>
+            <big className="fw-semibold" style={{ color: "white", marginLeft: "2in" }}>
+              Government of Uttar Pradesh
+            </big>
+          </div>
         </div>
+        <Link to="/" className="btn btn-outline-light fw-semibold">
+          Home
+        </Link>
+      </div>
+      <br />
+      <br />
+      <br />
+      {/* Page content */}
+      <div className="container d-flex justify-content-center align-items-center py-5">
+        <div className="row w-100" style={{ maxWidth: "900px" }}>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <input
-              type="text"
-              name="ehrms_code"
-              className="form-control"
-              placeholder="EHRMS Code"
-              value={credentials.ehrms_code}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="mb-2 position-relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              className="form-control"
-              placeholder="Password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-              style={{ paddingRight: '40px' }}
-            />
-            <span
-              className="position-absolute top-50 end-0 translate-middle-y pe-3"
-              style={{ cursor: "pointer", userSelect: "none" }}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </span>
-          </div>
-
-          <div className="mb-3 text-end">
-            <Link to="/forgot_password" className="text-decoration-none text-primary" style={{ fontSize: '0.9rem' }}>
-              Forgot Password?
+          {/* New User Box */}
+          <div className="col-md-6 p-4 border-end">
+            <h5 className="fw-bold">NEW USER</h5>
+            <hr className="border-2 border-warning w-25 mb-3 mt-1" />
+            <p>Don’t have an Account Yet?</p>
+            <Link to="/register/staff" className="btn" style={{ backgroundColor: "#006666", color: "white" }}>
+              Sign up
             </Link>
           </div>
 
-          {/* ✅ Error Messages */}
-          {error && <div className="text-danger text-center mb-2">{error}</div>}
-          {sessionExpired && (
-            <div className="text-danger text-center mb-2">
-              Session expired. Please login again.
-            </div>
-          )}
+          {/* Existing User Box */}
+          <div className="col-md-6 p-4">
+            <h5 className="fw-bold">EXISTING USER</h5>
+            <hr className="border-2 border-warning w-25 mb-3 mt-1" />
+            <p>Login to your Account</p>
 
-          <button type="submit" className="btn btn-primary w-100">Login</button>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  name="ehrms_code"
+                  className="form-control"
+                  placeholder="EHRMS Code"
+                  value={credentials.ehrms_code}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div className="mt-3 text-center">
-            <span style={{ fontSize: '0.9rem' }}>
-              If you don't have an account,{" "}
-              <Link to="/register/staff" className="text-primary text-decoration-none">
-                Register
-              </Link>
-            </span>
+              <div className="mb-3 position-relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  className="form-control"
+                  placeholder="Password"
+                  value={credentials.password}
+                  onChange={handleChange}
+                  required
+                />
+                <span
+                  className="position-absolute top-50 end-0 translate-middle-y me-3"
+                  style={{ cursor: "pointer", fontSize: "1.2rem", color: "#006666" }}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+
+              </div>
+
+              <div className="text-end mb-2">
+                <Link to="/forgot_password" className="text-decoration-none small" style={{ color: "#006666" }}>
+                  Forgot Password?
+                </Link>
+
+              </div>
+
+              {error && (
+                <div className="text-danger text-center mb-2 small">{error}</div>
+              )}
+
+              <button type="submit" className="btn w-100" style={{ backgroundColor: "#006666", color: "white" }}>
+                Login
+              </button>
+
+            </form>
           </div>
-        </form>
+
+        </div>
       </div>
     </div>
+
   );
 };
-
 export default Login;
 
+
+
+
+
+// {/* ✅ Error Messages */}
+//           {error && <div className="text-danger text-center mb-2">{error}</div>}
+//           {sessionExpired && (
+//             <div className="text-danger text-center mb-2">
+//               Session expired. Please login again.
+//             </div>
+//           )}
 
 // import React, { useEffect, useState } from "react";
 // import axiosInstance from "../utils/axiosInstance";
