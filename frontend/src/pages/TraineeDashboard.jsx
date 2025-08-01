@@ -21,6 +21,9 @@ const TraineeDashboard = () => {
 
   const [showAllCertificatesModal, setShowAllCertificatesModal] = useState(false);
   const [allCertificates, setAllCertificates] = useState([]);
+  const [pastTrainingsFromAPI, setPastTrainingsFromAPI] = useState([]);
+  const [showPastTrainingsModal, setShowPastTrainingsModal] = useState(false);
+
 
 
 
@@ -66,6 +69,17 @@ const TraineeDashboard = () => {
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
       navigate('/', { replace: true }); // Replace history to prevent back button
+    }
+  };
+
+  const fetchPastTrainings = async () => {
+    try {
+      setShowProfileModal(false);
+      const res = await axiosInstance.get('/training/past-trainings/');
+      setPastTrainingsFromAPI(res.data);
+      setShowPastTrainingsModal(true);
+    } catch (err) {
+      toast.error("Failed to load past trainings");
     }
   };
 
@@ -256,7 +270,7 @@ const TraineeDashboard = () => {
                   >
                     🎓 View Certificates
                   </button>
-                  <button
+                  {/* <button
                     className="btn btn-outline-info btn-sm"
                     onClick={() => {
                       handleCloseProfileModal();
@@ -268,7 +282,14 @@ const TraineeDashboard = () => {
                     }}
                   >
                     📚 Past Trainings
+                  </button> */}
+                  <button
+                    className="btn btn-outline-info btn-sm"
+                    onClick={fetchPastTrainings}
+                  >
+                    📚 Past Trainings
                   </button>
+
                 </div>
               </div>
               <div className="modal-footer justify-content-center">
@@ -373,6 +394,38 @@ const TraineeDashboard = () => {
             ))}
 
         </div>
+        {/* Past Trainings Modal */}
+        {showPastTrainingsModal && (
+          <div className="modal d-block fade show" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered modal-lg">
+              <div className="modal-content p-3">
+                <div className="modal-header">
+                  <h5 className="modal-title text-info">📚 Past Trainings</h5>
+                  <button className="btn-close" onClick={() => setShowPastTrainingsModal(false)}></button>
+                </div>
+                <div className="modal-body">
+                  {pastTrainingsFromAPI.length === 0 ? (
+                    <p>No past trainings found.</p>
+                  ) : (
+                    <ul className="list-group">
+                      {pastTrainingsFromAPI.map((t) => (
+                        <li key={t.id} className="list-group-item">
+                          <strong>{t.name}</strong><br />
+                          {t.start_date} to {t.end_date} @ {t.venue}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={() => setShowPastTrainingsModal(false)}>
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 📋 All Certificates Modal */}
         <AllCertificatesModal

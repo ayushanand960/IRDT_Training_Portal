@@ -139,7 +139,6 @@ import axiosInstance from "../utils/axiosInstance";
 import CoordinatorProfile from "../components/CoordinatorProfile";
 import AssignedTrainings from "../components/AssignedTrainings";
 import Topbar from "../components/Topbar";
-import TraineeManager from "../components/TraineeManager";
 import { useNavigate } from "react-router-dom"; // ✅ NEW IMPORT
 
 const CoordinatorDashboard = () => {

@@ -31,8 +31,8 @@ const Sidebar = () => {
         <FaCalendarAlt className="me-2" /> <span>Training Calendar</span>
       </NavLink>
 
-      <NavLink to="/notifications" className="d-flex align-items-center mb-2 text-white text-decoration-none">
-        <FaBell className="me-2" /> <span>Notifications</span>
+      <NavLink to="/admin-nominations" className="d-flex align-items-center mb-2 text-white text-decoration-none">
+        <FaBell className="me-2" /> <span>Nominations</span>
       </NavLink>
 
       

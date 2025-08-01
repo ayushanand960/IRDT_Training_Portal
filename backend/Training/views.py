@@ -16,10 +16,16 @@ from .models import TrainingProgram
 from .serializers import TrainingProgramSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
-from Training.models import Nomination
+# from Training.models import Nomination
 from Enrollment.models import Enrollment
 from rest_framework import serializers
 from Login.serializers import UserSerializer
+from django.utils import timezone
+from django.http import HttpResponse
+import csv
+from io import BytesIO
+from openpyxl import Workbook
+
 import pandas as pd
 import logging
 
@@ -170,14 +176,14 @@ class DashboardMetricsAPIView(APIView):
 
 
 from rest_framework import generics
-from .models import Nomination
+# from .models import Nomination
 from .serializers import NominationSerializer
 
-class NominationCreateAPIView(generics.CreateAPIView):
-    queryset = Nomination.objects.all()
-    serializer_class = NominationSerializer
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+# class NominationCreateAPIView(generics.CreateAPIView):
+#     queryset = Nomination.objects.all()
+#     serializer_class = NominationSerializer
+#     authentication_classes = [CookieJWTAuthentication]
+#     permission_classes = [permissions.IsAuthenticated]
 
 User = get_user_model()
 
@@ -190,17 +196,18 @@ class CoordinatorTrainingDetailView(APIView):
 
         data = []
         for training in trainings:
-            nominations = Nomination.objects.filter(training=training)
+            # nominations = Nomination.objects.filter(training=training)
+            enrollments = Enrollment.objects.filter(training=training, status='nominated').select_related('trainee')
             trainees = [{
                 "ehrms_code": nom.trainee.ehrms_code,
                 "name": nom.trainee.name
-            } for nom in nominations]
+            } for nom in enrollments]
 
             data.append({
                 "training_title": training.name,
                 "venue": training.venue,
                 "dates": f"{training.start_date} to {training.end_date}",
-                "trainee_count": nominations.count(),
+                "trainee_count": enrollments.count(),
                 "trainees": trainees
             })
 
@@ -239,27 +246,30 @@ class BulkNominationView(APIView):
             training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
         except TrainingProgram.DoesNotExist:
             return Response({"error": "Not authorized or training not found."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if training.is_finalized:
+            return Response({"error": "Nominations are finalized. Editing is not allowed."}, status=status.HTTP_403_FORBIDDEN)
 
         created = []
         skipped = []
         for ehrms_code in ehrms_codes:
             try:
                 trainee = User.objects.get(ehrms_code=ehrms_code)
-                nomination, created_flag = Nomination.objects.get_or_create(
-                    training=training,
-                    trainee=trainee,
-                    defaults={"coordinator": request.user, "nominated_by": request.user}
-                )
-                from Enrollment.models import Enrollment
                 enrollment, enrollment_created = Enrollment.objects.get_or_create(
-                    trainee=trainee,
                     training=training,
+                    trainee=trainee,
                     defaults={"status": "nominated"}
                 )
+                # from Enrollment.models import Enrollment
+                # enrollment, enrollment_created = Enrollment.objects.get_or_create(
+                #     trainee=trainee,
+                #     training=training,
+                #     defaults={"status": "nominated"}
+                # )
                 if not enrollment_created and enrollment.status != 'nominated':
                     enrollment.status = 'nominated'
                     enrollment.save()
-                if created_flag:
+                if enrollment_created:
                     created.append(ehrms_code)
                 else:
                     skipped.append(ehrms_code)
@@ -268,7 +278,8 @@ class BulkNominationView(APIView):
 
         return Response({
             "nominated": created,
-            "message": f"{len(created)} trainee(s) nominated."
+            "skipped": skipped,
+            "message": f"{len(created)} trainee(s) nominated. {len(skipped)} skipped."
         }, status=status.HTTP_200_OK)
 
 class NominatedTraineesByTrainingAPIView(APIView):
@@ -280,9 +291,24 @@ class NominatedTraineesByTrainingAPIView(APIView):
         except TrainingProgram.DoesNotExist:
             return Response({"error": "Training not found or not authorized."}, status=403)
 
+        # if training.is_finalized:
+        #     return Response({"error": "Nominations are finalized. Editing is not allowed."}, status=status.HTTP_403_FORBIDDEN)
+
         # nominations = Nomination.objects.filter(training=training).select_related('trainee')
         enrollments = Enrollment.objects.filter(training=training, status='nominated').select_related('trainee')
         trainees = [e.trainee for e in enrollments]
+        serializer = UserSerializer(trainees, many=True)
+        return Response(serializer.data)
+    
+class AttendedTraineesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, code):
+        trainees = User.objects.filter(
+        enrollments__training__code=code,  # ✅ correct related name
+        enrollments__status="attended"
+        ).distinct()
+
         serializer = UserSerializer(trainees, many=True)
         return Response(serializer.data)
 
@@ -307,8 +333,13 @@ class RemoveNominationAPIView(APIView):
         if not trainee:
             return Response({"error": "Trainee not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        # Step 4: Check if final nomination already submitted
+        if training.is_finalized:
+            return Response({"error": "Nominations are finalized. Editing is not allowed."}, status=status.HTTP_403_FORBIDDEN)
+
+        
         # Step 4: Delete Nomination
-        Nomination.objects.filter(training=training, trainee=trainee).delete()
+        # Nomination.objects.filter(training=training, trainee=trainee).delete()
 
         # Step 5: Update Enrollment status to 'applied' if it was 'nominated'
         enrollment = Enrollment.objects.filter(training=training, trainee=trainee).first()
@@ -316,7 +347,9 @@ class RemoveNominationAPIView(APIView):
             enrollment.status = "applied"
             enrollment.save()
 
-        return Response({"message": "Nomination removed and enrollment updated."}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Nomination removed and enrollment status reverted to 'applied'."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Trainee is not currently nominated."}, status=status.HTTP_400_BAD_REQUEST)
 
 from Certificate.models import Certificate
 
@@ -457,3 +490,191 @@ class DeleteRejectionAPIView(APIView):
             return Response({'message': 'Rejection deleted'}, status=status.HTTP_204_NO_CONTENT)
         except Rejection.DoesNotExist:
             return Response({'error': 'Rejection not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+class FinalizeNominationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not authorized."}, status=403)
+
+        # Check if already finalized
+        if training.is_finalized:
+            return Response({"message": "⚠️ Final list already submitted."}, status=200)
+
+        # Finalize nominated enrollments
+        updated_count = Enrollment.objects.filter(
+            training=training,
+            status='nominated',
+            is_finalized=False
+        ).update(is_finalized=True, finalized_at=timezone.now())
+
+        # Update training program as finalized
+        training.is_finalized = True
+        training.finalized_at = timezone.now()
+        training.finalized_by = request.user
+        training.save()
+
+        return Response({
+            "message": f"✅ Finalized {updated_count} trainee(s) for training {training.name}.",
+            "finalized": True
+        }, status=200)
+    
+
+class FinalizedNominationsListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if not request.user.is_superuser:
+            return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+
+        finalized_trainings = TrainingProgram.objects.filter(is_finalized=True).select_related("faculty")
+
+        data = []
+        for t in finalized_trainings:
+            # Check if all nominations are attended
+            all_attended = Enrollment.objects.filter(training=t, is_finalized=True).exclude(status='attended').count() == 0
+
+            data.append({
+                "code": t.code,
+                "name": t.name,
+                "faculty": f"{t.faculty.first_name} {t.faculty.middle_name or ''} {t.faculty.last_name}".strip() if t.faculty else "N/A",
+                "finalized_at": t.finalized_at.isoformat() if t.finalized_at else None,
+                "is_completed": all_attended,
+                "edit_request_status": t.edit_request_status,     # ✅ add this
+                "edit_requested": t.edit_requested,
+            })
+
+        return Response(data, status=200)
+    
+
+
+
+class DownloadFinalNominationXLSXAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found."}, status=404)
+
+        if not (request.user == training.faculty or request.user.is_superuser):
+            return Response({"error": "Unauthorized."}, status=403)
+
+        if not training.is_finalized:
+            return Response({"error": "Training has not been finalized yet."}, status=400)
+
+        enrollments = Enrollment.objects.filter(
+            training=training,
+            status='nominated',
+            is_finalized=True
+        ).select_related('trainee')
+
+        if not enrollments.exists():
+            return Response({"error": "No finalized nominations yet."}, status=404)
+
+        # Prepare data
+        data = []
+        for e in enrollments:
+            t = e.trainee
+            full_name = f"{t.first_name or ''} {t.middle_name or ''} {t.last_name or ''}".strip()
+            data.append({
+                'EHRMS Code': t.ehrms_code,
+                'Full Name': full_name,
+                'Email': t.email,
+                'Phone': t.mobile_number or '',
+                'Designation': t.designation or '',
+                'Branch': t.branch or '',
+                'Institute': t.institute_name or t.institute or ''
+            })
+
+        df = pd.DataFrame(data)
+
+        # Save to XLSX in memory
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Final Nominations')
+        output.seek(0)
+
+        # Return XLSX response
+        response = HttpResponse(
+           output.getvalue(),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename=FinalNominations_{training.code}.xlsx'
+        return response
+    
+
+
+class RequestEditAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, training_code):
+        try:
+            training = TrainingProgram.objects.get(code=training_code, faculty=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found or not assigned to you."}, status=404)
+
+        if not training.is_finalized:
+            return Response({"message": "Training is not finalized. No need to request edit."})
+
+        training.edit_requested = True
+        training.edit_request_status = "pending"
+        training.save()
+
+        return Response({"message": "✅ Edit request submitted."})
+    
+
+
+class ApproveEditRequestAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, training_code):
+        if not request.user.is_superuser:
+            return Response({"error": "Only admin can perform this action."}, status=403)
+
+        try:
+            training = TrainingProgram.objects.get(code=training_code)
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found."}, status=404)
+
+        action = request.data.get("action")  # 'approve' or 'reject'
+        if action == "approve":
+            training.edit_request_status = "approved"
+            training.edit_requested = False
+            training.is_finalized = False  # allow changes again
+            message = "✅ Edit request approved."
+        elif action == "reject":
+            training.edit_request_status = "rejected"
+            training.edit_requested = False
+            message = "❌ Edit request rejected."
+        else:
+            return Response({"error": "Invalid action. Use 'approve' or 'reject'."}, status=400)
+
+        training.save()
+        return Response({"message": message}, status=200)
+    
+
+class PastTrainingsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        today = date.today()
+
+        # Fetch enrollments where training ended in the past
+        enrollments = Enrollment.objects.filter(
+            trainee=user,
+            training__end_date__lt=today
+        ).select_related('training')
+
+        past_trainings = [enrollment.training for enrollment in enrollments]
+        serializer = TrainingProgramSerializer(past_trainings, many=True)
+        return Response(serializer.data)

@@ -28,7 +28,9 @@ class CertificateGenerateView(APIView):
 
     def post(self, request, training_code):
         uploaded_file = request.FILES.get('file')              # Excel (trainee data)
-        template_file = request.FILES.get('template')          # .docx template
+        template_file = request.FILES.get('template')  
+        if uploaded_file and not uploaded_file.name.endswith(('.xlsx', '.xls')):
+            return Response({'error': 'Only Excel files (.xlsx or .xls) are allowed.'}, status=400)        # .docx template
 
         if not uploaded_file or not template_file:
             return Response({'error': 'Both data file and template file are required.'}, status=400)

@@ -22,6 +22,8 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
             'target_group',
             'remark',
             'faculty_name_display',
+            'is_finalized',
+            'edit_request_status',
         ]
         read_only_fields = ['status']
 

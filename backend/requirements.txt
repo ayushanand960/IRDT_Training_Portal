@@ -14,3 +14,4 @@ tqdm
 python-docx
 pywin32
 pandas
+Pillow

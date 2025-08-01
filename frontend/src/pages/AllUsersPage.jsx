@@ -148,8 +148,8 @@ const AllUsersPage = () => {
 
   if (loading)
     return <Spinner animation="border" className="mt-5 d-block mx-auto" />;
+  // const canEdit = !trainingStatus.isFinalized;
   if (error) return <Alert variant="danger">{error}</Alert>;
-
   return (
     <Container className="mt-4">
       <Card className="p-3 shadow-sm mb-4">

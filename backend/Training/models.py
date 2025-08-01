@@ -50,6 +50,23 @@ class TrainingProgram(models.Model):
     number_of_participants = models.PositiveIntegerField(_("No. of Participants"), blank=True, null=True)
     remark = models.CharField(_("Remark"), max_length=255, blank=True, null=True)
     status = models.CharField(_("Status"), max_length=100, blank=True, null=True)
+    is_finalized = models.BooleanField(default=False)
+    finalized_at = models.DateTimeField(null=True, blank=True)
+    finalized_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='finalized_trainings'
+    )
+    edit_requested = models.BooleanField(default=False)
+    edit_request_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('null', 'null')],
+        default='null',
+        blank=True,
+        null=True
+    )
 
     class Meta:
         verbose_name = "Training Program"

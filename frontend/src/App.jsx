@@ -24,6 +24,7 @@ import ZoneTable from "./pages/ZoneTable";
 import AboutUs from "./pages/AboutUs";
 import PhotoGallery from "./pages/PhotoGallery";
 import ELearning from "./pages/ELearning";
+import AdminNominationDashboard from "./pages/AdminNominationDashboard";
 
 
 
@@ -80,6 +81,7 @@ export default function App() {
           <Route path="/admin-trainings" element={<ManageTrainings />} />
           <Route path="/training-calendar" element={<TrainingCalendar />} />
           <Route path="/manage-users" element={<ManageUsers />} />
+          <Route path="/admin-nominations" element={<AdminNominationDashboard />} />
         </Route>
       </Routes>
     </Router>
