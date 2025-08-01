@@ -261,18 +261,24 @@ const Home = () => {
 
         </div>
       </header>
+<nav className="navbar">
+  <div className="nav-links">
+    <Link to="/">Home</Link>
+    <Link to="/aboutus">About</Link>
+    <Link to="/curriculum">Curriculum</Link>
+    <Link to="/zonetable">Polytechnics</Link>
+    <Link to="/photogallery">Gallery</Link>
+    <Link to="/login">Login</Link>
+    <Link to="/admin-coordinator-login">AdministrationLogin</Link>
+  </div>
 
-      <nav className="navbar">
-        <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/aboutus">About</Link>
-          <Link to="/curriculum">Curriculum</Link>
-          <Link to="/zonetable"> Polytechnics</Link>
-          <Link to="/photogallery">Gallery</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/admin-coordinator-login">AdministrationLogin</Link>
-        </div>
-      </nav>
+  {/* Info Button */}
+  <button className="info-btn" title="Information"
+   onClick={() => navigate("/info1")}>
+    i
+  </button>
+</nav>
+
 
 
 
