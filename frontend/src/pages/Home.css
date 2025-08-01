@@ -41,35 +41,54 @@ body {
   font-size: 50px;
   color: #444;
 }
-
 .navbar {
   background: #006666;
   display: flex;
-  justify-content: center;   /* center the nav-links container */
-  padding: 8px 0;            /* vertical spacing */
+  justify-content: space-between; /* put links left and button right */
+  align-items: center;
+  padding: 8px 20px; /* space inside navbar */
 }
 
 .nav-links {
   display: flex;
-  gap: 15px;                 /* spacing between links */
+  gap: 15px;
 }
 
 .nav-links a {
   color: white;
   text-decoration: none;
   font-weight: bold;
-  padding: 6px 10px;         /* clickable area */
+  padding: 6px 10px;
   border-radius: 4px;
   transition: background 0.3s;
 }
+
 .nav-links a:first-child {
-  margin-left: 1rem; /* adjust value as needed (e.g., -1rem to -2rem) */
+  margin-left: 1rem;
 }
 
 .nav-links a:hover {
   background: #004d4d;
   text-decoration: underline;
 }
+
+.info-btn {
+  background: #004d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.info-btn:hover {
+  background: #003333;
+}
+
 
 /* Hero Section */
 .hero {

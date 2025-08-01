@@ -26,6 +26,8 @@ import PhotoGallery from "./pages/PhotoGallery";
 import ELearning from "./pages/ELearning";
 import AdminNominationDashboard from "./pages/AdminNominationDashboard";
 
+import Info1 from "./pages/Info1"; 
+
 
 
 // Components
@@ -58,6 +60,7 @@ export default function App() {
         {/* <Route path="/home2" element={<Home2 />} /> */}
         <Route path="/zonetable" element={<ZoneTable />} />
         <Route path="/aboutus" element={<AboutUs />} />
+         <Route path="/info1" element={<Info1 />} />
         <Route path="/PhotoGallery" element={<PhotoGallery />} />
         <Route path="/ELearning" element={<ELearning />} />
 
