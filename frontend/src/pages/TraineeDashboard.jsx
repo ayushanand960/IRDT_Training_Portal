@@ -116,7 +116,12 @@ const TraineeDashboard = () => {
     try {
       const res = await axiosInstance.get('/login/user/profile/');
       setUser(res.data);
-      setProfilePhoto(res.data.profile_photo);
+      if (res.data.profile_picture) {
+        setProfilePhoto(`${import.meta.env.VITE_BACKEND_URL}${res.data.profile_picture}`);
+      } else {
+        setProfilePhoto(`${import.meta.env.VITE_BACKEND_URL}/media/profile_pictures/default.jpg`);
+      }
+
     } catch {
       navigate('/login');
     }
@@ -205,11 +210,15 @@ const TraineeDashboard = () => {
           <NotificationBell />
           <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
             <img
-              src={profilePhoto || 'https://placehold.co/100x120?text=Upload'}
+              src={profilePhoto}
               alt="Profile"
               className="rounded-circle border"
               style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+              onError={(e) => {
+                e.target.src = `${import.meta.env.VITE_BACKEND_URL}/media/profile_pictures/default.jpg`;
+              }}
             />
+
           </label>
           {/* <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} /> */}
         </div>
@@ -234,28 +243,40 @@ const TraineeDashboard = () => {
               </div>
               <div className="modal-body text-center">
                 <img
-                  src={profilePhoto || 'https://placehold.co/100x100?text=Photo'}
+                  src={profilePhoto}
                   alt="Profile"
-                  className="rounded-circle border mb-3"
-                  style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                  className="rounded-circle border"
+                  style={{ height: '100px', width: '100px', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.src = `${import.meta.env.VITE_BACKEND_URL}/media/profile_pictures/default.jpg`;
+                  }}
                 />
+
                 <input
                   type="file"
-                  id="uploadInput"
                   accept="image/*"
-                  onChange={(e) => {
+                  className="form-control mb-3"
+                  onChange={async (e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setProfilePhoto(reader.result);
-                        // TODO: Upload the image to the backend here
-                      };
-                      reader.readAsDataURL(file);
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('profile_picture', file);
+
+                    try {
+                      const res = await axiosInstance.put('/login/upload-profile-picture/', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      });
+                      setProfilePhoto(`${import.meta.env.VITE_BACKEND_URL}${res.data.url}?t=${Date.now()}`);
+
+
+                      toast.success("✅ Profile picture updated!");
+                    } catch (err) {
+                      toast.error("Failed to upload profile picture");
                     }
                   }}
-                  className="form-control mb-3"
                 />
+
                 <div className="text-start">
                   <p><strong>Name:</strong> {`${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`}</p>
                   <p><strong>EHRMS:</strong> {user?.ehrms_code}</p>

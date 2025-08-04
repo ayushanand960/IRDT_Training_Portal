@@ -14,9 +14,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer, UserListSerializer, UserRoleUpdateSerializer, EditUserSerializer
+from django.core.files.storage import default_storage
+from .serializers import UserSerializer, PasswordResetSerializer, CustomTokenObtainPairSerializer, UserListSerializer, UserRoleUpdateSerializer, EditUserSerializer, UserProfilePictureSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User
 import logging
+import os
 
 #harshit import for training
 from Training.models import TrainingProgram  # adjust if model is elsewhere
@@ -62,8 +65,32 @@ class UserProfileView(APIView):
             "is_coordinator": user.is_coordinator,
         }, status=status.HTTP_200_OK)
 
+class UploadProfilePictureAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def put(self, request):
+        user = request.user
+        file = request.FILES.get('profile_picture')
+        if not file:
+            return Response({'error': 'No file uploaded'}, status=400)
 
+        # ✅ Just the filename (not folder)
+        filename = f"{user.ehrms_code}.jpg"
+        relative_path = f"profile_pictures/{filename}"
+        full_path = os.path.join(default_storage.location, relative_path)
+
+        # ✅ Delete old file (if exists)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+
+        # ✅ Save only filename to profile_picture field
+        user.profile_picture.name = relative_path
+        user.profile_picture.save(filename, file, save=False)
+        user.save()
+
+        return Response({
+            'url': f"/media/{relative_path}"
+        })
 # class UserProfileView(APIView):
 #     authentication_classes = [CookieJWTAuthentication]
 #     permission_classes = [IsAuthenticated]

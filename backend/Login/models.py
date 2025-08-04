@@ -1,4 +1,6 @@
 from django.db import models
+from PIL import Image
+import os
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
@@ -48,6 +50,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     designation = models.CharField(max_length=50)
     security_question = models.CharField(max_length=50, choices=QUESTION_CHOICES, default="pet_name")
     security_answer = models.CharField( max_length=50)
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/',
+        null=True,
+        blank=True,
+        default='profile_pictures/default.jpg'
+    )
 
 
     is_active = models.BooleanField(default=True)
@@ -64,6 +72,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     def full_name(self):
         return " ".join(filter(None, [self.first_name, self.middle_name, self.last_name])).strip()
     
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.profile_picture and os.path.exists(self.profile_picture.path):
+            try:
+                img = Image.open(self.profile_picture.path)
+                img = img.convert('RGB')
+                img.thumbnail((300, 300))
+                img.save(self.profile_picture.path, 'JPEG', quality=70, optimize=True)
+            except Exception:
+                pass  # silently fail if not a valid image
+
     
     def __str__(self):
             # first

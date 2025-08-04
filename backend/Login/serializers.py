@@ -27,6 +27,12 @@ class UserSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'}
     )
     name = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
+
+    def get_profile_picture(self, obj):
+        if obj.profile_picture and hasattr(obj.profile_picture, 'url'):
+            return obj.profile_picture.url
+        return None
 
     def get_name(self, obj):
         full = f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
@@ -34,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer","name"
+            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer","name", "profile_picture"
             ]
         extra_kwargs = {
             "password": {"write_only": True},#this will write the password from client to database but will not ready the password for security
@@ -59,6 +65,14 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+
+class UserProfilePictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['profile_picture']
+
 
 class PasswordResetSerializer(serializers.Serializer):
     ehrms_code = serializers.CharField()
@@ -97,24 +111,6 @@ class UserRoleUpdateSerializer(serializers.Serializer):
             raise serializers.ValidationError("User not found.")
         return value
 
-# class UserListSerializer(serializers.ModelSerializer):
-#     full_name = serializers.SerializerMethodField()
-#     role = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = User
-#         fields = ['id', 'email', 'full_name', 'role', 'ehrms_code']
-
-#     def get_full_name(self, obj):
-#         return f"{obj.first_name} {obj.last_name}"
-
-#     def get_role(self, obj):
-#         if obj.is_superuser:
-#             return "admin"
-#         elif obj.is_coordinator:
-#             return "coordinator"
-#         else:
-#             return "staff"
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -153,27 +149,6 @@ class UserListSerializer(serializers.ModelSerializer):
             return "staff"
 
 
-
-# class EditUserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = [
-#             'first_name', 'middle_name', 'last_name', 'email',
-#             'mobile_number', 'gender', 'institute_name', 'branch',
-#             'designation', 'is_superuser', 'is_coordinator'
-#         ]
-#         extra_kwargs = {
-#             'email': {'required': False},
-#             'mobile_number': {'required': False},
-#             'first_name': {'required': False},
-#             'last_name': {'required': False},
-#             'gender': {'required': False},
-#             'institute_name': {'required': False},
-#             'branch': {'required': False},
-#             'designation': {'required': False},
-#             'is_superuser': {'required': False},
-#             'is_coordinator': {'required': False},
-#         }
 
 from rest_framework import serializers
 from .models import User
