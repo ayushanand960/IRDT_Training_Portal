@@ -203,10 +203,10 @@ const TraineeDashboard = () => {
   return (
     <>
       <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
-        <span className="navbar-brand text-info fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
+       <span className="navbar-brand text-white fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
         <div className="d-flex align-items-center gap-2">
-          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">🏠 Home</button>
-          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>🚪 Logout</button>
+          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">Home</button>
+          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Logout</button>
           <NotificationBell />
           <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
             <img

@@ -65,23 +65,25 @@ const AssignedTrainings = ({ trainings }) => {
                   onClick={() => handleCardClick(training.code)}
                 >
                   <Card.Body>
-                    <h5 className="fw-bold mb-2 text-primary">({training.code}) {training.name}</h5>
+                    <h5 className="fw-bold mb-2" style={{ color: "#006666" }}>
+                      ({training.code}) {training.name}
+                    </h5>
 
-                    <p className="mb-1">
-                      <FaMapMarkerAlt className="me-2 text-danger" />
+                    <p className="mb-1 text-dark">
+                      <FaMapMarkerAlt className="me-2" style={{ color: "#dc3545" }} /> {/* Bootstrap danger */}
                       <strong>Venue:</strong> {training.venue}
                     </p>
 
-                    <p className="mb-1">
-                      <FaCalendarAlt className="me-2 text-success" />
-                      <strong>Dates:</strong> {training.start_date} to{" "}
-                      {training.end_date}
+                    <p className="mb-1 text-dark">
+                      <FaCalendarAlt className="me-2" style={{ color: "#28a745" }} /> {/* Bootstrap success */}
+                      <strong>Dates:</strong> {training.start_date} to {training.end_date}
                     </p>
 
-                    <p className="mb-3">
-                      <FaUsers className="me-2 text-warning" />
+                    <p className="mb-3 text-dark">
+                      <FaUsers className="me-2" style={{ color: "#ffc107" }} /> {/* Bootstrap warning */}
                       <strong>Target Group:</strong> {training.target_group}
                     </p>
+
 
                     {/* ✅ Specific Generate Certificates button inside the card */}
                     <button

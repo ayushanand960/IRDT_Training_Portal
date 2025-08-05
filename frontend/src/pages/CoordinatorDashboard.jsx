@@ -132,6 +132,9 @@
 // };
 
 // export default CoordinatorDashboard;
+
+
+
 // src/pages/CoordinatorDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Spinner, Alert, Card, Button } from "react-bootstrap";
@@ -185,43 +188,32 @@ const CoordinatorDashboard = () => {
 
   return (
     <>
-    {/* 🔝 Topbar component */}
+      {/* 🔝 Topbar component */}
       <Topbar user={coordinator} role="coordinator" />
-    <Container fluid className="py-4 px-3 bg-light min-vh-100">
+      <Container fluid className="py-4 px-3 bg-light min-vh-100">
       <Row>
-        {/* Left Column - Assigned Trainings */}
-        <Col xs={12} lg={9} className="mb-4 mb-lg-0">
-          <Card
-            className="shadow-sm w-100"
-            style={{ backgroundColor: "#ffffff", borderRadius: "12px" }}
-          >
-            <Card.Body>
-              <h2 className="fw-bold text-secondary mb-4">Assigned Trainings</h2>
-              <AssignedTrainings trainings={trainings} />
-            </Card.Body>
-          </Card>
-          
-        </Col>
+  {/* Right Column - Assigned Trainings */}
+  <Col xs={12} lg={9}>
+    <Card
+      className="shadow-sm w-100"
+      style={{ backgroundColor: "#ffffff", borderRadius: "12px" }}
+    >
+      <Card.Body>
+        <h2 className="fw-bold text-secondary mb-4">Assigned Trainings</h2>
+        <AssignedTrainings trainings={trainings} />
+      </Card.Body>
+    </Card>
+  </Col>
 
-        {/* Right Column - Profile + Nominate */}
-        <Col xs={12} lg={3}>
-          <div style={{ position: "sticky", top: "20px" }}>
-            <CoordinatorProfile coordinator={coordinator} />
+  {/* Left Column - Profile (Visually Right Now) */}
+  <Col xs={12} lg={3} className="mb-4 mb-lg-0">
+    <div style={{ position: "sticky", top: "20px" }}>
+      <CoordinatorProfile coordinator={coordinator} />
+    </div>
+  </Col>
+</Row>
 
-            {/* <div className="mt-4 d-grid">
-              
-              <Button
-                variant="success"
-                className="mt-2"
-                onClick={() => navigate("/generate-certificates")} // ✅ Route path to CoordinatorCertificatePage
-              >
-                🧾 Generate Certificates
-              </Button>
-            </div> */}
-          </div>
-        </Col>
-      </Row>
-    </Container>
+      </Container>
     </>
   );
 };
