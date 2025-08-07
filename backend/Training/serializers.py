@@ -1,10 +1,14 @@
+# serializers.py
 from rest_framework import serializers
-from .models import TrainingProgram
+from .models import TrainingProgram, TrainingBatchUpload
 from Login.models import User
 from django.utils.timezone import now
 
 class TrainingProgramSerializer(serializers.ModelSerializer):
     faculty_name_display = serializers.SerializerMethodField()
+    batch_display_name = serializers.SerializerMethodField()
+    upload_id = serializers.SerializerMethodField()       # ✅ Corrected
+    session_year = serializers.SerializerMethodField()    # ✅ Corrected
 
     class Meta:
         model = TrainingProgram
@@ -19,11 +23,13 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
             'end_date',
             'faculty',
             'number_of_participants',
-            'target_group',
             'remark',
             'faculty_name_display',
             'is_finalized',
             'edit_request_status',
+            'upload_id',            # ✅ Now computed from ForeignKey
+            'session_year',         # ✅ "
+            'batch_display_name',
         ]
         read_only_fields = ['status']
 
@@ -31,6 +37,17 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
         if obj.faculty:
             return f"{obj.faculty.first_name} {obj.faculty.middle_name or ''} {obj.faculty.last_name}".strip()
         return "-"
+
+    def get_upload_id(self, obj):
+        return obj.batch_upload.upload_id if obj.batch_upload else "Unknown"
+
+    def get_session_year(self, obj):
+        return obj.batch_upload.session_year if obj.batch_upload else "Unknown"
+
+    def get_batch_display_name(self, obj):
+        if obj.batch_upload:
+            return f"{obj.batch_upload.upload_id}"
+        return "Unknown"
 
     def validate_faculty(self, value):
         if isinstance(value, str):
@@ -84,6 +101,9 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
                 f"{faculty.first_name} {faculty.middle_name or ''} {faculty.last_name}".strip()
             )
         return super().update(instance, validated_data)
+
+
+
 
 #------------------------------------------------------------------------------------------------------
 from .models import Nomination
