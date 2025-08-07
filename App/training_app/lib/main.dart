@@ -84,6 +84,7 @@ import 'screens/auth/register_screen.dart';
 import 'screens/dashboard/login_home_page.dart';
 import 'screens/dashboard/profile/profile_screen.dart';
 import 'screens/training/training_list_screen.dart';
+import 'screens/certificates/certificate_screen.dart';
 import 'package:training_app/core/services/api_service.dart';
 
 void main() async {
@@ -141,8 +142,8 @@ class TrainingApp extends StatelessWidget {
               '/register': (context) => RegisterScreen(),
               '/login-home': (context) => const LoginHomePage(),
               '/profile': (context) => const ProfileScreen(),
-              '/trainings': (context) => const Placeholder(),
-              '/certificate': (context) => const Placeholder(),
+              // '/trainings': (context) => const Placeholder(),
+              '/certificates': (context) => const CertificateScreen(),
               '/training-list': (context) => const TrainingListScreen(),
             },
           );

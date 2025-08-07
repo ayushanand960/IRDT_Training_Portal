@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 # Create your models here.
 
+# Piyush  
+def user_photo_path(instance, filename):
+    ext = filename.split('.')[-1]  # keep original extension
+    return f"user_photo_path/{instance.ehrms_code}.{ext}"
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, ehrms_code, email, first_name, password=None, **extra_fields):
         if not ehrms_code:
@@ -48,6 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     designation = models.CharField(max_length=50)
     security_question = models.CharField(max_length=50, choices=QUESTION_CHOICES, default="pet_name")
     security_answer = models.CharField( max_length=50)
+    photo = models.ImageField(upload_to=user_photo_path, null=True, blank=True)        # Piyush
 
 
     is_active = models.BooleanField(default=True)

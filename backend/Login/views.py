@@ -1,3 +1,5 @@
+import os                                       # Piyush
+from rest_framework.parsers import MultiPartParser, FormParser       # Piyush
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -448,3 +450,44 @@ class AssignUserToTrainingView(APIView):
             return Response({"error": "Training not found or not authorized"}, status=404)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=404)
+        
+
+
+
+
+# Piyush 
+
+class UploadProfilePhotoView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        user = request.user
+        
+        if user.photo and os.path.isfile(user.photo.path):
+            os.remove(user.photo.path)
+            
+        if 'photo' not in request.data:
+            return Response({"error": "No photo uploaded"}, status=400)
+
+        user.photo = request.data['photo']
+        user.save()
+        
+        return Response({
+            "message": "Photo uploaded successfully",
+            "photo": request.build_absolute_uri(user.photo.url)
+        }, status=status.HTTP_200_OK)
+
+class RemoveProfilePhotoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        if user.photo and os.path.isfile(user.photo.path):
+            os.remove(user.photo.path)  # delete photo file
+        user.photo = None  # reset to default
+        user.save()
+        return Response({
+            "message": "Photo removed successfully",
+            "photo": request.build_absolute_uri('/media/profile_photos/default_profile.jpg')
+        }, status=status.HTTP_200_OK)

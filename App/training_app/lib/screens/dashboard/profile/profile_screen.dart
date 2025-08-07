@@ -261,6 +261,7 @@
 //   }
 // }
 
+// second code
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -269,8 +270,8 @@ import 'profile_widgets.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
-
+  final VoidCallback? onProfileUpdated;
+  const ProfileScreen({Key? key, this.onProfileUpdated}) : super(key: key);
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -313,9 +314,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final data = await _api.getProfile();
     if (data != null) {
       final prefs = await SharedPreferences.getInstance();
-      if (data['photo'] != null) {
-        await prefs.setString('profile_photo_url', data['photo']);
-      }
+      final photoUrl = data['photo'] ?? "";
+      await prefs.setString('profile_photo_url', photoUrl);
 
       setState(() {
         userDetails = {
@@ -327,30 +327,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           "Branch": data['branch'] ?? "",
           "Gender": data['gender'] ?? "",
           "Designation": data['designation'] ?? "",
-          "photo": data['photo'] ?? "",
+          "photo": photoUrl,
         };
         _profileImage = null;
         isLoading = false;
       });
     } else {
       Navigator.pushReplacementNamed(context, '/login');
-    }
-  }
-
-  Future<void> removePhoto() async {
-    final newUrl = await _api.removePhoto();
-    if (newUrl != null) {
-      setState(() {
-        userDetails['photo'] = newUrl;
-        _profileImage = null;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Photo removed successfully')),
-      );
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to remove photo')));
     }
   }
 
@@ -361,10 +344,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final newUrl = await _api.uploadPhoto(File(pickedFile.path));
     if (newUrl != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_photo_url', newUrl);
+
       setState(() {
         _profileImage = File(pickedFile.path);
-        userDetails['photo'] = newUrl;
+        userDetails['photo'] = newUrl.isNotEmpty
+            ? newUrl
+            : userDetails['photo'];
       });
+
+      widget.onProfileUpdated?.call();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Photo uploaded successfully')),
       );
@@ -372,6 +362,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Photo upload failed')));
+    }
+  }
+
+  Future<void> removePhoto() async {
+    final newUrl = await _api.removePhoto();
+    if (newUrl != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_photo_url', newUrl);
+
+      setState(() {
+        userDetails['photo'] = newUrl.isNotEmpty
+            ? newUrl
+            : userDetails['photo'];
+        _profileImage = null;
+      });
+
+      widget.onProfileUpdated?.call();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Photo removed successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to remove photo')));
     }
   }
 
@@ -475,8 +489,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Column(
                           children: userDetails.entries.map((entry) {
-                            if (entry.key == "Name" || entry.key == "photo")
+                            if (entry.key == "Name" || entry.key == "photo") {
                               return const SizedBox.shrink();
+                            }
                             return userInfoRow(
                               label: entry.key,
                               value: entry.value ?? "",
@@ -494,3 +509,299 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+// import 'dart:io';
+// import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import '../../../core/services/api_service.dart';
+// import 'profile_widgets.dart';
+// import 'package:image_picker/image_picker.dart';
+
+// class ProfileScreen extends StatefulWidget {
+//   final VoidCallback? onProfileUpdated; // <-- NEW
+//   const ProfileScreen({Key? key, this.onProfileUpdated}) : super(key: key);
+//   @override
+//   State<ProfileScreen> createState() => _ProfileScreenState();
+// }
+
+// class _ProfileScreenState extends State<ProfileScreen> {
+//   final ApiService _api = ApiService();
+//   File? _profileImage;
+//   bool isLoading = true;
+
+//   Map<String, dynamic> userDetails = {
+//     "Name": "",
+//     "EHRMS Code": "",
+//     "Institute": "",
+//     "Email": "",
+//     "Mobile": "",
+//     "Branch": "",
+//     "Gender": "",
+//     "Designation": "",
+//     "photo": "",
+//   };
+
+//   final Map<String, IconData> iconMap = {
+//     "EHRMS Code": Icons.badge,
+//     "Institute": Icons.school,
+//     "Email": Icons.email,
+//     "Mobile": Icons.phone,
+//     "Branch": Icons.account_tree,
+//     "Gender": Icons.person,
+//     "Designation": Icons.work_outline,
+//   };
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchProfile();
+//   }
+
+//   /// Fetch profile details + save photo URL in SharedPreferences
+//   Future<void> fetchProfile() async {
+//     setState(() => isLoading = true);
+//     final data = await _api.getProfile();
+//     if (data != null) {
+//       final prefs = await SharedPreferences.getInstance();
+//       final photoUrl = data['photo'] ?? "";
+//       await prefs.setString('profile_photo_url', photoUrl);
+
+//       setState(() {
+//         userDetails = {
+//           "Name": data['full_Name'] ?? "",
+//           "EHRMS Code": data['ehrms_code'] ?? "",
+//           "Institute": data['institute_name'] ?? "",
+//           "Email": data['email'] ?? "",
+//           "Mobile": data['mobile_number'] ?? "",
+//           "Branch": data['branch'] ?? "",
+//           "Gender": data['gender'] ?? "",
+//           "Designation": data['designation'] ?? "",
+//           "photo": photoUrl,
+//         };
+//         _profileImage = null;
+//         isLoading = false;
+//       });
+//     } else {
+//       Navigator.pushReplacementNamed(context, '/login');
+//     }
+//   }
+
+//   // /// Remove photo and update SharedPreferences
+//   // Future<void> removePhoto() async {
+//   //   final newUrl = await _api.removePhoto();
+//   //   if (newUrl != null) {
+//   //     final prefs = await SharedPreferences.getInstance();
+//   //     await prefs.setString('profile_photo_url', newUrl);
+
+//   //     setState(() {
+//   //       userDetails['photo'] = newUrl;
+//   //       _profileImage = null;
+//   //     });
+//   //     ScaffoldMessenger.of(context).showSnackBar(
+//   //       const SnackBar(content: Text('Photo removed successfully')),
+//   //     );
+//   //   } else {
+//   //     ScaffoldMessenger.of(
+//   //       context,
+//   //     ).showSnackBar(const SnackBar(content: Text('Failed to remove photo')));
+//   //   }
+//   // }
+
+//   // /// Upload new photo and update SharedPreferences
+//   // Future<void> uploadPhoto() async {
+//   //   final picker = ImagePicker();
+//   //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+//   //   if (pickedFile == null) return;
+
+//   //   final newUrl = await _api.uploadPhoto(File(pickedFile.path));
+//   //   if (newUrl != null) {
+//   //     final prefs = await SharedPreferences.getInstance();
+//   //     await prefs.setString('profile_photo_url', newUrl);
+
+//   //     setState(() {
+//   //       _profileImage = File(pickedFile.path);
+//   //       userDetails['photo'] = newUrl;
+//   //     });
+//   //     ScaffoldMessenger.of(context).showSnackBar(
+//   //       const SnackBar(content: Text('Photo uploaded successfully')),
+//   //     );
+//   //   } else {
+//   //     ScaffoldMessenger.of(
+//   //       context,
+//   //     ).showSnackBar(const SnackBar(content: Text('Photo upload failed')));
+//   //   }
+//   // }
+
+//   Future<void> uploadPhoto() async {
+//     final picker = ImagePicker();
+//     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+//     if (pickedFile == null) return;
+
+//     final newUrl = await _api.uploadPhoto(File(pickedFile.path));
+//     if (newUrl != null) {
+//       final prefs = await SharedPreferences.getInstance();
+//       await prefs.setString('profile_photo_url', newUrl);
+
+//       setState(() {
+//         _profileImage = File(pickedFile.path);
+//         userDetails['photo'] = newUrl.isNotEmpty
+//             ? newUrl
+//             : userDetails['photo'];
+//       });
+
+//       widget.onProfileUpdated?.call(); // <-- Notify Drawer instantly
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Photo uploaded successfully')),
+//       );
+//     } else {
+//       ScaffoldMessenger.of(
+//         context,
+//       ).showSnackBar(const SnackBar(content: Text('Photo upload failed')));
+//     }
+//   }
+
+//   Future<void> removePhoto() async {
+//     final newUrl = await _api.removePhoto();
+//     if (newUrl != null) {
+//       final prefs = await SharedPreferences.getInstance();
+//       await prefs.setString('profile_photo_url', newUrl);
+
+//       setState(() {
+//         userDetails['photo'] = newUrl.isNotEmpty
+//             ? newUrl
+//             : userDetails['photo'];
+//         _profileImage = null;
+//       });
+
+//       widget.onProfileUpdated?.call(); // <-- Notify Drawer instantly
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Photo removed successfully')),
+//       );
+//     } else {
+//       ScaffoldMessenger.of(
+//         context,
+//       ).showSnackBar(const SnackBar(content: Text('Failed to remove photo')));
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final themeColor = const Color(0xFF004D79);
+//     final cardColor = Colors.white;
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Profile'),
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back),
+//           onPressed: () => Navigator.pop(context, true),
+//         ),
+//         backgroundColor: themeColor,
+//       ),
+//       backgroundColor: const Color(0xFFF2F9FF),
+//       body: isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : Column(
+//               children: [
+//                 Container(
+//                   width: double.infinity,
+//                   decoration: const BoxDecoration(
+//                     gradient: LinearGradient(
+//                       colors: [Color(0xFF00B4DB), Color(0xFF0083B0)],
+//                       begin: Alignment.topCenter,
+//                       end: Alignment.bottomCenter,
+//                     ),
+//                     borderRadius: BorderRadius.only(
+//                       bottomLeft: Radius.circular(24),
+//                       bottomRight: Radius.circular(24),
+//                     ),
+//                   ),
+//                   padding: const EdgeInsets.only(top: 60, bottom: 24),
+//                   child: Column(
+//                     children: [
+//                       ProfileAvatar(
+//                         imageFile: _profileImage,
+//                         networkUrl: (userDetails['photo'] as String).isNotEmpty
+//                             ? userDetails['photo']
+//                             : null,
+//                         onTap: () async {
+//                           final choice = await showMenu<String>(
+//                             context: context,
+//                             position: const RelativeRect.fromLTRB(
+//                               100,
+//                               100,
+//                               0,
+//                               0,
+//                             ),
+//                             items: [
+//                               const PopupMenuItem(
+//                                 value: 'change',
+//                                 child: Text('Change Photo'),
+//                               ),
+//                               const PopupMenuItem(
+//                                 value: 'remove',
+//                                 child: Text('Remove Photo'),
+//                               ),
+//                             ],
+//                           );
+//                           if (choice == 'change') {
+//                             await uploadPhoto();
+//                             await fetchProfile();
+//                           } else if (choice == 'remove') {
+//                             await removePhoto();
+//                             await fetchProfile();
+//                           }
+//                         },
+//                         editIconColor: themeColor,
+//                       ),
+//                       const SizedBox(height: 12),
+//                       Text(
+//                         userDetails["Name"] ?? "",
+//                         style: const TextStyle(
+//                           fontSize: 24,
+//                           fontWeight: FontWeight.bold,
+//                           color: Colors.white,
+//                           letterSpacing: 1.2,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const SizedBox(height: 16),
+//                 Expanded(
+//                   child: SingleChildScrollView(
+//                     padding: const EdgeInsets.all(16),
+//                     child: Card(
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(16),
+//                       ),
+//                       elevation: 4,
+//                       color: cardColor,
+//                       child: Padding(
+//                         padding: const EdgeInsets.symmetric(
+//                           horizontal: 16,
+//                           vertical: 24,
+//                         ),
+//                         child: Column(
+//                           children: userDetails.entries.map((entry) {
+//                             if (entry.key == "Name" || entry.key == "photo")
+//                               return const SizedBox.shrink();
+//                             return userInfoRow(
+//                               label: entry.key,
+//                               value: entry.value ?? "",
+//                               icon: iconMap[entry.key] ?? Icons.info,
+//                               iconColor: themeColor,
+//                             );
+//                           }).toList(),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//     );
+//   }
+// }
