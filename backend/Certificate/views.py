@@ -20,6 +20,8 @@ from django.conf import settings
 import tempfile
 import os
 import zipfile
+from django.utils.decorators import method_decorator
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 class CertificateGenerateView(APIView):
     authentication_classes = [CookieJWTAuthentication]
@@ -92,7 +94,9 @@ class CertificateGenerateView(APIView):
             if template_path and os.path.exists(template_path):
                 os.remove(template_path)
 
-@xframe_options_exempt
+
+
+@method_decorator(xframe_options_exempt, name='dispatch')
 class CertificateDownloadView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -108,7 +112,7 @@ class CertificateDownloadView(APIView):
                 return FileResponse(
                     open(file_path, 'rb'),
                     content_type='application/pdf',
-                    as_attachment=False,
+                    as_attachment=True,
                     filename=filename
                 )
             else:

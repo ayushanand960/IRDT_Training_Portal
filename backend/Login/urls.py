@@ -1,6 +1,6 @@
 from django.urls import path
 # from rest_framework_simplejwt.views import TokenRefreshView
-from .views import RegisterView, UserProfileView, VerifySecurityAnswerAPIView, ResetPasswordAPIView, GetSecurityQuestionAPIView, UpdateUserRoleView, ListCreateUserView, CreateUserView, CoordinatorListAPIView, UserRetrieveUpdateDeleteView, CoordinatorTrainingListView, AssignUserToTrainingView, CookieTokenObtainPairView, LogoutView, CheckAuthView, CookieTokenRefreshView, UploadProfilePictureAPIView
+from .views import RegisterView, UserProfileView, VerifySecurityAnswerAPIView, ResetPasswordAPIView, GetSecurityQuestionAPIView, UpdateUserRoleView, ListCreateUserView, CreateUserView, CoordinatorListAPIView, UserRetrieveUpdateDeleteView, CoordinatorTrainingListView, AssignUserToTrainingView, CookieTokenObtainPairView, LogoutView, CheckAuthView, CookieTokenRefreshView, RemoveProfilePhotoView, UploadProfilePictureAPIView
 
 urlpatterns = [
     
@@ -12,6 +12,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view()),
     path('auth/check/', CheckAuthView.as_view()),
     path('user/profile/', UserProfileView.as_view(), name='user_profile'),
+    # path('profile/upload-photo/', UploadProfilePhotoView.as_view(), name='upload-profile-photo'),  #Piyush
+    path('profile/remove-photo/', RemoveProfilePhotoView.as_view(), name='remove-profile-photo'),  #Piyush
     path('get-security-question/', GetSecurityQuestionAPIView.as_view(), name='get-security-question'),
     path('verify-security/', VerifySecurityAnswerAPIView.as_view(), name='verify-security'),
     path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),

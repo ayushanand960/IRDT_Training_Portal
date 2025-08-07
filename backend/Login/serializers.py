@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from django.conf import settings
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,6 +38,16 @@ class UserSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         full = f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
         return " ".join(full.split())
+    
+
+    # Piyush
+    # def get_photo(self, obj):
+    #     request = self.context.get('request')
+    #     if obj.photo and hasattr(obj.photo, 'url'):
+    #         return request.build_absolute_uri(obj.photo.url) if request else obj.photo.url
+    #     default_url = settings.MEDIA_URL + 'profile_photos/default_profile.jpg'
+    #     return request.build_absolute_uri(default_url) if request else default_url
+    
     class Meta:
         model = User
         fields = [

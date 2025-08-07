@@ -5,6 +5,11 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 # Create your models here.
 
+# Piyush  
+# def user_photo_path(instance, filename):
+#     ext = filename.split('.')[-1]  # keep original extension
+#     return f"user_photo_path/{instance.ehrms_code}.{ext}"
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, ehrms_code, email, first_name, password=None, **extra_fields):
         if not ehrms_code:
@@ -56,7 +61,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         default='profile_pictures/default.jpg'
     )
-
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

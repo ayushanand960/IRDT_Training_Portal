@@ -386,6 +386,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 import '../constants.dart';
 
 class ApiService {
@@ -456,6 +457,9 @@ class ApiService {
     await prefs.setString('name', data['first_name'] ?? '');
     await prefs.setBool('is_superuser', data['is_superuser'] ?? false);
     await prefs.setBool('is_coordinator', data['is_coordinator'] ?? false);
+    if (data.containsKey('photo')) {
+      await prefs.setString('profile_photo_url', data['photo'] ?? '');
+    }
   }
 
   /// Clear user data + cookies
@@ -520,8 +524,40 @@ class ApiService {
     return null;
   }
 
+  // Future<String?> uploadPhoto(File photo) async {
+  //   final url = Uri.parse("${baseUrl}login/profile/upload-photo/");
+  //   final request = http.MultipartRequest('POST', url);
+  //   request.headers.addAll(_headers(withCookies: true, isJson: false));
+  //   request.files.add(await http.MultipartFile.fromPath('photo', photo.path));
+
+  //   final streamedResponse = await request.send();
+  //   final response = await http.Response.fromStream(streamedResponse);
+
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body);
+  //     final prefs = await SharedPreferences.getInstance();
+  //     await prefs.setString('profile_photo_url', data['photo']);
+  //     return data['photo'];
+  //   }
+  //   return null;
+  // }
+
+  // Future<String?> removePhoto() async {
+  //   final url = Uri.parse("${baseUrl}login/profile/remove-photo/");
+  //   final response = await _client.delete(
+  //     url,
+  //     headers: _headers(withCookies: true),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     final data = jsonDecode(response.body);
+  //     final prefs = await SharedPreferences.getInstance();
+  //     await prefs.setString('profile_photo_url', data['photo']);
+  //     return data['photo'];
+  //   }
+  //   return null;
+  // }
   Future<String?> uploadPhoto(File photo) async {
-    final url = Uri.parse("${baseUrl}login/user/profile/upload-photo/");
+    final url = Uri.parse("${baseUrl}login/profile/upload-photo/");
     final request = http.MultipartRequest('POST', url);
     request.headers.addAll(_headers(withCookies: true, isJson: false));
     request.files.add(await http.MultipartFile.fromPath('photo', photo.path));
@@ -531,24 +567,30 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('profile_photo_url', data['photo']);
-      return data['photo'];
+      final newUrl = (data['photo'] as String?) ?? '';
+      if (newUrl.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('profile_photo_url', newUrl);
+        return newUrl;
+      }
     }
     return null;
   }
 
   Future<String?> removePhoto() async {
-    final url = Uri.parse("${baseUrl}login/user/profile/remove-photo/");
+    final url = Uri.parse("${baseUrl}login/profile/remove-photo/");
     final response = await _client.delete(
       url,
       headers: _headers(withCookies: true),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('profile_photo_url', data['photo']);
-      return data['photo'];
+      final newUrl = (data['photo'] as String?) ?? '';
+      if (newUrl.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('profile_photo_url', newUrl);
+        return newUrl;
+      }
     }
     return null;
   }
@@ -607,5 +649,119 @@ class ApiService {
         throw Exception("Registration failed. Please try again.");
       }
     }
+  }
+
+  // ==================== TRAINING ENROLLMENT ====================
+
+  Future<List<dynamic>> getTrainings() async {
+    final url = Uri.parse("${baseUrl}training/training-programs/");
+    final response = await _client.get(
+      url,
+      headers: _headers(withCookies: true),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List;
+    } else if (response.statusCode == 401) {
+      throw Exception("Unauthorized: Please log in again.");
+    }
+    throw Exception("Failed to fetch trainings");
+  }
+
+  Future<List<String>> getMyEnrollments() async {
+    final url = Uri.parse("${baseUrl}enrollment/my-enrollments/");
+    final response = await _client.get(
+      url,
+      headers: _headers(withCookies: true),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      // Extract training codes
+      return data.map((e) => e['training'].toString()).toList();
+    }
+    throw Exception("Failed to load enrollments");
+  }
+
+  Future<bool> enrollTraining(String ehrmsCode, String trainingCode) async {
+    final url = Uri.parse("${baseUrl}enrollment/enroll/");
+    final response = await _client.post(
+      url,
+      headers: _headers(withCookies: true),
+      body: jsonEncode({"trainee": ehrmsCode, "training": trainingCode}),
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      try {
+        final error = jsonDecode(response.body);
+
+        String message = '';
+        if (error is Map) {
+          if (error.containsKey('non_field_errors')) {
+            message = (error['non_field_errors'] as List).join('\n');
+          } else if (error.containsKey('detail')) {
+            message = error['detail'];
+          } else {
+            // Combine all field errors
+            message = error.values
+                .map((e) => e is List ? e.join(', ') : e.toString())
+                .join('\n');
+          }
+        } else if (error is List) {
+          message = error.join('\n');
+        } else {
+          message = "Enrollment failed";
+        }
+
+        throw Exception(message);
+      } catch (_) {
+        throw Exception("Enrollment failed. Please try again.");
+      }
+    }
+  }
+
+  // ==================== CERTIFICATES ====================
+
+  /// Fetch logged-in user's certificates
+  Future<List<dynamic>> getCertificates() async {
+    final url = Uri.parse("${baseUrl}certificate/my-certificates/");
+    final response = await _client.get(
+      url,
+      headers: _headers(withCookies: true),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as List;
+    } else if (response.statusCode == 401) {
+      throw Exception("Unauthorized: Please log in again.");
+    }
+    throw Exception("Failed to fetch certificates");
+  }
+
+  /// Download a certificate PDF by training code
+  Future<File> downloadCertificate(
+    String trainingCode,
+    String saveFileName,
+  ) async {
+    final url = Uri.parse("${baseUrl}certificate/download/$trainingCode/");
+    final request = await _client.get(
+      url,
+      headers: _headers(
+        withCookies: true,
+        isJson: false,
+      ), // PDF download, no JSON header
+    );
+
+    if (request.statusCode == 200) {
+      final bytes = request.bodyBytes;
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$saveFileName');
+      await file.writeAsBytes(bytes);
+      return file;
+    } else if (request.statusCode == 404) {
+      throw Exception("Certificate not found.");
+    } else if (request.statusCode == 401) {
+      throw Exception("Unauthorized: Please log in again.");
+    }
+    throw Exception("Failed to download certificate");
   }
 }

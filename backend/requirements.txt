@@ -14,4 +14,7 @@ tqdm
 python-docx
 pywin32
 pandas
+gunicorn
 Pillow
+openpyxl
+whitenoise
