@@ -88,11 +88,19 @@ class TrainingProgram(models.Model):
         # Participants should be realistic (0–1000 limit)
         if self.number_of_participants and (self.number_of_participants > 1000):
             raise ValidationError(_("Participant number seems too high. Please verify."))
+    
+
+    batch_upload = models.ForeignKey(
+    'TrainingBatchUpload',
+    on_delete=models.CASCADE,
+    related_name='trainings',
+    null=True,
+    blank=True
+    )
+
         
 #-----------------------------------------------------------------------------------------------
-# from django.db import models
 
-# from .models import TrainingProgram
 
 class Nomination(models.Model):
     trainee = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'is_coordinator': False})
@@ -116,3 +124,20 @@ class Rejection(models.Model):
 
     def __str__(self):
         return f"{self.trainee} rejected from {self.training.name}"
+
+
+
+class TrainingBatchUpload(models.Model):
+    upload_id = models.CharField(max_length=20, unique=True)  # e.g. '2025-26'
+    session_year = models.CharField(max_length=9,blank=False,null=True)  # Add this
+    upload_date = models.DateField(blank=False,null=True)  # Add this
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.upload_id

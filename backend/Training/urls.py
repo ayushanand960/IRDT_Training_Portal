@@ -14,18 +14,20 @@ from django.urls import path
 from .views import (
     TrainingProgramListCreateAPIView,
     TrainingProgramRetrieveUpdateDeleteAPIView,
-    TrainingUploadExcelAPIView,
+    UploadTrainingExcelAPIView,
     DashboardMetricsAPIView,
     RequestEditAPIView,
     PastTrainingsAPIView,
-    ApproveEditRequestAPIView
+    ApproveEditRequestAPIView,
+    DeleteTrainingBatchAPIView
 )
 from .views import CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView, FinalizeNominationAPIView, DownloadFinalNominationXLSXAPIView, AttendedTraineesAPIView, FinalizedNominationsListView
 from .views import AssignedTrainingsView , RejectTraineeAPIView, RejectionNotificationAPIView, MarkRejectionAsReadAPIView, DeleteRejectionAPIView
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
     path('training-programs/<str:code>/', TrainingProgramRetrieveUpdateDeleteAPIView.as_view(), name='training-rud'),
-    path('training-programs/upload/', TrainingUploadExcelAPIView.as_view(), name='training-upload'),
+    path('upload-excel/', UploadTrainingExcelAPIView.as_view(), name='upload_training_excel'),
+    path('delete-batch/<str:upload_id>/', DeleteTrainingBatchAPIView.as_view(), name='delete_training_batch'),
     path("dashboard/metrics/", DashboardMetricsAPIView.as_view()),
     # path('nominations/', NominationCreateAPIView.as_view(), name='nominate-trainee'),
     path('coordinator/trainings/', CoordinatorTrainingDetailView.as_view(), name='coordinator-trainings'),
@@ -42,8 +44,8 @@ urlpatterns = [
     path('notification/rejections/<int:pk>/delete/', DeleteRejectionAPIView.as_view(), name='delete-rejection'),
     path('finalize-nominations/<str:training_code>/', FinalizeNominationAPIView.as_view(), name='finalize-nominations'),
     path('download-final-nominations/<str:training_code>/', DownloadFinalNominationXLSXAPIView.as_view(), name='download-final-csv'),
-     path("finalized-nominations/", FinalizedNominationsListView.as_view(), name="finalized-nominations-list"),
-      path('request-edit/<str:training_code>/', RequestEditAPIView.as_view(), name='request-edit'),
+    path("finalized-nominations/", FinalizedNominationsListView.as_view(), name="finalized-nominations-list"),
+    path('request-edit/<str:training_code>/', RequestEditAPIView.as_view(), name='request-edit'),
     path('approve-edit/<str:training_code>/', ApproveEditRequestAPIView.as_view(), name='approve-edit'),
     path('past-trainings/', PastTrainingsAPIView.as_view(), name='past-trainings'),
 ]

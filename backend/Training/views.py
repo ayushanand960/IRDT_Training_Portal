@@ -12,7 +12,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.core.exceptions import ValidationError
 
-from .models import TrainingProgram
+from .models import TrainingProgram ,TrainingBatchUpload
 from .serializers import TrainingProgramSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticated
@@ -82,79 +82,6 @@ class TrainingProgramRetrieveUpdateDeleteAPIView(APIView):
         training.delete()
         logger.info(f"Training deleted: {training.code}")
         return Response({"message": "Training deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-
-
-# ✅ Upload Excel for Bulk Training Upload (Admin Only)
-class TrainingUploadExcelAPIView(APIView):
-    parser_classes = [MultiPartParser]
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
-    throttle_classes = [throttling.UserRateThrottle]
-
-    def post(self, request):
-        user = request.user
-        if not user.is_staff:
-            logger.warning(f"Unauthorized upload attempt by {user}")
-            return Response({"error": "Only admin users can upload training data."}, status=status.HTTP_403_FORBIDDEN)
-
-        excel_file = request.FILES.get('file')
-        if not excel_file:
-            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            df = pd.read_excel(excel_file)
-
-            required_columns = ['code', 'name', 'start_date', 'end_date']
-            for col in required_columns:
-                if col not in df.columns:
-                    return Response({"error": f"Missing required column: {col}"}, status=400)
-
-            created, updated, skipped = 0, 0, 0
-            for _, row in df.iterrows():
-                try:
-                    training_data = {
-                        'code': row.get('code'),
-                        'name': row.get('name'),
-                        'target_group': row.get('target_group'),
-                        'venue': row.get('venue'),
-                        'mode': row.get('mode'),
-                        'training_type': row.get('training_type'),
-                        'start_date': row.get('start_date'),
-                        'end_date': row.get('end_date'),
-                        'faculty': row.get('faculty'),
-                        'number_of_participants': row.get('number_of_participants'),
-                        'remark': row.get('remark'),
-                        'status': row.get('status'),
-                    }
-
-                    obj, created_flag = TrainingProgram.objects.update_or_create(
-                        code=training_data['code'], defaults=training_data
-                    )
-                    if created_flag:
-                        created += 1
-                    else:
-                        updated += 1
-
-                except Exception as e:
-                    logger.warning(f"Skipping row due to error: {str(e)}")
-                    skipped += 1
-                    continue
-
-            return Response({
-                "message": "Excel processed successfully.",
-                "created": created,
-                "updated": updated,
-                "skipped": skipped
-            }, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            logger.error(f"Excel processing failed: {str(e)}")
-
-            return Response({"error": f"Failed to process file: {str(e)}"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
 
 class DashboardMetricsAPIView(APIView):
@@ -678,3 +605,175 @@ class PastTrainingsAPIView(APIView):
         past_trainings = [enrollment.training for enrollment in enrollments]
         serializer = TrainingProgramSerializer(past_trainings, many=True)
         return Response(serializer.data)
+    
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
+from rest_framework import status
+from django.db import transaction
+from rest_framework.permissions import IsAdminUser
+
+import pandas as pd
+from datetime import datetime
+import random
+
+from Training.models import TrainingProgram, TrainingBatchUpload
+from uuid import uuid4
+class UploadTrainingExcelAPIView(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        excel_file = request.FILES.get("file")
+        session_year = request.POST.get("session_year")
+        upload_date = request.POST.get("upload_date")
+
+        if not all([excel_file, session_year, upload_date]):
+            return Response({"error": "Missing required fields."}, status=400)
+
+        try:
+            df = pd.read_excel(excel_file)
+        except Exception as e:
+            return Response({"error": f"Failed to read Excel file: {e}"}, status=400)
+
+        try:
+            upload_date_obj = datetime.strptime(upload_date, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": "Invalid upload_date format. Use YYYY-MM-DD."}, status=400)
+
+        # Rename columns for consistency
+        df.rename(columns={
+            'Name of Programme': 'name',
+            'Target Group': 'target_group',
+            'Venue': 'venue',
+            'Mode': 'mode',
+            'Training Type': 'training_type',
+            'Start Date': 'start_date',
+            'End Date': 'end_date',
+            'Faculty': 'faculty_name',
+            'No.': 'number_of_participants',
+            'Remark': 'remark',
+            'Status': 'status',
+        }, inplace=True)
+
+        with transaction.atomic():
+            unique_id = str(uuid4())[:8]
+            batch = TrainingBatchUpload.objects.create(
+                upload_id=f"{session_year}-{unique_id}",
+                session_year=session_year,
+                upload_date=upload_date_obj,
+                uploaded_by=request.user
+            )
+
+            created_or_updated = 0
+
+            for index, row in df.iterrows():
+                code = str(row.get("Code", "")).strip()
+                name = str(row.get("name", "")).strip()
+                faculty_name = str(row.get("faculty_name", "")).strip()
+                start_date = row.get("start_date")
+                end_date = row.get("end_date")
+
+                if not code or not name or pd.isna(start_date) or pd.isna(end_date):
+                    continue
+
+                try:
+                    start_date = pd.to_datetime(start_date).date()
+                    end_date = pd.to_datetime(end_date).date()
+                except Exception:
+                    continue
+
+                # Match or create coordinator
+                faculty = None
+                for u in User.objects.filter(is_coordinator=True):
+                    full = " ".join(filter(None, [u.first_name, u.middle_name, u.last_name])).strip()
+                    if full.lower() == faculty_name.lower():
+                        faculty = u
+                        break
+
+                if not faculty:
+                    def generate_unique_ehrms_code():
+                        while True:
+                            code = str(random.randint(900000, 999999))
+                            if not User.objects.filter(ehrms_code=code).exists():
+                                return code
+
+                    def split_full_name(full_name):
+                        parts = full_name.strip().split()
+                        if len(parts) == 1:
+                            return parts[0], "", ""
+                        elif len(parts) == 2:
+                            return parts[0], "", parts[1]
+                        else:
+                            return parts[0], " ".join(parts[1:-1]), parts[-1]
+
+                    first, middle, last = split_full_name(faculty_name)
+                    ehrms_code = generate_unique_ehrms_code()
+                    faculty = User.objects.create(
+                        ehrms_code=ehrms_code,
+                        first_name=first,
+                        middle_name=middle,
+                        last_name=last,
+                        email=f"{ehrms_code}@irdt.in",
+                        mobile_number=f"9{random.randint(100000000, 999999999)}",
+                        is_coordinator=True,
+                        is_staff=False,
+                    )
+                    faculty.set_password("Irdt@123")
+                    faculty.save()
+
+                try:
+                    training, created = TrainingProgram.objects.update_or_create(
+                        code=code,
+                        batch_upload=batch,
+                        defaults={
+                            'name': name,
+                            'target_group': row.get('target_group', ''),
+                            'venue': row.get('venue', ''),
+                            'mode': row.get('mode', ''),
+                            'training_type': row.get('training_type', ''),
+                            'start_date': start_date,
+                            'end_date': end_date,
+                            'faculty': faculty,
+                            'faculty_name': faculty_name,
+                            'number_of_participants': int(row.get('number_of_participants') or 0),
+                            'remark': row.get('remark', ''),
+                            'status': row.get('status', ''),
+                            'batch_upload': batch
+                        }
+                    )
+                    created_or_updated += 1
+                except Exception as e:
+                    print(f"❌ Error on row {index+2}: {e}")
+                    continue
+
+        return Response({"message": f"Uploaded {created_or_updated} training programs successfully."})
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from .models import TrainingProgram, TrainingBatchUpload
+from django.shortcuts import get_object_or_404
+
+class DeleteTrainingBatchAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser]  # Only admins can delete
+
+    def delete(self, request, upload_id):
+        try:
+            # Fetch the batch using the provided upload_id
+            batch = get_object_or_404(TrainingBatchUpload, upload_id=upload_id)
+
+            # Delete the batch (trainings will be deleted due to CASCADE)
+            batch.delete()
+
+            return Response(
+                {"detail": f"Successfully deleted batch {upload_id} and all associated trainings."},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"detail": f"Error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
