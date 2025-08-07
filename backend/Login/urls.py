@@ -13,7 +13,7 @@ urlpatterns = [
     path('auth/check/', CheckAuthView.as_view()),
     path('user/profile/', UserProfileView.as_view(), name='user_profile'),
     # path('profile/upload-photo/', UploadProfilePhotoView.as_view(), name='upload-profile-photo'),  #Piyush
-    path('profile/remove-photo/', RemoveProfilePhotoView.as_view(), name='remove-profile-photo'),  #Piyush
+    # path('profile/remove-photo/', RemoveProfilePhotoView.as_view(), name='remove-profile-photo'),  #Piyush
     path('get-security-question/', GetSecurityQuestionAPIView.as_view(), name='get-security-question'),
     path('verify-security/', VerifySecurityAnswerAPIView.as_view(), name='verify-security'),
     path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),

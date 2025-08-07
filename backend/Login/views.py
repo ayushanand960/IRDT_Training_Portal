@@ -486,35 +486,35 @@ class AssignUserToTrainingView(APIView):
 
 # Piyush 
 
-class UploadProfilePhotoView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+# class UploadProfilePhotoView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request):
-        user = request.user
+#     def post(self, request):
+#         user = request.user
         
-        if user.photo and os.path.isfile(user.photo.path):
-            os.remove(user.photo.path)
+#         if user.photo and os.path.isfile(user.photo.path):
+#             os.remove(user.photo.path)
             
-        if 'photo' not in request.data:
-            return Response({"error": "No photo uploaded"}, status=400)
+#         if 'photo' not in request.data:
+#             return Response({"error": "No photo uploaded"}, status=400)
 
-        user.photo = request.data['photo']
-        user.save()
+#         user.photo = request.data['photo']
+#         user.save()
         
-        return Response({
-            "message": "Photo uploaded successfully",
-            "photo": request.build_absolute_uri(user.photo.url)
-        }, status=status.HTTP_200_OK)
+#         return Response({
+#             "message": "Photo uploaded successfully",
+#             "photo": request.build_absolute_uri(user.photo.url)
+#         }, status=status.HTTP_200_OK)
 
 class RemoveProfilePhotoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
         user = request.user
-        if user.photo and os.path.isfile(user.photo.path):
-            os.remove(user.photo.path)  # delete photo file
-        user.photo = None  # reset to default
+        if user.profile_picture and os.path.isfile(user.profile_picture.path):
+            os.remove(user.profile_picture.path)  # delete photo file
+        user.profile_picture = None  # reset to default
         user.save()
         return Response({
             "message": "Photo removed successfully",
