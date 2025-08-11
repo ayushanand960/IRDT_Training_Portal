@@ -764,4 +764,55 @@ class ApiService {
     }
     throw Exception("Failed to download certificate");
   }
+
+  /// Fetch all rejection notifications for the logged-in user
+  Future<List<dynamic>> getRejectionNotifications() async {
+    final url = Uri.parse('$baseUrl/training/notification/rejections/');
+    final response = await _client.get(
+      url,
+      headers: _headers(withCookies: true),
+    );
+
+    await _updateCookies(response);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
+
+  /// Mark a specific rejection notification as read
+  Future<void> markRejectionAsRead(int id) async {
+    final url = Uri.parse(
+      '$baseUrl/training/notification/rejections/$id/read/',
+    );
+    final response = await _client.post(
+      url,
+      headers: _headers(withCookies: true),
+    );
+
+    await _updateCookies(response);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark notification as read');
+    }
+  }
+
+  /// Delete a specific rejection notification
+  Future<void> deleteRejectionNotification(int id) async {
+    final url = Uri.parse(
+      '$baseUrl/training/notification/rejections/$id/delete/',
+    );
+    final response = await _client.delete(
+      url,
+      headers: _headers(withCookies: true),
+    );
+
+    await _updateCookies(response);
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete notification');
+    }
+  }
 }
