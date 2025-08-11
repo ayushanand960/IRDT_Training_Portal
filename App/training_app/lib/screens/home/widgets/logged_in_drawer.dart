@@ -4,9 +4,19 @@ import '../../../core/services/api_service.dart';
 import '../../about/about_us_page.dart';
 import '../widgets/theme_switcher_sheet.dart';
 import '../../dashboard/profile/profile_screen.dart';
+import '../../notifications/notification_screen.dart';
+import '../../dashboard/login_home_page.dart';
 
 class LoggedInDrawer extends StatefulWidget {
-  const LoggedInDrawer({super.key});
+  final VoidCallback? onNotificationsChanged;
+  const LoggedInDrawer({super.key, this.onNotificationsChanged});
+  // final bool hasUnreadNotifications;
+
+  // const LoggedInDrawer({
+  //   Key? key,
+  //   this.onNotificationsChanged,
+  //   this.hasUnreadNotifications = false,
+  // }) : super(key: key);
 
   @override
   State<LoggedInDrawer> createState() => _LoggedInDrawerState();
@@ -123,6 +133,31 @@ class _LoggedInDrawerState extends State<LoggedInDrawer> {
               Navigator.pushNamed(context, '/certificates');
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text("Notifications"),
+            // trailing: widget.hasUnreadNotifications
+            //     ? Container(
+            //         width: 12,
+            //         height: 12,
+            //         decoration: BoxDecoration(
+            //           color: Colors.red,
+            //           shape: BoxShape.circle,
+            //         ),
+            //       )
+            //     : null,
+            onTap: () async {
+              Navigator.pop(context);
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationScreen()),
+              );
+              if (widget.onNotificationsChanged != null) {
+                widget.onNotificationsChanged!();
+              }
+            },
+          ),
+
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text("About Us"),
