@@ -1,4 +1,5 @@
 #from django.contrib.auth.models import User
+import re
 from .models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -6,7 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 # from django.conf import settings
 
-
+BLOCKED_EMAIL_TLDS = {"cc", "tk", "ml", "ga", "cf", "gq", "ru", "work", "xyz", "top", "men", "loan", "win"}
 class UserSerializer(serializers.ModelSerializer):
 
     
@@ -39,6 +40,36 @@ class UserSerializer(serializers.ModelSerializer):
         full = f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
         return " ".join(full.split())
     
+
+     # ---------- Field Validations ----------
+    def validate_first_name(self, value):
+        if not re.match(r'^[A-Za-z\s]+$', value):
+            raise serializers.ValidationError("First name must contain only letters and spaces.")
+        return value
+
+    def validate_middle_name(self, value):
+        if value and not re.match(r'^[A-Za-z\s]+$', value):
+            raise serializers.ValidationError("Middle name must contain only letters and spaces.")
+        return value
+
+    def validate_last_name(self, value):
+        if value and not re.match(r'^[A-Za-z\s]+$', value):
+            raise serializers.ValidationError("Last name must contain only letters and spaces.")
+        return value
+
+    def validate_mobile_number(self, value):
+        if not re.match(r'^[6-9]\d{9}$', value):
+            raise serializers.ValidationError("Enter a valid 10-digit mobile number starting with 6-9.")
+        return value
+
+    
+
+    def validate_email(self, value):
+        domain = value.split('.')[-1].lower()
+        if domain in BLOCKED_EMAIL_TLDS:
+            raise serializers.ValidationError(f"Emails ending with '.{domain}' are not allowed.")
+        return value
+
 
     # Piyush
     # def get_photo(self, obj):

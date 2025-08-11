@@ -9,7 +9,7 @@ import { securityQuestions } from "../data/securityQuestions";
 import { branches } from "../data/branches";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/irdt-logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
  // ✅ Add this inside the Register component
 
@@ -35,92 +35,230 @@ const Register = () => {
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedDesignation, setSelectedDesignation] = useState("");
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+ const validateForm = () => {
+  let errors = [];
 
-    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+  // Email validator function
+  function isValidEmail(email) {
+    const normalized = email.trim().toLowerCase();
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
+    // Allowed modern TLDs
+    const allowedTLDs = [
+      "com", "org", "net", "edu", "gov", "mil", "in", "co", "io", "tech", "info"
+    ];
+
+    // Disallowed TLDs
+    const blockedTLDs = [
+      "cc", "su", "museum", "example", "invalid", "test", "tk", "ml", "ga", "cf", "gq", "ru", "work", "xyz", "top", "men", "loan", "win"
+    ];
+
+    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+
+    if (!emailRegex.test(normalized)) {
+      return { valid: false, reason: "Enter a valid email address." };
     }
 
-     if (!strongPasswordRegex.test(password)) {
-      setError("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
-      return;
+    const tld = normalized.split(".").pop();
+
+    if (blockedTLDs.includes(tld)) {
+      return { valid: false, reason: `Emails ending with '.${tld}' are not allowed.` };
     }
 
-    console.log("Registering user:", {
-    ...form,
-    category: selectedCategory,
-    designation: selectedDesignation,
-  });
-
-    try {
-      await axiosInstance.post(
-        "/login/register/",
-        {
-          ...form,
-          category: selectedCategory,
-          designation: selectedDesignation,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-      alert("Registration successful");
-       navigate("/login"); 
-      // window.location.reload();  
-      
-    } catch (err) {
-      const errorData = err.response?.data;
-      // console.error("Registration error response:", errorData); // for debugging
-
-  let errorMsg = "Registration failed";
-
-  if (typeof errorData === "string") {
-    errorMsg = errorData;
-  } else if (typeof errorData === "object" && errorData !== null) {
-    const messages = [];
-
-    // Recursive function to extract only message strings
-    const extractMessages = (obj) => {
-      for (const key in obj) {
-        const val = obj[key];
-
-        if (Array.isArray(val)) {
-          val.forEach((msg) => {
-            if (typeof msg === "string") messages.push(msg);
-          });
-        } else if (typeof val === "object" && val !== null) {
-          extractMessages(val); // handle nested errors
-        } else if (typeof val === "string") {
-          messages.push(val);
-        }
-      }
-    };
-
-    extractMessages(errorData);
-
-    if (messages.length > 0) {
-      errorMsg = messages.join("\n");
-    } else {
-      errorMsg = errorData.detail || "Registration failed";
+    if (!allowedTLDs.includes(tld)) {
+      return { valid: false, reason: `TLD '.${tld}' is not in the allowed list.` };
     }
+
+    return { valid: true };
   }
 
-  setError(errorMsg);
-  alert("Error:\n" + errorMsg);
+  // -------------------------
+  // Existing field validations
+  // -------------------------
+
+  if (!form.ehrms_code.trim()) errors.push("EHRMS Code is required.");
+  if (!form.first_name.trim()) errors.push("First name is required.");
+
+  // Email check
+  const emailCheck = isValidEmail(form.email);
+  if (!emailCheck.valid) errors.push(emailCheck.reason);
+
+  // Mobile number check (must start with 6-9 and be 10 digits)
+  const mobileRegex = /^[6-9][0-9]{9}$/;
+  if (!mobileRegex.test(form.mobile_number)) {
+    errors.push("Enter a valid 10-digit mobile number starting with 6-9.");
+  }
+
+  if (!form.gender) errors.push("Gender is required.");
+  if (!form.institute_name) errors.push("Institute name is required.");
+  if (!form.branch) errors.push("Branch is required.");
+  if (!selectedCategory) errors.push("Category is required.");
+  if (!selectedDesignation) errors.push("Designation is required.");
+
+  // Password strength
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+  if (!strongPasswordRegex.test(password)) {
+    errors.push("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
+  }
+
+  // Password match
+  if (password !== confirmPassword) errors.push("Passwords do not match.");
+
+  if (!form.security_question) errors.push("Security question is required.");
+  if (!form.security_answer.trim()) errors.push("Security answer is required.");
+
+  return errors;
+};
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+
+  //   const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+  //   if (password !== confirmPassword) {
+  //     setError("Passwords do not match.");
+  //     return;
+  //   }
+
+  //    if (!strongPasswordRegex.test(password)) {
+  //     setError("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
+  //     return;
+  //   }
+
+  //   console.log("Registering user:", {
+  //   ...form,
+  //   category: selectedCategory,
+  //   designation: selectedDesignation,
+  // });
+
+  //   try {
+  //     await axiosInstance.post(
+  //       "/login/register/",
+  //       {
+  //         ...form,
+  //         category: selectedCategory,
+  //         designation: selectedDesignation,
+  //       },
+  //       {
+  //         headers: { "Content-Type": "application/json" },
+  //         withCredentials: true,
+  //       }
+  //     );
+  //     alert("Registration successful");
+  //      navigate("/login"); 
+  //     // window.location.reload();  
+      
+  //   } catch (err) {
+  //     const errorData = err.response?.data;
+  //     // console.error("Registration error response:", errorData); // for debugging
+
+  // let errorMsg = "Registration failed";
+
+  // if (typeof errorData === "string") {
+  //   errorMsg = errorData;
+  // } else if (typeof errorData === "object" && errorData !== null) {
+  //   const messages = [];
+
+  //   // Recursive function to extract only message strings
+  //   const extractMessages = (obj) => {
+  //     for (const key in obj) {
+  //       const val = obj[key];
+
+  //       if (Array.isArray(val)) {
+  //         val.forEach((msg) => {
+  //           if (typeof msg === "string") messages.push(msg);
+  //         });
+  //       } else if (typeof val === "object" && val !== null) {
+  //         extractMessages(val); // handle nested errors
+  //       } else if (typeof val === "string") {
+  //         messages.push(val);
+  //       }
+  //     }
+  //   };
+
+  //   extractMessages(errorData);
+
+  //   if (messages.length > 0) {
+  //     errorMsg = messages.join("\n");
+  //   } else {
+  //     errorMsg = errorData.detail || "Registration failed";
+  //   }
+  // }
+
+  // setError(errorMsg);
+  // alert("Error:\n" + errorMsg);
+  //   }
+  // };
+
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  const errors = validateForm();
+  if (errors.length > 0) {
+    setError(errors.join("\n"));
+    return;
+  }
+
+  try {
+    await axiosInstance.post(
+      "/login/register/",
+      {
+        ...form,
+        category: selectedCategory,
+        designation: selectedDesignation,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+    alert("Registration successful");
+    navigate("/login");
+  } catch (err) {
+    const errorData = err.response?.data;
+    let errorMsg = "Registration failed";
+
+    if (typeof errorData === "string") {
+      errorMsg = errorData;
+    } else if (typeof errorData === "object" && errorData !== null) {
+      const messages = [];
+      const extractMessages = (obj) => {
+        for (const key in obj) {
+          const val = obj[key];
+          if (Array.isArray(val)) {
+            val.forEach((msg) => {
+              if (typeof msg === "string") messages.push(msg);
+            });
+          } else if (typeof val === "object" && val !== null) {
+            extractMessages(val);
+          } else if (typeof val === "string") {
+            messages.push(val);
+          }
+        }
+      };
+      extractMessages(errorData);
+      if (messages.length > 0) {
+        errorMsg = messages.join("\n");
+      } else {
+        errorMsg = errorData.detail || "Registration failed";
+      }
     }
-  };
+    setError(errorMsg);
+    alert("Error:\n" + errorMsg);
+  }
+};
+
+
 
  return (
   <>
@@ -158,31 +296,31 @@ const Register = () => {
               {/* First Name */}
               <div className="col-md-6 mb-3">
                 <label className="form-label">First Name <span className="text-danger">*</span></label>
-                <input type="text" name="first_name" required onChange={handleChange} className="form-control input-dark" />
+                <input type="text" name="first_name"  placeholder="e.g. Ayush" required onChange={handleChange} className="form-control input-dark" />
               </div>
 
               {/* Middle Name */}
               <div className="col-md-6 mb-3">
                 <label className="form-label">Middle Name</label>
-                <input type="text" name="middle_name" onChange={handleChange} className="form-control input-dark" />
+                <input type="text" name="middle_name"  placeholder="e.g. Kumar" onChange={handleChange} className="form-control input-dark" />
               </div>
 
               {/* Last Name */}
               <div className="col-md-6 mb-3">
                 <label className="form-label">Last Name  <span className="text-danger">*</span> </label>
-                <input type="text" name="last_name" required onChange={handleChange} className="form-control input-dark" />
+                <input type="text" name="last_name" placeholder="e.g. Singh" onChange={handleChange} className="form-control input-dark" />
               </div>
 
               {/* Email ID */}
               <div className="col-md-6 mb-3">
                 <label className="form-label">Email ID <span className="text-danger">*</span></label>
-                <input type="email" name="email" required onChange={handleChange} className="form-control input-dark" />
+                <input type="email" name="email" placeholder="e.g. example@gmail.com" required onChange={handleChange} className="form-control input-dark" />
               </div>
 
               {/* Mobile No. */}
               <div className="col-md-6 mb-3">
                 <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
-                <input type="tel" name="mobile_number" pattern="[0-9]{10}" required onChange={handleChange} className="form-control input-dark" />
+                <input type="tel" name="mobile_number" pattern="[0-9]{10}" placeholder="e.g. 9876543210" required onChange={handleChange} className="form-control input-dark" />
               </div>
 
               {/* Gender */}

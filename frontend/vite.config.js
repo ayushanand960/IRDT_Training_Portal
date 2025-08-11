@@ -4,8 +4,12 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-   server: {
+  server: {
     host: '127.0.0.1',
     port: 5173
   },
+  build: {
+    minify: 'esbuild',  // this is default, you can also use 'terser' if you want
+    sourcemap: false,   // disable sourcemaps in production to avoid exposing source code
+  }
 })

@@ -40,15 +40,15 @@ QUESTION_CHOICES = [
 ]
 
 class User(AbstractBaseUser, PermissionsMixin):
-    ehrms_code = models.CharField(max_length=20, primary_key=True)
+    ehrms_code = models.CharField(max_length=10, primary_key=True)
     # username = models.CharField(max_length=100)
 
     first_name = models.CharField(max_length=30, default = 'First')
     middle_name = models.CharField(max_length=30, blank=True, null=True)
-    last_name = models.CharField(max_length=30, default='Last')
+    last_name = models.CharField(max_length=30, blank=True, null=True)
 
     email = models.EmailField(unique=True)
-    mobile_number = models.CharField(max_length=15)
+    mobile_number = models.CharField(max_length=10)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     institute_name = models.CharField(max_length=255)
     branch = models.TextField(max_length=100, default="Polytechnic")
