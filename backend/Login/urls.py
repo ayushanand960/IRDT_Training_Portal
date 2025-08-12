@@ -29,5 +29,6 @@ urlpatterns = [
     path('trainings/', CoordinatorTrainingListView.as_view(), name='coordinator-trainings'),
     path('trainings/<str:code>/assign/', AssignUserToTrainingView.as_view(), name='assign-user-training'),
     path('upload-profile-picture/', UploadProfilePictureAPIView.as_view(), name='upload-profile-picture'),
+    path('remove-profile-picture/', RemoveProfilePhotoView.as_view(), name='remove-profile-picture'), 
 
 ]

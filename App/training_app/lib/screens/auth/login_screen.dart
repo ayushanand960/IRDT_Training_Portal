@@ -531,7 +531,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('ehrms_code', profile['ehrms_code'] ?? '');
     await prefs.setString('full_name', profile['full_name'] ?? 'User');
-    await prefs.setString('profile_photo_url', profile['photo'] ?? '');
+    await prefs.setString(
+      'profile_photo_url',
+      profile['profile_picture'] ?? '',
+    );
   }
 
   /// **Navigate to LoginHomePage**

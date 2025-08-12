@@ -457,8 +457,8 @@ class ApiService {
     await prefs.setString('name', data['first_name'] ?? '');
     await prefs.setBool('is_superuser', data['is_superuser'] ?? false);
     await prefs.setBool('is_coordinator', data['is_coordinator'] ?? false);
-    if (data.containsKey('photo')) {
-      await prefs.setString('profile_photo_url', data['photo'] ?? '');
+    if (data.containsKey('profile_picture')) {
+      await prefs.setString('profile_photo_url', data['profile_picture'] ?? '');
     }
   }
 
@@ -556,18 +556,21 @@ class ApiService {
   //   }
   //   return null;
   // }
+
   Future<String?> uploadPhoto(File photo) async {
-    final url = Uri.parse("${baseUrl}login/profile/upload-photo/");
-    final request = http.MultipartRequest('POST', url);
+    final url = Uri.parse("${baseUrl}login/upload-profile-picture/");
+    final request = http.MultipartRequest('PUT', url);
     request.headers.addAll(_headers(withCookies: true, isJson: false));
-    request.files.add(await http.MultipartFile.fromPath('photo', photo.path));
+    request.files.add(
+      await http.MultipartFile.fromPath('profile_picture', photo.path),
+    );
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final newUrl = (data['photo'] as String?) ?? '';
+      final newUrl = (data['url'] as String?) ?? '';
       if (newUrl.isNotEmpty) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('profile_photo_url', newUrl);
@@ -578,14 +581,14 @@ class ApiService {
   }
 
   Future<String?> removePhoto() async {
-    final url = Uri.parse("${baseUrl}login/profile/remove-photo/");
+    final url = Uri.parse("${baseUrl}login/remove-profile-picture/");
     final response = await _client.delete(
       url,
       headers: _headers(withCookies: true),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final newUrl = (data['photo'] as String?) ?? '';
+      final newUrl = (data['url'] as String?) ?? '';
       if (newUrl.isNotEmpty) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('profile_photo_url', newUrl);

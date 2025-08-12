@@ -290,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     "Branch": "",
     "Gender": "",
     "Designation": "",
-    "photo": "",
+    "Photo": "",
   };
 
   final Map<String, IconData> iconMap = {
@@ -314,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final data = await _api.getProfile();
     if (data != null) {
       final prefs = await SharedPreferences.getInstance();
-      final photoUrl = data['photo'] ?? "";
+      final photoUrl = data['profile_picture'] ?? "";
       await prefs.setString('profile_photo_url', photoUrl);
 
       setState(() {
@@ -327,7 +327,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           "Branch": data['branch'] ?? "",
           "Gender": data['gender'] ?? "",
           "Designation": data['designation'] ?? "",
-          "photo": photoUrl,
+          "Photo": photoUrl,
         };
         _profileImage = null;
         isLoading = false;
@@ -349,9 +349,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         _profileImage = File(pickedFile.path);
-        userDetails['photo'] = newUrl.isNotEmpty
+        userDetails['Photo'] = newUrl.isNotEmpty
             ? newUrl
-            : userDetails['photo'];
+            : userDetails['Photo'];
       });
 
       widget.onProfileUpdated?.call();
@@ -372,9 +372,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await prefs.setString('profile_photo_url', newUrl);
 
       setState(() {
-        userDetails['photo'] = newUrl.isNotEmpty
+        userDetails['Photo'] = newUrl.isNotEmpty
             ? newUrl
-            : userDetails['photo'];
+            : userDetails['Photo'];
         _profileImage = null;
       });
 
@@ -426,8 +426,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       ProfileAvatar(
                         imageFile: _profileImage,
-                        networkUrl: (userDetails['photo'] as String).isNotEmpty
-                            ? userDetails['photo']
+                        networkUrl: (userDetails['Photo'] as String).isNotEmpty
+                            ? userDetails['Photo']
                             : null,
                         onTap: () async {
                           final choice = await showMenu<String>(
@@ -489,7 +489,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Column(
                           children: userDetails.entries.map((entry) {
-                            if (entry.key == "Name" || entry.key == "photo") {
+                            if (entry.key == "Name" || entry.key == "Photo") {
                               return const SizedBox.shrink();
                             }
                             return userInfoRow(

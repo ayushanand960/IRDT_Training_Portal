@@ -92,8 +92,28 @@ class UploadProfilePictureAPIView(APIView):
 
         return Response({
             'url': f"/media/{relative_path}"
+            # 'url': request.build_absolute_uri(f"/media/{relative_path}")
         })
     
+
+class RemoveProfilePhotoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        default_path = 'profile_pictures/default.jpg'
+
+        if user.profile_picture and user.profile_picture.name != default_path:
+            # Delete file from storage
+            if os.path.exists(user.profile_picture.path):
+                os.remove(user.profile_picture.path)
+
+            # Reset to default
+            user.profile_picture.name = default_path
+            user.save()
+
+        return Response({'message': 'Profile picture removed', 'url': f'/media/{default_path}'})
+
     
 # class UserProfileView(APIView):
 #     authentication_classes = [CookieJWTAuthentication]
@@ -507,16 +527,16 @@ class AssignUserToTrainingView(APIView):
 #             "photo": request.build_absolute_uri(user.photo.url)
 #         }, status=status.HTTP_200_OK)
 
-class RemoveProfilePhotoView(APIView):
-    permission_classes = [IsAuthenticated]
+# class RemoveProfilePhotoView(APIView):
+#     permission_classes = [IsAuthenticated]
 
-    def delete(self, request):
-        user = request.user
-        if user.profile_picture and os.path.isfile(user.profile_picture.path):
-            os.remove(user.profile_picture.path)  # delete photo file
-        user.profile_picture = None  # reset to default
-        user.save()
-        return Response({
-            "message": "Photo removed successfully",
-            "profile_picture": request.build_absolute_uri('/media/profile_pictures/default.jpg')
-        }, status=status.HTTP_200_OK)
+#     def delete(self, request):
+#         user = request.user
+#         if user.profile_picture and os.path.isfile(user.profile_picture.path):
+#             os.remove(user.profile_picture.path)  # delete photo file
+#         user.profile_picture = None  # reset to default
+#         user.save()
+#         return Response({
+#             "message": "Photo removed successfully",
+#             "profile_picture": request.build_absolute_uri('/media/profile_pictures/default.jpg')
+#         }, status=status.HTTP_200_OK)
