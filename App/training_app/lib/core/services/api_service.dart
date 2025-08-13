@@ -644,10 +644,36 @@ class ApiService {
       body: jsonEncode(payload),
     );
 
+    // if (response.statusCode != 200 && response.statusCode != 201) {
+    //   try {
+    //     final errorData = jsonDecode(response.body);
+    //     throw Exception(errorData['detail'] ?? "Registration failed");
+    //   } catch (_) {
+    //     throw Exception("Registration failed. Please try again.");
+    //   }
+    // }
+
     if (response.statusCode != 200 && response.statusCode != 201) {
       try {
         final errorData = jsonDecode(response.body);
-        throw Exception(errorData['detail'] ?? "Registration failed");
+
+        if (errorData is Map<String, dynamic>) {
+          // If backend sends field-specific errors as lists
+          final errors = errorData.entries
+              .where((entry) => entry.value is List)
+              .map((entry) => (entry.value as List).join(', '))
+              .join('\n');
+
+          if (errors.isNotEmpty) {
+            throw Exception(errors);
+          } else if (errorData.containsKey('detail')) {
+            throw Exception(errorData['detail']);
+          }
+        } else if (errorData is String) {
+          throw Exception(errorData);
+        }
+
+        throw Exception("Registration failed");
       } catch (_) {
         throw Exception("Registration failed. Please try again.");
       }

@@ -885,6 +885,39 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  static const allowedEmailDomains = [
+    "gmail",
+    "yahoo",
+    "outlook",
+    "hotmail",
+    "rediffmail",
+    "icloud",
+    "protonmail",
+    "zoho",
+    "aol",
+    "yandex",
+    "mail",
+    "gmx",
+    "nic",
+    "gov",
+    "edu",
+  ];
+
+  static const allowedEmailTLDs = [
+    "com",
+    "in",
+    "org",
+    "net",
+    "edu",
+    "gov",
+    "mil",
+    "co",
+    "info",
+    "biz",
+    "io",
+    "me",
+  ];
+
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
 
@@ -898,6 +931,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final confirmPasswordController = TextEditingController();
   final securityAnswerController = TextEditingController();
   final otherDesignationController = TextEditingController();
+
+  final FocusNode ehrmsFocus = FocusNode();
+  final FocusNode firstNameFocus = FocusNode();
+  final FocusNode middleNameFocus = FocusNode();
+  final FocusNode lastNameFocus = FocusNode();
+  final FocusNode emailFocus = FocusNode();
+  final FocusNode phoneFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
+  final FocusNode confirmPasswordFocus = FocusNode();
+  final FocusNode securityAnswerFocus = FocusNode();
+  final FocusNode otherDesignationFocus = FocusNode();
 
   String? selectedGender;
   String? selectedPolytechnic;
@@ -928,6 +972,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'Other',
     ],
   };
+
   List<String> designationOptions = [];
 
   void onCategoryChanged(String? value) {
@@ -936,6 +981,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       selectedDesignation = null;
       designationOptions = designationMap[value] ?? [];
     });
+  }
+
+  void scrollToField(FocusNode focusNode) {
+    final context = focusNode.context;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment:
+            0.3, // aligns field slightly above center for better visibility
+      );
+    }
   }
 
   void scrollToFirstError() {
@@ -949,10 +1007,126 @@ class _RegisterScreenState extends State<RegisterScreen> {
   /// ------------------- REGISTER -------------------
   final ApiService _api = ApiService();
 
+  // void registerUser() async {
+  //   if (!_formKey.currentState!.validate()) {
+  //     scrollToFirstError();
+  //     return;
+  //   }
+
   void registerUser() async {
     if (!_formKey.currentState!.validate()) {
-      scrollToFirstError();
-      return;
+      // Instead of just scrollToFirstError, focus on first invalid field and scroll to it
+
+      if (ehrmsController.text.isEmpty ||
+          !RegExp(r'^\d{6,7}$').hasMatch(ehrmsController.text)) {
+        FocusScope.of(context).requestFocus(ehrmsFocus);
+        scrollToField(ehrmsFocus);
+        return;
+      }
+      if (firstNameController.text.isEmpty ||
+          !RegExp(r'^[a-zA-Z]+$').hasMatch(firstNameController.text)) {
+        FocusScope.of(context).requestFocus(firstNameFocus);
+        scrollToField(firstNameFocus);
+        return;
+      }
+      if (middleNameController.text.isNotEmpty &&
+          !RegExp(r'^[a-zA-Z]+$').hasMatch(middleNameController.text)) {
+        FocusScope.of(context).requestFocus(middleNameFocus);
+        scrollToField(middleNameFocus);
+        return;
+      }
+      if (lastNameController.text.isNotEmpty &&
+          !RegExp(r'^[a-zA-Z]+$').hasMatch(lastNameController.text)) {
+        FocusScope.of(context).requestFocus(lastNameFocus);
+        scrollToField(lastNameFocus);
+        return;
+      }
+      // Email with stricter domain check:
+      if (emailController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(emailFocus);
+        scrollToField(emailFocus);
+        return;
+      }
+      if (phoneController.text.isEmpty ||
+          !RegExp(r'^[6-9][0-9]{9}$').hasMatch(phoneController.text)) {
+        FocusScope.of(context).requestFocus(phoneFocus);
+        scrollToField(phoneFocus);
+        return;
+      }
+      if (selectedGender == null) {
+        // For dropdowns without FocusNode, just scroll top or to approximate offset
+        _scrollController.animateTo(
+          // scroll near gender dropdown
+          300, // adjust offset as needed based on layout
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (selectedPolytechnic == null) {
+        _scrollController.animateTo(
+          350,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (selectedBranch == null) {
+        _scrollController.animateTo(
+          400,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (selectedCategory == null) {
+        _scrollController.animateTo(
+          450,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (selectedDesignation == null) {
+        _scrollController.animateTo(
+          500,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (selectedDesignation == 'Other' &&
+          (otherDesignationController.text.isEmpty)) {
+        FocusScope.of(context).requestFocus(otherDesignationFocus);
+        scrollToField(otherDesignationFocus);
+        return;
+      }
+      if (passwordController.text.isEmpty ||
+          passwordController.text.length < 6) {
+        FocusScope.of(context).requestFocus(passwordFocus);
+        scrollToField(passwordFocus);
+        return;
+      }
+      if (confirmPasswordController.text != passwordController.text) {
+        FocusScope.of(context).requestFocus(confirmPasswordFocus);
+        scrollToField(confirmPasswordFocus);
+        return;
+      }
+      if (selectedSecurityQuestion == null) {
+        _scrollController.animateTo(
+          600,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        return;
+      }
+      if (securityAnswerController.text.isEmpty) {
+        FocusScope.of(context).requestFocus(securityAnswerFocus);
+        scrollToField(securityAnswerFocus);
+        return;
+      }
+
+      return; // stop here if any error found
     }
 
     final payload = {
@@ -981,10 +1155,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        // SnackBar(content: Text("Error: ${e.toString()}")));
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    ehrmsFocus.dispose();
+    firstNameFocus.dispose();
+    middleNameFocus.dispose();
+    lastNameFocus.dispose();
+    middleNameFocus.dispose();
+    emailFocus.dispose();
+    phoneFocus.dispose();
+    passwordFocus.dispose();
+    confirmPasswordFocus.dispose();
+    securityAnswerFocus.dispose();
+    otherDesignationFocus.dispose();
+    super.dispose();
   }
 
   /// ------------------- UI -------------------
@@ -1047,51 +1238,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // EHRMS Code
                         TextFormField(
                           controller: ehrmsController,
+                          focusNode: ehrmsFocus,
                           keyboardType: TextInputType.number,
                           decoration: fieldDecoration(
                             'EHRMS Code',
                             required: true,
                           ),
-                          validator: (value) {
-                            if (value == null ||
-                                value.length < 6 ||
-                                value.length > 7) {
-                              return 'Enter a valid 6 or 7 digit EHRMS Code';
-                            }
-                            return null;
-                          },
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Enter EHRMS Code'
+                              : (!RegExp(r'^\d{6,7}$').hasMatch(value)
+                                    ? 'Enter a valid 6 or 7 digit EHRMS Code (digits only)'
+                                    : null),
                         ),
+
                         const SizedBox(height: 16),
 
                         // First Name
                         TextFormField(
                           controller: firstNameController,
+                          focusNode: firstNameFocus,
                           decoration: fieldDecoration(
                             'First Name',
                             required: true,
                           ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) => value == null || value.isEmpty
                               ? 'Enter first name'
-                              : null,
+                              : (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)
+                                    ? 'Only alphabets allowed'
+                                    : null),
                         ),
                         const SizedBox(height: 16),
 
                         // Middle Name
                         TextFormField(
                           controller: middleNameController,
+                          focusNode: middleNameFocus,
                           decoration: fieldDecoration('Middle Name'),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) =>
+                              (value != null &&
+                                  value.isNotEmpty &&
+                                  !RegExp(r'^[a-zA-Z]+$').hasMatch(value))
+                              ? 'Only alphabets allowed'
+                              : null,
                         ),
                         const SizedBox(height: 16),
 
                         // Last Name
                         TextFormField(
                           controller: lastNameController,
-                          decoration: fieldDecoration(
-                            'Last Name',
-                            required: true,
-                          ),
-                          validator: (value) => value == null || value.isEmpty
-                              ? 'Enter last name'
+                          focusNode: lastNameFocus,
+                          decoration: fieldDecoration('Last Name'),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) =>
+                              (value != null &&
+                                  value.isNotEmpty &&
+                                  !RegExp(r'^[a-zA-Z]+$').hasMatch(value))
+                              ? 'Only alphabets allowed'
                               : null,
                         ),
                         const SizedBox(height: 16),
@@ -1099,20 +1304,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Email
                         TextFormField(
                           controller: emailController,
+                          focusNode: emailFocus,
                           decoration: fieldDecoration(
                             'Email ID',
                             required: true,
                           ),
                           keyboardType: TextInputType.emailAddress,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Enter email';
-                            final emailRegex = RegExp(
-                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                            );
-                            if (!emailRegex.hasMatch(value))
-                              return 'Enter a valid email';
-                            return null;
+                            }
+
+                            final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                            if (!emailRegex.hasMatch(value)) {
+                              return 'Enter a valid email address';
+                            }
+
+                            try {
+                              // Extract parts
+                              final parts = value.split('@');
+                              final domainPart = parts[1]; // e.g., yahoo.in
+
+                              final domainSplit = domainPart.split('.');
+                              final baseDomain = domainSplit.first; // yahoo
+                              final tld = domainSplit.last; // in
+
+                              // Check base domain
+                              if (!allowedEmailDomains.contains(baseDomain)) {
+                                return 'Email domain not allowed';
+                              }
+
+                              // Check TLD
+                              if (!allowedEmailTLDs.contains(tld)) {
+                                return 'Email TLD not allowed';
+                              }
+                            } catch (e) {
+                              return 'Invalid email format';
+                            }
+
+                            return null; // valid
                           },
                         ),
                         const SizedBox(height: 16),
@@ -1120,15 +1351,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Phone
                         TextFormField(
                           controller: phoneController,
+                          focusNode: phoneFocus,
                           keyboardType: TextInputType.phone,
                           decoration: fieldDecoration(
                             'Mobile No.',
                             required: true,
                           ),
-                          validator: (value) =>
-                              value == null || value.length != 10
-                              ? 'Enter a valid 10-digit mobile number'
-                              : null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Enter mobile number'
+                              : (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(value)
+                                    ? 'Enter a valid 10-digit mobile number'
+                                    : null),
                         ),
                         const SizedBox(height: 16),
 
@@ -1259,10 +1493,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: otherDesignationController,
+                            focusNode: otherDesignationFocus,
                             decoration: fieldDecoration(
                               'Enter Other Designation',
                               required: true,
                             ),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             validator: (value) => value == null || value.isEmpty
                                 ? 'Enter designation'
                                 : null,
@@ -1287,11 +1524,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Password
                         TextFormField(
                           controller: passwordController,
+                          focusNode: passwordFocus,
                           obscureText: true,
                           decoration: fieldDecoration(
                             'Password',
                             required: true,
                           ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value == null || value.isEmpty)
                               return 'Enter password';
@@ -1308,11 +1547,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Confirm Password
                         TextFormField(
                           controller: confirmPasswordController,
+                          focusNode: confirmPasswordFocus,
                           obscureText: true,
                           decoration: fieldDecoration(
                             'Confirm Password',
                             required: true,
                           ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) => value != passwordController.text
                               ? 'Passwords do not match'
                               : null,
@@ -1366,10 +1607,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Security Answer
                         TextFormField(
                           controller: securityAnswerController,
+                          focusNode: securityAnswerFocus,
                           decoration: fieldDecoration(
                             'Security Answer',
                             required: true,
                           ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) => value == null || value.isEmpty
                               ? 'Enter answer'
                               : null,

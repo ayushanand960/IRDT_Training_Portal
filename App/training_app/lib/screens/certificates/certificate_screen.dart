@@ -165,7 +165,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
       if (File(filePath).existsSync()) {
         OpenFile.open(filePath);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Certificate already saved at: $filePath")),
+          SnackBar(content: Text("Certificate already downloaded")),
         );
         return;
       }
@@ -174,9 +174,9 @@ class _CertificateScreenState extends State<CertificateScreen> {
         trainingCode,
         fileName,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Certificate saved at: ${file.path}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Certificate Downloaded")));
       OpenFile.open(file.path);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
