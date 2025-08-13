@@ -25,6 +25,7 @@ import AboutUs from "./pages/AboutUs";
 import PhotoGallery from "./pages/PhotoGallery";
 import ELearning from "./pages/ELearning";
 import AdminNominationDashboard from "./pages/AdminNominationDashboard";
+import UserTrainingsPage from "./pages/UserTrainingsPage";
 
 import Info1 from "./pages/Info1"; 
 
@@ -76,6 +77,7 @@ export default function App() {
           {/* <Route path="/generate-certificates" element={<CoordinatorCertificatePage />} />  */}
           <Route path="/generate-certificate/:code" element={<CoordinatorCertificatePage />} />
           <Route path="/users/all/:code" element={<AllUsersPage />} />
+          <Route path="/users/:ehrms_code/trainings" element={<UserTrainingsPage />} />
         </Route>
 
         {/* Admin Routes */}

@@ -589,14 +589,38 @@ class ApproveEditRequestAPIView(APIView):
         return Response({"message": message}, status=200)
     
 
+# class PastTrainingsAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         today = date.today()
+
+#         # Fetch enrollments where training ended in the past
+#         enrollments = Enrollment.objects.filter(
+#             trainee=user,
+#             training__end_date__lt=today
+#         ).select_related('training')
+
+#         past_trainings = [enrollment.training for enrollment in enrollments]
+#         serializer = TrainingProgramSerializer(past_trainings, many=True)
+#         return Response(serializer.data)
+    
 class PastTrainingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
+        ehrms_code = request.query_params.get("ehrms_code")
         today = date.today()
 
-        # Fetch enrollments where training ended in the past
+        if ehrms_code:
+            try:
+                user = User.objects.get(ehrms_code=ehrms_code)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=404)
+        else:
+            user = request.user
+
         enrollments = Enrollment.objects.filter(
             trainee=user,
             training__end_date__lt=today
@@ -605,8 +629,6 @@ class PastTrainingsAPIView(APIView):
         past_trainings = [enrollment.training for enrollment in enrollments]
         serializer = TrainingProgramSerializer(past_trainings, many=True)
         return Response(serializer.data)
-    
-
 
 from rest_framework.views import APIView
 from rest_framework.response import Response

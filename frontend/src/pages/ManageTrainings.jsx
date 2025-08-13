@@ -40,27 +40,27 @@
 //     }
 //   };
 
-//   const handleDelete = async (code) => {
-//     if (!window.confirm("Are you sure you want to delete this training?")) return;
-//     try {
-//       await axiosInstance.delete(`/training/training-programs/${code}/`);
-//       toast.success("Training deleted successfully.");
-//       fetchTrainings();
-//     } catch (err) {
-//       console.error("Delete error:", err);
-//       toast.error("Failed to delete training.");
-//     }
-//   };
+// const handleDelete = async (code) => {
+//   if (!window.confirm("Are you sure you want to delete this training?")) return;
+//   try {
+//     await axiosInstance.delete(`/training/training-programs/${code}/`);
+//     toast.success("Training deleted successfully.");
+//     fetchTrainings();
+//   } catch (err) {
+//     console.error("Delete error:", err);
+//     toast.error("Failed to delete training.");
+//   }
+// };
 
-//   const handleEdit = (training) => {
-//     setSelectedTraining(training);
-//     setShowModal(true);
-//   };
+// const handleEdit = (training) => {
+//   setSelectedTraining(training);
+//   setShowModal(true);
+// };
 
-//   const handleAdd = () => {
-//     setSelectedTraining(null);
-//     setShowModal(true);
-//   };
+// const handleAdd = () => {
+//   setSelectedTraining(null);
+//   setShowModal(true);
+// };
 
 //   const handleExcelUpload = async () => {
 //   if (!uploadFile || !sessionYear || !uploadDate) {
@@ -222,33 +222,33 @@
 //               <tbody>
 //                 {trainings.map((t) => (
 //                   <tr key={t.id} className="text-center">
-//                     <td>{t.code || "-"}</td>
-//                     <td className="text-start">{t.name}</td>
-//                     <td>{t.venue || "-"}</td>
-//                     <td>{t.mode || "-"}</td>
-//                     <td>{t.training_type || "-"}</td>
-//                     <td>{t.start_date}</td>
-//                     <td>{t.end_date}</td>
-//                     <td>{t.faculty_name_display || "-"}</td>
-//                     <td>{t.number_of_participants ?? "-"}</td>
-//                     <td>
-//                       <div className="d-flex justify-content-center gap-1">
-//                         <Button
-//                           size="sm"
-//                           variant="secondary"
-//                           onClick={() => handleEdit(t)}
-//                         >
-//                           Edit
-//                         </Button>
-//                         <Button
-//                           size="sm"
-//                           variant="danger"
-//                           onClick={() => handleDelete(t.code)}
-//                         >
-//                           Delete
-//                         </Button>
-//                       </div>
-//                     </td>
+// <td>{t.code || "-"}</td>
+// <td className="text-start">{t.name}</td>
+// <td>{t.venue || "-"}</td>
+// <td>{t.mode || "-"}</td>
+// <td>{t.training_type || "-"}</td>
+// <td>{t.start_date}</td>
+// <td>{t.end_date}</td>
+// <td>{t.faculty_name_display || "-"}</td>
+// <td>{t.number_of_participants ?? "-"}</td>
+// <td>
+//   <div className="d-flex justify-content-center gap-1">
+//     <Button
+//       size="sm"
+//       variant="secondary"
+//       onClick={() => handleEdit(t)}
+//     >
+//       Edit
+//     </Button>
+//     <Button
+//       size="sm"
+//       variant="danger"
+//       onClick={() => handleDelete(t.code)}
+//     >
+//       Delete
+//     </Button>
+//   </div>
+// </td>
 //                   </tr>
 //                 ))}
 //               </tbody>
@@ -256,23 +256,23 @@
 //           </div>
 //         )}
 
-//         {/* Modal for Add/Edit */}
-//         <Modal show={showModal} onHide={() => setShowModal(false)}>
-//           <Modal.Header closeButton>
-//             <Modal.Title>
-//               {selectedTraining ? "Edit Training" : "Add Training"}
-//             </Modal.Title>
-//           </Modal.Header>
-//           <Modal.Body>
-//             <TrainingForm
-//               training={selectedTraining}
-//               onSuccess={() => {
-//                 setShowModal(false);
-//                 fetchTrainings();
-//               }}
-//             />
-//           </Modal.Body>
-//         </Modal>
+// {/* Modal for Add/Edit */}
+// <Modal show={showModal} onHide={() => setShowModal(false)}>
+//   <Modal.Header closeButton>
+//     <Modal.Title>
+//       {selectedTraining ? "Edit Training" : "Add Training"}
+//     </Modal.Title>
+//   </Modal.Header>
+//   <Modal.Body>
+//     <TrainingForm
+//       training={selectedTraining}
+//       onSuccess={() => {
+//         setShowModal(false);
+//         fetchTrainings();
+//       }}
+//     />
+//   </Modal.Body>
+// </Modal>
 //       </div>
 //     </DashboardLayout>
 //   );
@@ -305,6 +305,9 @@ const ManageTrainings = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState(null);
   const [showTrainingForm, setShowTrainingForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTraining, setSelectedTraining] = useState(null);
+
 
   const fetchTrainings = async () => {
     setLoading(true);
@@ -317,6 +320,27 @@ const ManageTrainings = () => {
     setLoading(false);
   };
 
+  const handleDelete = async (code) => {
+    if (!window.confirm("Are you sure you want to delete this training?")) return;
+    try {
+      await axiosInstance.delete(`/training/training-programs/${code}/`);
+      toast.success("Training deleted successfully.");
+      fetchTrainings();
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete training.");
+    }
+  };
+
+  const handleEdit = (training) => {
+    setSelectedTraining(training);
+    setShowModal(true);
+  };
+
+  const handleAdd = () => {
+    setSelectedTraining(null);
+    setShowModal(true);
+  };
   useEffect(() => {
     fetchTrainings();
   }, []);
@@ -405,7 +429,7 @@ const ManageTrainings = () => {
         <h2>Manage Trainings</h2>
 
         <Row className="align-items-end">
-          <Col md={3}>
+          <Col md={2}>
             <Form.Group controlId="formUploadDate">
               <Form.Label>Upload Date</Form.Label>
               <Form.Control
@@ -415,7 +439,7 @@ const ManageTrainings = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={3}>
+          <Col md={2}>
             <Form.Group controlId="formSessionYear">
               <Form.Label>Session Year</Form.Label>
               <Form.Control
@@ -432,9 +456,14 @@ const ManageTrainings = () => {
               <Form.Control type="file" onChange={handleFileChange} />
             </Form.Group>
           </Col>
-          <Col md={3}>
-            <Button className="mt-3" onClick={handleUpload}>
+          <Col md={2}>
+            <Button className="w-100" onClick={handleUpload}>
               Upload Training Batch
+            </Button>
+          </Col>
+          <Col md={2}>
+            <Button variant="primary" className="w-100" onClick={handleAdd}>
+              + Add Training
             </Button>
           </Col>
         </Row>
@@ -465,23 +494,64 @@ const ManageTrainings = () => {
                 <Table striped bordered hover responsive>
                   <thead>
                     <tr>
-                      <th>Code</th>
+                      {/* <th>Code</th>
                       <th>Program Name</th>
                       <th>Target Group</th>
                       <th>Start Date</th>
                       <th>End Date</th>
-                      <th>Faculty</th>
+                      <th>Faculty</th> */}
+
+
+                      <th style={{ width: "6%", whiteSpace: "nowrap" }}>Code</th>
+                      <th style={{ width: "20%" }}>Name</th>
+                      <th style={{ width: "12%" }}>Venue</th>
+                      <th style={{ width: "8%" }}>Mode</th>
+                      <th style={{ width: "8%" }}>Type</th>
+                      <th style={{ width: "10%" }}>Start Date</th>
+                      <th style={{ width: "10%" }}>End Date</th>
+                      <th style={{ width: "15%" }}>Faculty</th>
+                      <th style={{ width: "8%", whiteSpace: "nowrap" }}># Participants</th>
+                      <th style={{ width: "12%" }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {trainings.map((training) => (
-                      <tr key={training.code}>
-                        <td>{training.code}</td>
+                    {trainings.map((t) => (
+                      <tr key={t.code}>
+                        {/* <td>{training.code}</td>
                         <td>{training.name}</td>
                         <td>{training.target_group}</td>
                         <td>{training.start_date}</td>
                         <td>{training.end_date}</td>
-                        <td>{training.faculty_name_display || "-"}</td>
+                        <td>{training.faculty_name_display || "-"}</td> */}
+
+
+                        <td>{t.code || "-"}</td>
+                        <td className="text-start">{t.name}</td>
+                        <td>{t.venue || "-"}</td>
+                        <td>{t.mode || "-"}</td>
+                        <td>{t.training_type || "-"}</td>
+                        <td>{t.start_date}</td>
+                        <td>{t.end_date}</td>
+                        <td>{t.faculty_name_display || "-"}</td>
+                        <td>{t.number_of_participants ?? "-"}</td>
+                        <td>
+                          <div className="d-flex justify-content-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleEdit(t)}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() => handleDelete(t.code)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -515,6 +585,23 @@ const ManageTrainings = () => {
             onSuccess={fetchTrainings}
           />
         )}
+        {/* Modal for Add/Edit */}
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {selectedTraining ? "Edit Training" : "Add Training"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <TrainingForm
+              training={selectedTraining}
+              onSuccess={() => {
+                setShowModal(false);
+                fetchTrainings();
+              }}
+            />
+          </Modal.Body>
+        </Modal>
       </div>
     </DashboardLayout>
   );
