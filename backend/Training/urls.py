@@ -19,10 +19,10 @@ from .views import (
     RequestEditAPIView,
     PastTrainingsAPIView,
     ApproveEditRequestAPIView,
-    DeleteTrainingBatchAPIView
+    DeleteTrainingBatchAPIView,download_curriculum_excel
 )
 from .views import CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView, FinalizeNominationAPIView, DownloadFinalNominationXLSXAPIView, AttendedTraineesAPIView, FinalizedNominationsListView
-from .views import AssignedTrainingsView , RejectTraineeAPIView, RejectionNotificationAPIView, MarkRejectionAsReadAPIView, DeleteRejectionAPIView
+from .views import AssignedTrainingsView , RejectTraineeAPIView, RejectionNotificationAPIView, MarkRejectionAsReadAPIView, DeleteRejectionAPIView ,  CurriculumListAPIView
 urlpatterns = [
     path('training-programs/', TrainingProgramListCreateAPIView.as_view(), name='training-list-create'),
     path('training-programs/<str:code>/', TrainingProgramRetrieveUpdateDeleteAPIView.as_view(), name='training-rud'),
@@ -48,6 +48,8 @@ urlpatterns = [
     path('request-edit/<str:training_code>/', RequestEditAPIView.as_view(), name='request-edit'),
     path('approve-edit/<str:training_code>/', ApproveEditRequestAPIView.as_view(), name='approve-edit'),
     path('past-trainings/', PastTrainingsAPIView.as_view(), name='past-trainings'),
+    path('curriculum/', CurriculumListAPIView.as_view(), name='curriculum-list'),
+     path("curriculum/download/", download_curriculum_excel, name="curriculum-download"),
 ]
 
 

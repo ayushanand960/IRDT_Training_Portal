@@ -422,6 +422,19 @@ const ManageTrainings = () => {
   };
 
   const groupedTrainings = groupTrainingsByBatch(trainings);
+// put this above return()
+const formatDate = (val) => {
+  if (!val) return "";
+  // If it's a plain "YYYY-MM-DD" string, just reorder (safe, no timezone shifts)
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val);
+  if (m) {
+    const [, y, mo, d] = m;
+    return `${d}/${mo}/${y}`; // 👉 dd/MM/yyyy
+  }
+  // Fallback for any other format
+  const dt = new Date(val);
+  return isNaN(dt) ? val : dt.toLocaleDateString("en-GB"); // dd/MM/yyyy
+};
 
   return (
     <DashboardLayout>
@@ -517,21 +530,13 @@ const ManageTrainings = () => {
                   <tbody>
                     {trainings.map((t) => (
                       <tr key={t.code}>
-                        {/* <td>{training.code}</td>
-                        <td>{training.name}</td>
-                        <td>{training.target_group}</td>
-                        <td>{training.start_date}</td>
-                        <td>{training.end_date}</td>
-                        <td>{training.faculty_name_display || "-"}</td> */}
-
-
                         <td>{t.code || "-"}</td>
                         <td className="text-start">{t.name}</td>
                         <td>{t.venue || "-"}</td>
                         <td>{t.mode || "-"}</td>
                         <td>{t.training_type || "-"}</td>
-                        <td>{t.start_date}</td>
-                        <td>{t.end_date}</td>
+                       <td>{formatDate(training.start_date)}</td>
+                        <td>{formatDate(training.end_date)}</td>
                         <td>{t.faculty_name_display || "-"}</td>
                         <td>{t.number_of_participants ?? "-"}</td>
                         <td>
@@ -585,7 +590,6 @@ const ManageTrainings = () => {
             onSuccess={fetchTrainings}
           />
         )}
-        {/* Modal for Add/Edit */}
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
             <Modal.Title>
