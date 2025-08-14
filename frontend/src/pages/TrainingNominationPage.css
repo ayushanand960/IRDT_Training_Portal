@@ -1,4 +1,129 @@
+
+
+
 /* TrainingNominationPage.css */
+
+/* Heading */
+h4.text-primary {
+  font-weight: bold;
+  font-size: 1.75rem;
+  color: #006666 !important;
+}
+
+/* Card styling */
+.card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Status text */
+.text-success {
+  font-weight: 600;
+  color: #006666 !important;
+}
+
+/* List group items */
+.list-group-item {
+  background-color: #fdfdfd;
+  margin-bottom: 5px;
+  border-left: 4px solid #006666;
+  border-radius: 6px;
+}
+
+.list-group-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Success button */
+button.btn-success {
+  background-color: #006666;
+  border-color: #006666;
+}
+
+button.btn-success:hover {
+  background-color: #004d4d;
+  border-color: #004d4d;
+}
+
+/* Danger button */
+button.btn-danger {
+  background-color: #cc0000;
+  border-color: #cc0000;
+}
+
+button.btn-danger:hover {
+  background-color: #990000;
+  border-color: #990000;
+}
+
+/* Form select dropdown */
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 0.45rem 0.75rem;
+}
+
+/* Search input */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 0.45rem 0.75rem;
+}
+
+.nomination-btn {
+  background-color: #006666 !important; /* Main green */
+  border: none !important;
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.nomination-btn:hover {
+  background-color: #004d4d !important; /* Darker green on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 77, 77, 0.3);
+}
+
+.nomination-btn:active {
+  background-color: #004040 !important; /* Slightly darker when pressed */
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+
+.nomination-btn:focus {
+  outline: none !important;
+  box-shadow: 0 0 8px rgba(0, 102, 102, 0.8);
+}
+
+.nominated-name {
+  flex: 1; /* Take all available space */
+  margin-right: 12px;
+  word-break: break-word; /* Wrap long words */
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;          /* space between buttons */
+  margin-bottom: 15px; /* pushes table down */
+  align-items: center;
+}
+
+.edit-btn, .download-btn {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+
+/* TrainingNominationPage.css
 
 h4.text-primary {
   font-weight: bold;
@@ -51,4 +176,4 @@ button.btn-danger:hover {
 
 .form-select {
   border-radius: 8px;
-}
+} */

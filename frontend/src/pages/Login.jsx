@@ -45,10 +45,10 @@ const Login = () => {
       const res = await axiosInstance.get("/login/user/profile/");
       const { is_superuser, is_coordinator, ehrms_code } = res.data;
 
-      if (is_superuser || is_coordinator) {
-        setError("Access denied. Please use the Admin/Coordinator login page.");
-        return;
-      }
+      // if (is_superuser || is_coordinator) {
+      //   setError("Access denied. Please use the Admin/Coordinator login page.");
+      //   return;
+      // }
 
       // ✅ Step 3: Set user in context
       setUser({ ehrms_code, role: "trainee" });

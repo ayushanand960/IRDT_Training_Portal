@@ -32,24 +32,40 @@ export const AuthProvider = ({ children }) => {
 
         const { is_superuser, is_coordinator, ehrms_code } = res.data;
 
-        const role = is_superuser
-          ? "admin"
-          : is_coordinator
-          ? "coordinator"
-          : "trainee";
+        // const role = is_superuser
+        //   ? "admin"
+        //   : is_coordinator
+        //   ? "coordinator"
+        //   : "trainee";
 
-        setUser({ ehrms_code, role });
+        // setUser({ ehrms_code, role });
+
+
+
+        setUser({
+          ehrms_code,
+          is_superuser,
+          is_coordinator,
+          role: is_superuser
+            ? "admin"
+            : is_coordinator
+              ? "coordinator"
+              : "trainee",
+        });
+
+
+
       } catch (err) {
         if (!didCancel) {
           setUser(null);
 
           const hasLoggedInBefore = localStorage.getItem("hasLoggedInBefore");
           if (err.response?.status === 401) {
-  if (hasLoggedInBefore === "true") {
-    localStorage.setItem("logoutReason", "Session expired. Please login again.");
-  }
-  localStorage.removeItem("hasLoggedInBefore"); // ✅ Clear it after failure
-}
+            if (hasLoggedInBefore === "true") {
+              localStorage.setItem("logoutReason", "Session expired. Please login again.");
+            }
+            localStorage.removeItem("hasLoggedInBefore"); // ✅ Clear it after failure
+          }
 
         }
       } finally {

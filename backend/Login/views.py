@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, BasePermission
 from django.conf import settings
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 from .authentication import CookieJWTAuthentication 
@@ -335,20 +335,59 @@ class UserRetrieveUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'ehrms_code'  # ✅ REQUIRED so DRF uses ehrms_code instead of pk
 
+    # def put(self, request, ehrms_code):
+    #     user = get_object_or_404(User, ehrms_code=ehrms_code)
+    #     serializer = self.get_serializer(user, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, ehrms_code):
         user = get_object_or_404(User, ehrms_code=ehrms_code)
-        serializer = self.get_serializer(user, data=request.data, partial=True)
+    
+        # If the logged-in user is not admin
+        if not request.user.is_superuser:
+            # They can only update their own profile
+            if request.user != user:
+                return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+            
+            # Prevent normal user from updating role-related fields
+            restricted_fields = ["is_superuser", "is_staff", "is_coordinator", "role"]
+            update_data = request.data.copy()
+            for field in restricted_fields:
+                if field in update_data:
+                    update_data.pop(field)
+        else:
+            # Admin can update everything
+            update_data = request.data
+    
+        serializer = self.get_serializer(user, data=update_data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request, ehrms_code):
         user = get_object_or_404(User, ehrms_code=ehrms_code)
         user.delete()
         return Response({"message": "User deleted"}, status=status.HTTP_204_NO_CONTENT)
     
-
+class IsAdminOrCoordinatorOrSelf(BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        if not user.is_authenticated:
+            return False
+        # Admin can access everything
+        if user.is_superuser:
+            return True
+        # Coordinator can access coordinator + their own user profile
+        if user.is_staff and getattr(view, 'dashboard_type', None) in ['coordinator', 'user']:
+            return True
+        # Normal user can only access their own profile
+        if not user.is_staff and not user.is_superuser and getattr(view, 'dashboard_type', None) == 'user':
+            return True
+        return False
 
 class UpdateUserRoleView(APIView):
     authentication_classes = [CookieJWTAuthentication]
@@ -403,24 +442,53 @@ class ListCreateUserView(APIView):
         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetUserRoleView(APIView):
+# class GetUserRoleView(APIView):
 
+#     authentication_classes = [CookieJWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, ehrms_code):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+#         try:
+#             user = User.objects.get(ehrms_code=ehrms_code)
+#             return Response({
+#                 "ehrms_code": user.ehrms_code,
+#                 "is_superuser": user.is_superuser,
+#                 "is_coordinator": user.is_coordinator
+#             },  status=status.HTTP_200_OK)
+#         except User.DoesNotExist:
+#             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class GetUserRoleView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, ehrms_code):
-        if not request.user.is_superuser:
+        # Allow admins to check any user's role
+        if request.user.is_superuser:
+            try:
+                user = User.objects.get(ehrms_code=ehrms_code)
+                return Response({
+                    "ehrms_code": user.ehrms_code,
+                    "is_superuser": user.is_superuser,
+                    "is_coordinator": user.is_coordinator
+                }, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Allow non-admins to only check their own profile
+        if request.user.ehrms_code != ehrms_code:
             return Response({"error": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
 
-        try:
-            user = User.objects.get(ehrms_code=ehrms_code)
-            return Response({
-                "ehrms_code": user.ehrms_code,
-                "is_superuser": user.is_superuser,
-                "is_coordinator": user.is_coordinator
-            },  status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        # Return their own role info
+        return Response({
+            "ehrms_code": request.user.ehrms_code,
+            "is_superuser": request.user.is_superuser,
+            "is_coordinator": request.user.is_coordinator
+        }, status=status.HTTP_200_OK)
 
 
 class CoordinatorListAPIView(APIView):

@@ -105,6 +105,13 @@ const Home = () => {
 
       {/* Programs Section */}
       <section className="programs">
+        
+        <div className="program">
+          <div className="program-img-box">
+            <img src="/images/yogi2.png" alt="ap sir" />
+          </div>
+          <p><b>Shri Yogi Aditya Nath</b><br></br>Hon'ble Chief Minister, U.P. </p>
+        </div>
         <div className="program">
           <div className="program-img-box">
             <img src="/images/patel2.png" alt="patel" />
@@ -137,12 +144,6 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="program">
-          <div className="program-img-box">
-            <img src="/images/apsir2.png" alt="ap sir" />
-          </div>
-          <p><b> Shri Atma Prakash Singh</b><br></br> Deputy Director IRDT U.P. Kanpur </p>
-        </div>
       </section>
 
 

@@ -216,7 +216,7 @@ const TrainingNominationPage = () => {
 
   return (
     <>
-   <Topbar/>
+      <Topbar />
       <Row className="mt-3">
         <Col md={8}>
           <Card className="mb-4 shadow-sm">
@@ -303,24 +303,28 @@ const TrainingNominationPage = () => {
               <hr />
               {trainingStatus.isFinalized ? (
                 <>
-                  <Button className="me-2" onClick={handleDownloadXLSX}>⬇️ Download Final XLSX</Button>
-                  {trainingStatus.editRequestStatus === "approved" ? (
-                    <span className="text-success fw-bold">✅ Edit Access Approved</span>
-                  ) : (
+                  <div className="button-container">
+                    <Button className="nomination-btn me-2" onClick={handleDownloadXLSX}>Download Final XLSX</Button>
+
+
                     <Button
-                      variant="outline-primary"
+                      className="nomination-btn"
+                      // variant="outline-primary"
                       onClick={handleRequestEdit}
-                      disabled={trainingStatus.editRequestStatus === "pending"}
                     >
                       {trainingStatus.editRequestStatus === "pending"
-                        ? "⏳ Edit Access Pending"
-                        : "✏️ Request Edit Access"}
+                        ? "Edit Access Pending (Request Again)"
+                        : trainingStatus.editRequestStatus === "approved"
+                          ? "Request Again"
+                          : trainingStatus.editRequestStatus === "rejected"
+                            ? "Request Again"
+                            : "Request Edit Access"}
                     </Button>
-                  )}
+                  </div>
                 </>
               ) : (
-                <Button variant="primary" onClick={() => handleFinalizeNomination(code)}>
-                  ✅ Finalize Nominations
+                <Button className="nomination-btn" onClick={() => handleFinalizeNomination(code)}>
+                  Finalize Nominations
                 </Button>
               )}
 
@@ -330,7 +334,7 @@ const TrainingNominationPage = () => {
                 <ListGroup as="ol" numbered>
                   {nominated.map((trainee) => (
                     <ListGroup.Item key={trainee.ehrms_code} as="li" className="d-flex justify-content-between align-items-start">
-                      <div className="ms-2 me-auto">
+                      <div className="nominated-name ms-2 me-auto">
                         <div
                           className="fw-bold"
                           style={{ cursor: "pointer", color: "#007bff" }}

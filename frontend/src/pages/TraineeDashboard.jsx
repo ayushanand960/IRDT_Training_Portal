@@ -8,6 +8,11 @@ import TrainingCard from '../components/TrainingCard';
 import TrainingFilterBar from '../components/TrainingFilterBar';
 import AllCertificatesModal from '../components/AllCertificatesModal';
 import NotificationBell from '../components/NotificationBell';
+// src/pages/TraineeDashboard.jsx
+import { polytechnics } from '../data/polytechnics';
+import { branches } from '../data/branches';
+import designations from '../data/designations';
+
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
@@ -38,6 +43,17 @@ const TraineeDashboard = () => {
   // const quoteIndex = today.getDate() % quotes.length;
   // const dailyQuote = quotes[quoteIndex];
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  // Edit Profile modal state
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [editForm, setEditForm] = useState({
+    email: '',
+    mobile_number: '',
+    institute_name: '',
+    branch: '',
+    designation: '',
+  });
+
 
 
 
@@ -71,6 +87,72 @@ const TraineeDashboard = () => {
       navigate('/', { replace: true }); // Replace history to prevent back button
     }
   };
+
+  const openEditModal = () => {
+    if (!user) return;
+    setEditForm({
+      email: user.email || '',
+      mobile_number: user.mobile_number || '',
+      institute_name: user.institute_name || '',
+      branch: user.branch || '',
+      designation: user.designation || '',
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!user?.ehrms_code) return;
+
+    // Minimal validations
+    if (!editForm.email) {
+      toast.error('Email is required');
+      return;
+    }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email);
+    if (!emailOk) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+    const digits = (editForm.mobile_number || '').replace(/\D/g, '');
+    if (digits.length < 10 || digits.length > 13) {
+      toast.error('Please enter a valid mobile number');
+      return;
+    }
+
+    const payload = {
+      email: editForm.email.trim(),
+      mobile_number: editForm.mobile_number.trim(),
+      institute_name: editForm.institute_name,
+      branch: editForm.branch,
+      designation: editForm.designation,
+    };
+
+    setIsSavingProfile(true);
+    try {
+      // IMPORTANT: Keep the same base path your admin UI uses
+      await axiosInstance.put(`/login/users/${user.ehrms_code}/`, payload);
+      toast.success('Profile updated');
+      setShowEditModal(false);
+      await fetchUser(); // refresh UI with updated details
+    } catch (err) {
+      const msg =
+        err?.response?.data
+          ? typeof err.response.data === 'string'
+            ? err.response.data
+            : JSON.stringify(err.response.data)
+          : 'Failed to update profile';
+      toast.error(msg);
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
 
   const fetchPastTrainings = async () => {
     try {
@@ -203,7 +285,7 @@ const TraineeDashboard = () => {
   return (
     <>
       <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
-       <span className="navbar-brand text-white fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
+        <span className="navbar-brand text-white fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
         <div className="d-flex align-items-center gap-2">
           <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">Home</button>
           <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Logout</button>
@@ -280,9 +362,11 @@ const TraineeDashboard = () => {
                 <div className="text-start">
                   <p><strong>Name:</strong> {`${user?.first_name || ''} ${user?.middle_name || ''} ${user?.last_name || ''}`}</p>
                   <p><strong>EHRMS:</strong> {user?.ehrms_code}</p>
+                  <p><strong>Designation:</strong> {user?.designation}</p>
                   <p><strong>Email:</strong> {user?.email}</p>
                   <p><strong>Mobile:</strong> {user?.mobile_number}</p>
                   <p><strong>Institute:</strong> {user?.institute_name}</p>
+                  <p><strong>Branch:</strong> {user?.branch}</p>
                 </div>
                 <div className="d-flex justify-content-center gap-3">
                   <button
@@ -311,6 +395,16 @@ const TraineeDashboard = () => {
                     📚 Past Trainings
                   </button>
 
+                  {/* NEW: Edit Profile */}
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      handleCloseProfileModal();
+                      openEditModal();
+                    }}
+                  >
+                    ✏ Edit Profile
+                  </button>
                 </div>
               </div>
               <div className="modal-footer justify-content-center">
@@ -363,14 +457,14 @@ const TraineeDashboard = () => {
 
             {/* Right: Announcement + Quote */}
             <div className="col-md-4">
-              <div className="card shadow border-info mb-3 bg-info-subtle p-3">
+              {/* <div className="card shadow border-info mb-3 bg-info-subtle p-3">
                 <h5 className="text-info">📢 Announcements</h5>
                 <ul>
                   <li>📅 AI in Education begins July 7</li>
                   <li>📝 OBE Workshop due July 10</li>
                   <li>🎓 Cert Review July 12</li>
                 </ul>
-              </div>
+              </div> */}
               <div className="card bg-light shadow-sm border border-primary p-3">
                 <h6 className="text-primary">🌟 Quote of the Moment</h6>
                 <p className="mb-0">"{randomQuote}"</p>
@@ -454,6 +548,117 @@ const TraineeDashboard = () => {
           onClose={() => setShowAllCertificatesModal(false)}
           certificates={allCertificates}
         />
+
+
+        {showEditModal && (
+          <div className="modal d-block fade show" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content p-3">
+                <div className="modal-header">
+                  <h5 className="modal-title text-primary">✏ Edit Profile</h5>
+                  <button type="button" className="btn-close" onClick={() => setShowEditModal(false)} />
+                </div>
+
+                <form onSubmit={handleEditSubmit}>
+                  <div className="modal-body">
+                    {/* Email */}
+                    <div className="mb-3">
+                      <label className="form-label">Email</label>
+                      <input
+                        name="email"
+                        type="email"
+                        className="form-control"
+                        value={editForm.email}
+                        onChange={handleEditChange}
+                        required
+                      />
+                    </div>
+
+                    {/* Mobile */}
+                    <div className="mb-3">
+                      <label className="form-label">Mobile</label>
+                      <input
+                        name="mobile_number"
+                        type="tel"
+                        className="form-control"
+                        value={editForm.mobile_number}
+                        onChange={handleEditChange}
+                        placeholder="e.g., 98XXXXXX12"
+                        required
+                      />
+                    </div>
+
+                    {/* Institute */}
+                    <div className="mb-3">
+                      <label className="form-label">Institute</label>
+                      <select
+                        name="institute_name"
+                        className="form-select"
+                        value={editForm.institute_name}
+                        onChange={handleEditChange}
+                        required
+                      >
+                        <option value="">Select Institute</option>
+                        {polytechnics.map((inst, i) => (
+                          <option key={i} value={inst}>{inst}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Branch */}
+                    <div className="mb-3">
+                      <label className="form-label">Branch</label>
+                      <select
+                        name="branch"
+                        className="form-select"
+                        value={editForm.branch}
+                        onChange={handleEditChange}
+                        required
+                      >
+                        <option value="">Select Branch</option>
+                        {branches.map((b, i) => (
+                          <option key={i} value={b}>{b}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Designation */}
+                    <div className="mb-3">
+                      <label className="form-label">Designation</label>
+                      <select
+                        name="designation"
+                        className="form-select"
+                        value={editForm.designation}
+                        onChange={handleEditChange}
+                        required
+                      >
+                        <option value="">Select Designation</option>
+                        {designations.map((d, i) => (
+                          <option key={i} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowEditModal(false)}
+                      disabled={isSavingProfile}
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="btn btn-primary" disabled={isSavingProfile}>
+                      {isSavingProfile ? 'Saving…' : 'Save Changes'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
       {/* ✅ Certificate Module Ends Here */}
 

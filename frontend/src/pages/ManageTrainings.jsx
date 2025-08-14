@@ -509,7 +509,7 @@ const ManageTrainings = () => {
                       <th style={{ width: "8%" }}>Type</th>
                       <th style={{ width: "10%" }}>Start Date</th>
                       <th style={{ width: "10%" }}>End Date</th>
-                      <th style={{ width: "15%" }}>Faculty</th>
+                      <th style={{ width: "15%" }}>Coordinator</th>
                       <th style={{ width: "8%", whiteSpace: "nowrap" }}># Participants</th>
                       <th style={{ width: "12%" }}>Actions</th>
                     </tr>
