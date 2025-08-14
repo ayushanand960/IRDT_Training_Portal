@@ -49,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True)
     mobile_number = models.CharField(max_length=10)
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=15, choices=GENDER_CHOICES)
     institute_name = models.CharField(max_length=255)
     branch = models.TextField(max_length=100, default="Polytechnic")
     designation = models.CharField(max_length=50)
