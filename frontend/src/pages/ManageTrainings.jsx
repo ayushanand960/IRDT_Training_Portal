@@ -535,8 +535,8 @@ const formatDate = (val) => {
                         <td>{t.venue || "-"}</td>
                         <td>{t.mode || "-"}</td>
                         <td>{t.training_type || "-"}</td>
-                       <td>{formatDate(training.start_date)}</td>
-                        <td>{formatDate(training.end_date)}</td>
+                       <td>{formatDate(t.start_date)}</td>
+                        <td>{formatDate(t.end_date)}</td>
                         <td>{t.faculty_name_display || "-"}</td>
                         <td>{t.number_of_participants ?? "-"}</td>
                         <td>

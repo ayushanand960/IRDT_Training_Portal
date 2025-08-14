@@ -1,7 +1,7 @@
 
 const designations = [
     "HOD",
-    "Pricipal",
+    "Principal",
     "Lecturer",
     "Librarian",
     "Workshop Superintendent",

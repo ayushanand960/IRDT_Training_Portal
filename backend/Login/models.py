@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
         return self.create_user(ehrms_code, email, first_name, password, **extra_fields)
 
-GENDER_CHOICES = [('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]
+GENDER_CHOICES = [('Male', 'Male'), ('Female', 'Female'), ('Transgender', 'Transgender')]
 QUESTION_CHOICES = [
     ("pet_name", "What is the name of your first pet?"),
     ("school_name", "What is the name of your first school?"),
