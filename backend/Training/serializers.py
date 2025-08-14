@@ -32,6 +32,11 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
             'batch_display_name',
         ]
         read_only_fields = ['status']
+    def get_start_date(self, obj):
+        return obj.start_date.strftime("%d/%m/%Y") if obj.start_date else ""
+
+    def get_end_date(self, obj):
+        return obj.end_date.strftime("%d/%m/%Y") if obj.end_date else ""
 
     def get_faculty_name_display(self, obj):
         if obj.faculty:

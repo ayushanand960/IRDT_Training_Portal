@@ -777,3 +777,56 @@ class DeleteTrainingBatchAPIView(APIView):
                 {"detail": f"Error occurred: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class CurriculumListAPIView(APIView):
+    permission_classes = []  # public
+
+    def get(self, request):
+        session_year = request.query_params.get("session_year")
+        trainings = TrainingProgram.objects.all().select_related("batch_upload")
+
+        if session_year:
+            trainings = trainings.filter(batch_upload__session_year=session_year)
+
+        serializer = TrainingProgramSerializer(trainings, many=True)
+        return Response(serializer.data)
+
+
+# Training/views.py
+import openpyxl
+from django.http import HttpResponse
+# from .models import TrainingProgram
+
+def download_curriculum_excel(request):
+    session_year = request.GET.get("session_year")
+
+    # Filter if session_year is provided
+    trainings = TrainingProgram.objects.all()
+    if session_year:
+        trainings = trainings.filter(batch_upload__session_year=session_year)
+
+    # Create workbook
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Curriculum"
+
+    # Header row
+    ws.append(["Code", "Name", "Target Group", "Faculty Name", "Session Year"])
+
+    # Data rows
+    for t in trainings:
+        ws.append([
+            t.code,
+            t.name,
+            t.target_group,
+            t.faculty_name,
+            t.batch_upload.session_year if t.batch_upload else ""
+        ])
+
+    # Response
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    filename = f"Curriculum_{session_year if session_year else 'All'}.xlsx"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
