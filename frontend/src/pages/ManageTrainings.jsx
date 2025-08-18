@@ -279,6 +279,11 @@
 // };
 
 // export default ManageTrainings;
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -307,7 +312,8 @@ const ManageTrainings = () => {
   const [showTrainingForm, setShowTrainingForm] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedTraining, setSelectedTraining] = useState(null);
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const fetchTrainings = async () => {
     setLoading(true);
@@ -321,7 +327,8 @@ const ManageTrainings = () => {
   };
 
   const handleDelete = async (code) => {
-    if (!window.confirm("Are you sure you want to delete this training?")) return;
+    // if (!window.confirm("Are you sure you want to delete this training?")) return;
+    if (!userToDelete) return;
     try {
       await axiosInstance.delete(`/training/training-programs/${code}/`);
       toast.success("Training deleted successfully.");
@@ -329,6 +336,9 @@ const ManageTrainings = () => {
     } catch (err) {
       console.error("Delete error:", err);
       toast.error("Failed to delete training.");
+    } finally {
+      setShowDeleteModal(false);
+      setUserToDelete(null);
     }
   };
 
@@ -422,19 +432,19 @@ const ManageTrainings = () => {
   };
 
   const groupedTrainings = groupTrainingsByBatch(trainings);
-// put this above return()
-const formatDate = (val) => {
-  if (!val) return "";
-  // If it's a plain "YYYY-MM-DD" string, just reorder (safe, no timezone shifts)
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val);
-  if (m) {
-    const [, y, mo, d] = m;
-    return `${d}/${mo}/${y}`; // 👉 dd/MM/yyyy
-  }
-  // Fallback for any other format
-  const dt = new Date(val);
-  return isNaN(dt) ? val : dt.toLocaleDateString("en-GB"); // dd/MM/yyyy
-};
+  // put this above return()
+  const formatDate = (val) => {
+    if (!val) return "";
+    // If it's a plain "YYYY-MM-DD" string, just reorder (safe, no timezone shifts)
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val);
+    if (m) {
+      const [, y, mo, d] = m;
+      return `${d}/${mo}/${y}`; // 👉 dd/MM/yyyy
+    }
+    // Fallback for any other format
+    const dt = new Date(val);
+    return isNaN(dt) ? val : dt.toLocaleDateString("en-GB"); // dd/MM/yyyy
+  };
 
   return (
     <DashboardLayout>
@@ -535,7 +545,7 @@ const formatDate = (val) => {
                         <td>{t.venue || "-"}</td>
                         <td>{t.mode || "-"}</td>
                         <td>{t.training_type || "-"}</td>
-                       <td>{formatDate(t.start_date)}</td>
+                        <td>{formatDate(t.start_date)}</td>
                         <td>{formatDate(t.end_date)}</td>
                         <td>{t.faculty_name_display || "-"}</td>
                         <td>{t.number_of_participants ?? "-"}</td>
@@ -549,9 +559,12 @@ const formatDate = (val) => {
                               Edit
                             </Button>
                             <Button
-                              size="sm"
                               variant="danger"
-                              onClick={() => handleDelete(t.code)}
+                              size="sm"
+                              onClick={() => {
+                                setUserToDelete(t);
+                                setShowDeleteModal(true);
+                              }}
                             >
                               Delete
                             </Button>
@@ -565,7 +578,7 @@ const formatDate = (val) => {
             ))
           )}
         </div>
-
+        {/* 
         <Modal show={showConfirm} onHide={() => setShowConfirm(false)}>
           <Modal.Header closeButton>
             <Modal.Title>Confirm Deletion</Modal.Title>
@@ -581,7 +594,7 @@ const formatDate = (val) => {
               Delete
             </Button>
           </Modal.Footer>
-        </Modal>
+        </Modal> */}
 
         {showTrainingForm && (
           <TrainingForm
@@ -607,6 +620,28 @@ const formatDate = (val) => {
           </Modal.Body>
         </Modal>
       </div>
+      {/* Single Training Delete Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Training Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete training{" "}
+          <strong>{userToDelete?.name}</strong> Training Code:<strong>{userToDelete?.code}</strong> ?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => handleDelete(userToDelete.code)}
+          >
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </DashboardLayout>
   );
 };

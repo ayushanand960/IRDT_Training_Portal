@@ -63,6 +63,11 @@ export default function Curriculum() {
       "Target Group": t.target_group,
       "Session Year": t.session_year,
       "Faculty Name": t.faculty_name_display,
+      "Venue": t.venue,
+      "Mode": t.mode,
+      "Start Date": t.start_date,
+      "End Date": t.end_date,
+      "Number of Participants": t.number_of_participants
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);

@@ -200,7 +200,8 @@ from .models import User
 
 class EditUserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(required=False)
-    date_of_joining = serializers.DateField(format="%d-%m-%Y") 
+    date_of_joining = serializers.DateField(format="%d-%m-%Y", input_formats=["%d-%m-%Y", "%Y-%m-%d"])
+    full_name = serializers.SerializerMethodField() 
     def get_full_name(self, obj):
         # Handles optional middle name cleanly
         return f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()

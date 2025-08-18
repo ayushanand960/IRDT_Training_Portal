@@ -5,7 +5,6 @@ const designations = [
     "Lecturer",
     "Librarian",
     "Workshop Superintendent",
-
     "Workshop Instructor",
     "Office Employee/Worker",
     " Computer Instructor",

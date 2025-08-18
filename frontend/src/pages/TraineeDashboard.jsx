@@ -52,6 +52,7 @@ const TraineeDashboard = () => {
     institute_name: '',
     branch: '',
     designation: '',
+    date_of_joining: ""
   });
 
 
@@ -96,6 +97,7 @@ const TraineeDashboard = () => {
       institute_name: user.institute_name || '',
       branch: user.branch || '',
       designation: user.designation || '',
+      date_of_joining: user.date_of_joining || '', 
     });
     setShowEditModal(true);
   };
@@ -131,6 +133,7 @@ const TraineeDashboard = () => {
       institute_name: editForm.institute_name,
       branch: editForm.branch,
       designation: editForm.designation,
+      date_of_joining: editForm.date_of_joining,
     };
 
     setIsSavingProfile(true);
@@ -365,6 +368,7 @@ const TraineeDashboard = () => {
                   <p><strong>Designation:</strong> {user?.designation}</p>
                   <p><strong>Email:</strong> {user?.email}</p>
                   <p><strong>Mobile:</strong> {user?.mobile_number}</p>
+                  <p><strong>Date of Joining:</strong> {user?.date_of_joining}</p>
                   <p><strong>Institute:</strong> {user?.institute_name}</p>
                   <p><strong>Branch:</strong> {user?.branch}</p>
                 </div>
@@ -373,7 +377,7 @@ const TraineeDashboard = () => {
                     className="btn btn-outline-success btn-sm"
                     onClick={fetchAllCertificates}
                   >
-                    🎓 View Certificates
+                    View Certificates
                   </button>
                   {/* <button
                     className="btn btn-outline-info btn-sm"
@@ -392,7 +396,7 @@ const TraineeDashboard = () => {
                     className="btn btn-outline-info btn-sm"
                     onClick={fetchPastTrainings}
                   >
-                    📚 Past Trainings
+                    Past Trainings
                   </button>
 
                   {/* NEW: Edit Profile */}
@@ -403,7 +407,7 @@ const TraineeDashboard = () => {
                       openEditModal();
                     }}
                   >
-                    ✏ Edit Profile
+                    Edit Profile
                   </button>
                 </div>
               </div>
@@ -638,6 +642,21 @@ const TraineeDashboard = () => {
                         ))}
                       </select>
                     </div>
+
+
+                    {/* Date of Joining */}
+                    <div className="mb-3">
+                      <label className="form-label">Date of Joining</label>
+                      <input
+                        name="date_of_joining"
+                        type="date"
+                        className="form-control"
+                        value={editForm.date_of_joining}
+                        onChange={handleEditChange}
+                        required
+                      />
+                    </div>
+
                   </div>
 
                   <div className="modal-footer">

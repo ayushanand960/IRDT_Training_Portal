@@ -9,6 +9,8 @@ class TrainingProgramSerializer(serializers.ModelSerializer):
     batch_display_name = serializers.SerializerMethodField()
     upload_id = serializers.SerializerMethodField()       # ✅ Corrected
     session_year = serializers.SerializerMethodField()    # ✅ Corrected
+    start_date = serializers.DateField(format="%d-%m-%Y")
+    end_date = serializers.DateField(format="%d-%m-%Y")
 
     class Meta:
         model = TrainingProgram
@@ -124,6 +126,8 @@ class NominationSerializer(serializers.ModelSerializer):
         slug_field='code',
         queryset=TrainingProgram.objects.all()
     )
+    start_date = serializers.DateField(format="%d-%m-%Y")
+    end_date = serializers.DateField(format="%d-%m-%Y")
 
     class Meta:
         model = Nomination
@@ -171,6 +175,8 @@ class NominationSerializer(serializers.ModelSerializer):
 from .models import Rejection
 
 class RejectionSerializer(serializers.ModelSerializer):
+    start_date = serializers.DateField(format="%d-%m-%Y")
+    end_date = serializers.DateField(format="%d-%m-%Y")
     training_name = serializers.CharField(source='training.name', read_only=True)
     coordinator_name = serializers.SerializerMethodField()
     trainee_name = serializers.SerializerMethodField()

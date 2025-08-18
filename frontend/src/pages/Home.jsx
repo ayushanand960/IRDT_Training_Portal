@@ -58,13 +58,21 @@ const Home = () => {
       <nav className="navbar">
         <div className="nav-links">
           <Link to="/">Home</Link>
-          <Link to="/aboutus">About</Link>
+          <Link to="/aboutus">About Us</Link>
           <Link to="/curriculum" className="nav-link">Trainings</Link>
           {/* <Link to="/zonetable">Polytechnics</Link> */}
+          <a
+            href="http://upted.gov.in/directorate/en/page/polytechnic-list"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Polytechnics
+          </a>
+
           <Link to="/photogallery">Gallery</Link>
-          <Link to="/learningresources">LearningResources</Link>
+          <Link to="/learningresources">LRDC</Link>
           <Link to="/trainingcell">TrainingCell</Link>
-          <Link to="/curriculumdevelopment">CurriculumDevelopment</Link>
+          <Link to="/curriculumdevelopment">CDC</Link>
           <Link to="/login">Login</Link>
         </div>
 
@@ -163,9 +171,9 @@ const Home = () => {
         </button>
         <button
           className="link-btn"
-          onClick={() => window.open("https://jeecup.admissions.nic.in", "_blank")}
+          onClick={() => window.open("http://upted.gov.in/directorate", "_blank")}
         >
-          JEECUP
+          Directorate
         </button>
       </section>
 
