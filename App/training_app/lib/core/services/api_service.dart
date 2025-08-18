@@ -427,4 +427,32 @@ class ApiService {
       throw Exception('Failed to delete notification');
     }
   }
+
+  Future<bool> updateUser(
+    String ehrmsCode,
+    Map<String, dynamic> updates,
+  ) async {
+    try {
+      final url = Uri.parse("${baseUrl}login/users/$ehrmsCode/");
+      final response = await _client.put(
+        url,
+        headers: _headers(withCookies: true), // send cookies for auth
+        body: jsonEncode(updates),
+      );
+
+      if (response.statusCode == 200) {
+        // Optionally update locally stored user data if keys match
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        await _saveUserData(data);
+        return true;
+      } else {
+        final errorData = jsonDecode(response.body);
+        print("Update user failed: $errorData");
+        return false;
+      }
+    } catch (e) {
+      print("Update user error: $e");
+      return false;
+    }
+  }
 }

@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 12),
                       TextButton(
                         onPressed: () =>
-                            Navigator.pushNamed(context, '/register'),
+                            Navigator.pushNamed(context, '/access-code'),
                         child: RichText(
                           text: const TextSpan(
                             children: [

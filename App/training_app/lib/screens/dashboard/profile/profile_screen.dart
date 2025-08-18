@@ -5,6 +5,12 @@ import '../../../core/services/api_service.dart';
 import 'profile_widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/constants.dart';
+import '../../../core/validators.dart';
+import '../../../data/polytechnic_list.dart';
+import '../../../data/branch_list.dart';
+import '../../../widgets/dropdown_item_box.dart';
+import '../../../widgets/ui_helpers.dart';
+// import '../../auth/register_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onProfileUpdated;
@@ -127,6 +133,274 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _openEditDialog() {
+    final emailController = TextEditingController(text: userDetails["Email"]);
+    final mobileController = TextEditingController(text: userDetails["Mobile"]);
+    final customDesignationController = TextEditingController();
+
+    final institutes = polytechnicOptions;
+    final branches = branchOptions;
+
+    Map<String, List<String>> designationMap = {
+      'Group A': ['HOD', 'Principal'],
+      'Group B': ['Lecturer', 'Librarian', 'Workshop Superintendent'],
+      'Group C': [
+        'Workshop Instructor',
+        'Office Employee',
+        'Computer Instructor',
+        'Computer Operator',
+        'Other',
+      ],
+    };
+    List<String> allDesignations = designationMap.values
+        .expand((list) => list)
+        .toList();
+
+    String? selectedInstitute = institutes.contains(userDetails["Institute"])
+        ? userDetails["Institute"]
+        : null;
+
+    String? selectedBranch = branches.contains(userDetails["Branch"])
+        ? userDetails["Branch"]
+        : null;
+    String? selectedDesignation =
+        allDesignations.contains(userDetails["Designation"])
+        ? userDetails["Designation"]
+        : null;
+
+    final _formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        // Wrap content in StatefulBuilder to allow setState inside dialog
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Edit Profile",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Email
+                      TextFormField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: "Email",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) => validateEmailValue(
+                          value,
+                          allowedEmailDomains,
+                          allowedEmailTLDs,
+                        ), // imported from register page
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Mobile
+                      TextFormField(
+                        controller: mobileController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: "Mobile",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator:
+                            validateMobileNumber, // imported from register
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Institute Dropdown
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: selectedInstitute, // <-- default selected value
+                        items: institutes
+                            .map(
+                              (inst) => DropdownMenuItem(
+                                value: inst,
+                                child: buildBoxedDropdownItem(inst, context),
+                              ),
+                            )
+                            .toList(),
+                        selectedItemBuilder: (context) => institutes
+                            .map((inst) => buildSelectedItem(inst))
+                            .toList(),
+                        onChanged: (val) =>
+                            setState(() => selectedInstitute = val),
+                        validator: (val) =>
+                            val == null ? 'Select Institute' : null,
+                        decoration: fieldDecoration(
+                          'Select Institute',
+                          required: true,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Branch Dropdown
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: selectedBranch, // <-- default selected value
+                        items: branches
+                            .map(
+                              (branch) => DropdownMenuItem(
+                                value: branch,
+                                child: buildBoxedDropdownItem(branch, context),
+                              ),
+                            )
+                            .toList(),
+                        selectedItemBuilder: (context) => branches
+                            .map((branch) => buildSelectedItem(branch))
+                            .toList(),
+                        onChanged: (val) =>
+                            setState(() => selectedBranch = val),
+                        validator: (val) =>
+                            val == null ? 'Select Branch' : null,
+                        decoration: fieldDecoration(
+                          'Select Branch',
+                          required: true,
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+
+                      // Designation Dropdown
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value:
+                            selectedDesignation, // <-- default selected value
+                        items: allDesignations
+                            .map(
+                              (des) => DropdownMenuItem(
+                                value: des,
+                                child: buildBoxedDropdownItem(des, context),
+                              ),
+                            )
+                            .toList(),
+                        selectedItemBuilder: (context) => allDesignations
+                            .map((des) => buildSelectedItem(des))
+                            .toList(),
+                        onChanged: (val) => setState(() {
+                          selectedDesignation = val;
+                          if (val != 'Other')
+                            customDesignationController.clear();
+                        }),
+                        validator: (val) =>
+                            val == null ? 'Select Designation' : null,
+                        decoration: fieldDecoration(
+                          'Select Designation',
+                          required: true,
+                        ),
+                      ),
+
+                      // Custom Designation TextField
+                      if (selectedDesignation == 'Other') ...[
+                        const SizedBox(height: 15),
+                        TextFormField(
+                          controller: customDesignationController,
+                          decoration: InputDecoration(
+                            labelText: "Enter Designation",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (val) {
+                            if (selectedDesignation == 'Other' &&
+                                (val == null || val.isEmpty)) {
+                              return 'Enter designation';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+
+                      const SizedBox(height: 25),
+
+                      // Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
+
+                              final updates = {
+                                "email": emailController.text,
+                                "mobile_number": mobileController.text,
+                                "institute_name": selectedInstitute,
+                                "branch": selectedBranch,
+                                "designation": selectedDesignation == 'Other'
+                                    ? customDesignationController.text
+                                    : selectedDesignation,
+                              };
+
+                              final ehrmsCode = userDetails["EHRMS Code"];
+                              final success = await _api.updateUser(
+                                ehrmsCode,
+                                updates,
+                              );
+
+                              if (success) {
+                                Navigator.pop(context);
+                                await fetchProfile();
+                                widget.onProfileUpdated?.call();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Profile updated successfully",
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Failed to update profile"),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text("Save"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeColor = const Color(0xFF004D79);
@@ -247,6 +521,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
+
+      // ---------- NEW: Edit button at bottom ----------
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: themeColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          onPressed: _openEditDialog,
+          child: const Text(
+            "Edit",
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -81,6 +81,7 @@ import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
+import 'screens/auth/access_code_screen.dart';
 import 'screens/dashboard/login_home_page.dart';
 import 'screens/dashboard/profile/profile_screen.dart';
 import 'screens/training/training_list_screen.dart';
@@ -140,6 +141,7 @@ class TrainingApp extends StatelessWidget {
             routes: {
               '/splash': (context) => const SplashScreen(),
               '/login': (context) => const LoginScreen(),
+              '/access-code': (context) => const AccessCodePage(),
               '/register': (context) => RegisterScreen(),
               '/login-home': (context) => const LoginHomePage(),
               '/profile': (context) => const ProfileScreen(),

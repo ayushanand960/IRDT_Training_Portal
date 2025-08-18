@@ -785,6 +785,7 @@ import '../../data/branch_list.dart';
 import '../../widgets/ui_helpers.dart';
 import '../../widgets/dropdown_item_box.dart';
 import '../../core/services/api_service.dart';
+import '../../core/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -793,50 +794,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  static const allowedEmailDomains = [
-    "gmail",
-    "yahoo",
-    "outlook",
-    "hotmail",
-    "rediffmail",
-    "icloud",
-    "protonmail",
-    "zoho",
-    "aol",
-    "yandex",
-    "mail",
-    "gmx",
-    "nic",
-    "gov",
-    "edu",
-    "irdt",
-    "ramauniversity",
-  ];
-
-  static const allowedEmailTLDs = [
-    // Single-part TLDs
-    "com",
-    "in",
-    "org",
-    "net",
-    "edu",
-    "gov",
-    "mil",
-    "co",
-    "info",
-    "biz",
-    "io",
-    "me",
-
-    // Common multi-part TLDs
-    "co.in",
-    "ac.in",
-    "gov.in",
-    "edu.in",
-    "res.in",
-    "nic.in",
-  ];
-
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
 
@@ -927,43 +884,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeIn,
     );
-  }
-
-  String? validateEmailValue(
-    String? value,
-    List<String> allowedEmailDomains,
-    List<String> allowedEmailTLDs,
-  ) {
-    if (value == null || value.isEmpty) {
-      return 'Enter email';
-    }
-
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email address';
-    }
-
-    try {
-      final parts = value.split('@');
-      final domainSplit = parts[1].split('.');
-
-      final baseDomain = domainSplit.first.toLowerCase();
-      final tld = domainSplit.length > 2
-          ? '${domainSplit[domainSplit.length - 2]}.${domainSplit.last}'
-                .toLowerCase()
-          : domainSplit.last.toLowerCase();
-
-      if (!allowedEmailDomains.contains(baseDomain)) {
-        return 'Email domain not allowed';
-      }
-      if (!allowedEmailTLDs.contains(tld)) {
-        return 'Email TLD not allowed';
-      }
-    } catch (_) {
-      return 'Invalid email format';
-    }
-
-    return null; // valid
   }
 
   /// ------------------- REGISTER -------------------
@@ -1334,11 +1254,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             keyboardType: TextInputType.phone,
             decoration: fieldDecoration('Mobile No.', required: true),
             autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: (value) => value == null || value.isEmpty
-                ? 'Enter mobile number'
-                : (!RegExp(r'^[6-9][0-9]{9}$').hasMatch(value)
-                      ? 'Enter a valid 10-digit mobile number'
-                      : null),
+            validator: validateMobileNumber,
           ),
           const SizedBox(height: 16),
 
