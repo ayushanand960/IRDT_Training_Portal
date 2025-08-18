@@ -55,23 +55,24 @@ const Home = () => {
 
         </div>
       </header>
-<nav className="navbar">
-  <div className="nav-links">
-    <Link to="/">Home</Link>
-    <Link to="/aboutus">About</Link>
-    <Link to="/curriculum" className="nav-link">Curriculum</Link>
-    <Link to="/zonetable">Polytechnics</Link>
-    <Link to="/photogallery">Gallery</Link>
-    <Link to="/login">Login</Link>
-    <Link to="/admin-coordinator-login">AdministrationLogin</Link>
-  </div>
+      <nav className="navbar">
+        <div className="nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/aboutus">About</Link>
+          <Link to="/curriculum" className="nav-link">Trainings</Link>
+          {/* <Link to="/zonetable">Polytechnics</Link> */}
+          <Link to="/photogallery">Gallery</Link>
+          <Link to="/learningresources">LearningResources</Link>
+          <Link to="/trainingcell">TrainingCell</Link>
+          <Link to="/curriculumdevelopment">CurriculumDevelopment</Link>
+          <Link to="/login">Login</Link>
+        </div>
 
-  {/* Info Button */}
-  <button className="info-btn" title="Information"
-   onClick={() => navigate("/info1")}>
-    i
-  </button>
-</nav>
+        {/* Info Button */}
+        <button className="info-btn" title="Information"
+          onClick={() => navigate("/info1")}>Meet our Developers
+        </button>
+      </nav>
 
 
 
@@ -86,7 +87,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="hero-image">
+        {/* <div className="hero-image">
           <figure>
             <img src="/images/yogi2.png" alt="Shri Yogi Aditya Nath" />
             <figcaption className="hero-caption">
@@ -94,7 +95,7 @@ const Home = () => {
               <span>Hon'ble Chief Minister, U.P.</span>
             </figcaption>
           </figure>
-        </div>
+        </div> */}
       </section>
 
       <div className="marquee-container">
@@ -105,7 +106,7 @@ const Home = () => {
 
       {/* Programs Section */}
       <section className="programs">
-        
+
         <div className="program">
           <div className="program-img-box">
             <img src="/images/yogi2.png" alt="ap sir" />
@@ -153,7 +154,7 @@ const Home = () => {
 
       {/* Quick Links */}
       <section className="quick-links">
-        <button className="link-btn">New Curriculum 2025</button>
+        {/* <button className="link-btn">New Curriculum 2025</button> */}
         <button
           className="link-btn"
           onClick={() => window.open("https://bteup.ac.in", "_blank")}
@@ -178,9 +179,16 @@ const Home = () => {
         <div>
           <h3>Quick Links</h3>
           <ul>
-            <li><Link to="/curriculum">Curriculum</Link></li>
-            <li><Link to="/training">Training</Link></li>
+            {/* <li><Link to="/curriculum">Curriculum</Link></li> */}
+            <li><Link to="/admin-coordinator-login">Administration</Link></li>
+            <li><Link to="/curriculum">Trainings</Link></li>
             <li><Link to="/ELearning">E-Learning</Link></li>
+            <li><Link to="/info1">Developers</Link></li>
+            {/* <li>
+              <Link className="info-btn" title="Information"
+                onClick={() => navigate("/info1")}>Developers
+              </Link>
+            </li> */}
           </ul>
         </div>
         <div>

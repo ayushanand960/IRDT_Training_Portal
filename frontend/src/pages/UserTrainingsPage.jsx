@@ -8,15 +8,19 @@ const UserTrainingsPage = () => {
   const [trainings, setTrainings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userDetails, setUserDetails] = useState(null);
+
 
   useEffect(() => {
     const fetchTrainings = async () => {
       try {
-        // ✅ Pass the ehrms_code so backend fetches that user's trainings
-        const res = await axiosInstance.get(
-          `/training/past-trainings/?ehrms_code=${ehrms_code}`
-        );
-        setTrainings(res.data);
+        const [userRes, trainingRes] = await Promise.all([
+          axiosInstance.get(`/login/users/${ehrms_code}/`),   // adjust API endpoint
+          axiosInstance.get(`/training/past-trainings/?ehrms_code=${ehrms_code}`)
+        ]);
+
+        setUserDetails(userRes.data);
+        setTrainings(trainingRes.data);
       } catch (err) {
         console.error(err);
         setError("Failed to fetch past trainings for this user.");
@@ -36,10 +40,17 @@ const UserTrainingsPage = () => {
   return (
     <Container className="mt-4">
       <Card className="p-3 shadow-sm mb-4">
-        <h4>Past Trainings of User: {ehrms_code}</h4>
-        <Link to="/all-users" className="btn btn-secondary mb-3">
+        {/* <h4>Past Trainings of {full_name}: {ehrms_code}</h4>
+        <h4>Date of joining: {date_of_joining}</h4> */}
+        {/* <Link to="/all-users" className="btn btn-secondary mb-3">
           ← Back to Users
-        </Link>
+        </Link> */}
+
+        <h4>
+          Past Trainings of {userDetails?.full_name} : {ehrms_code}
+        </h4>
+        <h4>Date of joining: {userDetails?.date_of_joining}</h4>
+
         {trainings.length === 0 ? (
           <Alert variant="info">No past trainings found for this user.</Alert>
         ) : (

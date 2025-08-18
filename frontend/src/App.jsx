@@ -28,6 +28,11 @@ import AdminNominationDashboard from "./pages/AdminNominationDashboard";
 import Curriculum from "./pages/Curriculum";
 import UserTrainingsPage from "./pages/UserTrainingsPage";
 import Info1 from "./pages/Info1"; 
+import TrainingCell from "./pages/TrainingCell";
+// import Info1 from "./pages/Info1"; 
+import CurriculumDevelopment from "./pages/CurriculumDevelopment"; 
+import LearningResources from "./pages/LearningResources"; 
+
 
 
 
@@ -62,9 +67,13 @@ export default function App() {
         {/* <Route path="/home2" element={<Home2 />} /> */}
         <Route path="/zonetable" element={<ZoneTable />} />
         <Route path="/aboutus" element={<AboutUs />} />
-         <Route path="/info1" element={<Info1 />} />
+         {/* <Route path="/info1" element={<Info1 />} /> */}
         <Route path="/PhotoGallery" element={<PhotoGallery />} />
         <Route path="/ELearning" element={<ELearning />} />
+        <Route path="/learningresources" element={<LearningResources />} />
+        <Route path="/curriculumdevelopment" element={<CurriculumDevelopment/>} />
+        <Route path="/trainingcell" element={< TrainingCell/>} />
+         <Route path="/info1" element={<Info1 />} />
 
         {/* Trainee Routes */}
         <Route element={<PrivateRoute allowedRoles={['trainee']} />}>

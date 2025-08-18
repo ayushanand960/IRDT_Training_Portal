@@ -5,6 +5,7 @@ import { useAuth } from "../components/AuthContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from "../assets/irdt-logo.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import AccessCodeModal from "../components/AccessCodeModal";
 import './Login.css';
 
 const Login = () => {
@@ -12,6 +13,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [showAccessCodeModal, setShowAccessCodeModal] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -98,15 +100,25 @@ const Login = () => {
       <div className="container d-flex justify-content-center align-items-center py-5">
         <div className="row w-100" style={{ maxWidth: "900px" }}>
 
+          
           {/* New User Box */}
           <div className="col-md-6 p-4 border-end">
             <h5 className="fw-bold">NEW USER</h5>
             <hr className="border-2 border-warning w-25 mb-3 mt-1" />
             <p>Don’t have an Account Yet?</p>
-            <Link to="/register/staff" className="btn" style={{ backgroundColor: "#006666", color: "white" }}>
+            <button
+              className="btn"
+              style={{ backgroundColor: "#006666", color: "white" }}
+              onClick={() => setShowAccessCodeModal(true)}
+            >
               Sign up
-            </Link>
+            </button>
           </div>
+
+          {/* Access Code Modal */}
+          {showAccessCodeModal && (
+            <AccessCodeModal onClose={() => setShowAccessCodeModal(false)} />
+          )}
 
           {/* Existing User Box */}
           <div className="col-md-6 p-4">

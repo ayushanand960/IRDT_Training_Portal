@@ -201,3 +201,6 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Email backend to print emails to the console (for development only)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+ACCESS_CODE = "IRDT2025"

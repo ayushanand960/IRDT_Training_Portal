@@ -356,20 +356,20 @@ const ManageUsers = () => {
   //   }
   // };
   const handleDelete = async () => {
-  if (!userToDelete) return;
+    if (!userToDelete) return;
 
-  try {
-    await axiosInstance.delete(`/login/users/${userToDelete.ehrms_code}/`);
-    toast.success("User deleted successfully");
-    fetchUsers();
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete user");
-  } finally {
-    setShowDeleteModal(false);
-    setUserToDelete(null);
-  }
-};
+    try {
+      await axiosInstance.delete(`/login/users/${userToDelete.ehrms_code}/`);
+      toast.success("User deleted successfully");
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete user");
+    } finally {
+      setShowDeleteModal(false);
+      setUserToDelete(null);
+    }
+  };
 
 
   return (
@@ -391,6 +391,7 @@ const ManageUsers = () => {
               <th>Institute</th>
               <th>Branch</th>
               <th>Designation</th>
+              <th>Date of Joining</th>
               <th>Role</th>
               <th>Security Question</th>
               <th>Security Answer</th>
@@ -408,6 +409,7 @@ const ManageUsers = () => {
                 <td>{user.institute_name}</td>
                 <td>{user.branch}</td>
                 <td>{user.designation}</td>
+                <td>{user.date_of_joining}</td>
                 <td>{user.role}</td>
                 <td>{user.security_question}</td>
                 <td>{user.security_answer}</td>
@@ -442,31 +444,31 @@ const ManageUsers = () => {
         />
       </div>
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-  <Modal.Header closeButton>
-    <Modal.Title>Confirm Delete</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {userToDelete ? (
-      <p>
-        Are you sure you want to delete{" "}
-        <strong>
-          {userToDelete.first_name} {userToDelete.last_name}
-        </strong>{" "}
-        (EHRMS: {userToDelete.ehrms_code})? This action cannot be undone.
-      </p>
-    ) : (
-      <p>Are you sure you want to delete this user?</p>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-      Cancel
-    </Button>
-    <Button variant="danger" onClick={handleDelete}>
-      Yes, Delete
-    </Button>
-  </Modal.Footer>
-</Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {userToDelete ? (
+            <p>
+              Are you sure you want to delete{" "}
+              <strong>
+                {userToDelete.first_name} {userToDelete.last_name}
+              </strong>{" "}
+              (EHRMS: {userToDelete.ehrms_code})? This action cannot be undone.
+            </p>
+          ) : (
+            <p>Are you sure you want to delete this user?</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Yes, Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </DashboardLayout>
   );
@@ -484,6 +486,7 @@ const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
     role: "",
     security_question: "",
     security_answer: "",
+    date_of_joining: "",
   });
 
   useEffect(() => {
@@ -501,6 +504,7 @@ const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
         role: "",
         security_question: "",
         security_answer: "",
+        date_of_joining: "",
       });
     }
   }, [editingUser]);
@@ -607,6 +611,16 @@ const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
                 <option value="Coordinator">Coordinator</option>
                 <option value="Trainer">Trainer</option>
               </Form.Select>
+            </Col>
+
+            <Col md={6} className="mb-3">
+              <Form.Label>Date of Joining</Form.Label>
+              <Form.Control
+                type="date"
+                required={!editingUser}
+                value={formData.date_of_joining || ""}
+                onChange={(e) => setFormData({ ...formData, date_of_joining: e.target.value })}
+              />
             </Col>
 
             <Col md={6} className="mb-3">

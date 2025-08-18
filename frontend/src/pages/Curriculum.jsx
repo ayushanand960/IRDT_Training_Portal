@@ -88,40 +88,72 @@ export default function Curriculum() {
 
   return (
     <>
-      {/* ✅ Topbar logic without logout */}
-      <div
-        className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom shadow-sm"
-        style={{ backgroundColor: "#006666" }}
-      >
-        {/* Left: Logo + Title */}
-        <div className="d-flex align-items-center gap-3">
-          <img
-            src={logo}
-            alt="IRDT Logo"
-            style={{ height: "7vw", filter: "invert(1) brightness(2)" }}
-          />
-          <div>
-            <h2 className="fw-bold mb-0 text-white">
-              Institute for Research, Development & Training (IRDT)
-            </h2>
-            <big className="fw-semibold text-white">
-              Government of Uttar Pradesh
-            </big>
-          </div>
-        </div>
-
-        {/* Right: Only Home Button */}
-        <div className="d-flex align-items-center gap-3">
-          <Link
-            to="/"
-            className="btn btn-outline-light fw-semibold px-4 py-2"
-            style={{ minWidth: "100px", textAlign: "center" }}
+          {/* Top Header */}
+          <div
+            className="d-flex align-items-center justify-content-between px-4 py-2 border-bottom"
+            style={{ backgroundColor: "#006666" }}
           >
-            Home
-          </Link>
-        </div>
-      </div>
-
+            <div className="d-flex align-items-center gap-3 flex-grow-1">
+              {/* Logo */}
+              <img
+                src={logo}
+                alt="IRDT Logo"
+                style={{
+                  height: "60px",
+                  width: "auto",
+                  filter: "invert(1) brightness(2)",
+                }}
+              />
+    
+              {/* Centered Text */}
+              <div className="flex-grow-1 text-center">
+                <h2 className="fw-bold mb-0" style={{ color: "white" }}>
+                  Institute for Research, Development & Training (IRDT)
+                </h2>
+                <p className="fw-semibold mb-0" style={{ color: "white" }}>
+                  Government of Uttar Pradesh
+                </p>
+              </div>
+            </div>
+    
+            {/* <Link to="/" className="btn btn-outline-light fw-semibold">
+                      Home
+                    </Link> */}
+          </div>
+    
+          {/* Navigation Bar */}
+          <nav
+            className="d-flex justify-content-center gap-4 py-2"
+            style={{ backgroundColor: "#004d4d" }}
+          >
+            <Link to="/" className="text-white fw-semibold text-decoration-none">
+              Home
+            </Link>
+            <Link to="/aboutus" className="text-white fw-semibold text-decoration-none">
+              About
+            </Link>
+            <Link to="/curriculum" className="text-white fw-semibold text-decoration-none">
+              Trainings
+            </Link>
+            {/* <Link to="/zonetable" className="text-white fw-semibold text-decoration-none">  
+              Polytechnics
+            </Link> */}
+            <Link to="/photogallery" className="text-white fw-semibold text-decoration-none">
+              Gallery
+            </Link>
+            <Link to="/learningresources" className="text-white fw-semibold text-decoration-none">
+              LRDC
+            </Link>
+            <Link to="/trainingcell" className="text-white fw-semibold text-decoration-none">
+              Training Cell
+            </Link>
+            <Link to="/curriculumdevelopment" className="text-white fw-semibold text-decoration-none">
+              CDC
+            </Link>
+            <Link to="/login" className="text-white fw-semibold text-decoration-none">
+              Login
+            </Link>
+          </nav>
       {/* ✅ Main content */}
       <Container className="mt-4">
         <Card className="shadow-sm p-4">

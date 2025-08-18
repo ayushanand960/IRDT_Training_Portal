@@ -53,6 +53,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     institute_name = models.CharField(max_length=255)
     branch = models.TextField(max_length=100, default="Polytechnic")
     designation = models.CharField(max_length=50)
+    date_of_joining = models.DateField(null=True, blank=True)
+
     security_question = models.CharField(max_length=50, choices=QUESTION_CHOICES, default="pet_name")
     security_answer = models.CharField( max_length=50)
     profile_picture = models.ImageField(

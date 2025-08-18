@@ -9,7 +9,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 BLOCKED_EMAIL_TLDS = {"cc", "tk", "ml", "ga", "cf", "gq", "ru", "work", "xyz", "top", "men", "loan", "win"}
 class UserSerializer(serializers.ModelSerializer):
-
+    date_of_joining = serializers.DateField(format="%d-%m-%Y") 
     
     email = serializers.EmailField(
         required=True,
@@ -82,7 +82,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer","name", "profile_picture"
+            "ehrms_code", "first_name", "middle_name","last_name","email", "mobile_number","gender", "institute_name", "branch", "designation","password", "security_question", "security_answer","name", "profile_picture", "date_of_joining"
             ]
         extra_kwargs = {
             "password": {"write_only": True},#this will write the password from client to database but will not ready the password for security
@@ -143,6 +143,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 # Pawan addition for admin manage User
 
 class UserRoleUpdateSerializer(serializers.Serializer):
+    date_of_joining = serializers.DateField(format="%d-%m-%Y") 
     ehrms_code = serializers.CharField()
     is_coordinator = serializers.BooleanField(required=True)
 
@@ -156,6 +157,7 @@ class UserRoleUpdateSerializer(serializers.Serializer):
 
 
 class UserListSerializer(serializers.ModelSerializer):
+    date_of_joining = serializers.DateField(format="%d-%m-%Y") 
     full_name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
 
@@ -174,7 +176,8 @@ class UserListSerializer(serializers.ModelSerializer):
             'role',
             'full_name',
             'security_question',
-            'security_answer'
+            'security_answer',
+            'date_of_joining'
 
         ]
 
@@ -197,13 +200,18 @@ from .models import User
 
 class EditUserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(required=False)
+    date_of_joining = serializers.DateField(format="%d-%m-%Y") 
+    def get_full_name(self, obj):
+        # Handles optional middle name cleanly
+        return f"{obj.first_name} {obj.middle_name or ''} {obj.last_name}".strip()
 
     class Meta:
         model = User
         fields = [
             'first_name', 'middle_name', 'last_name', 'email',
             'mobile_number', 'gender', 'institute_name', 'branch',
-            'designation', 'is_superuser', 'is_coordinator', 'role'
+            'designation', 'is_superuser', 'is_coordinator', 'role',
+            'date_of_joining', 'full_name'
         ]
         extra_kwargs = {
             'email': {'required': False},

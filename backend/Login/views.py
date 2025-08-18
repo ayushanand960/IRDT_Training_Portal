@@ -570,41 +570,18 @@ class AssignUserToTrainingView(APIView):
         
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
+class AccessCodeCheckView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        access_code = request.data.get("access_code")
 
-# Piyush 
+        # ✅ Replace this with DB lookup if you want multiple codes
+        VALID_CODES = ["IRDT2025"]
 
-# class UploadProfilePhotoView(APIView):
-#     permission_classes = [IsAuthenticated]
-#     parser_classes = [MultiPartParser, FormParser]
-
-#     def post(self, request):
-#         user = request.user
-        
-#         if user.photo and os.path.isfile(user.photo.path):
-#             os.remove(user.photo.path)
-            
-#         if 'photo' not in request.data:
-#             return Response({"error": "No photo uploaded"}, status=400)
-
-#         user.photo = request.data['photo']
-#         user.save()
-        
-#         return Response({
-#             "message": "Photo uploaded successfully",
-#             "photo": request.build_absolute_uri(user.photo.url)
-#         }, status=status.HTTP_200_OK)
-
-# class RemoveProfilePhotoView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def delete(self, request):
-#         user = request.user
-#         if user.profile_picture and os.path.isfile(user.profile_picture.path):
-#             os.remove(user.profile_picture.path)  # delete photo file
-#         user.profile_picture = None  # reset to default
-#         user.save()
-#         return Response({
-#             "message": "Photo removed successfully",
-#             "profile_picture": request.build_absolute_uri('/media/profile_pictures/default.jpg')
-#         }, status=status.HTTP_200_OK)
+        if access_code in VALID_CODES:
+            return Response({"valid": True}, status=status.HTTP_200_OK)
+        return Response({"valid": False}, status=status.HTTP_400_BAD_REQUEST)

@@ -62,7 +62,7 @@ body {
   background: #004d4d;
   text-decoration: underline;
 }
-
+/* 
 .info-btn {
   background: #004d4d;
   color: white;
@@ -76,7 +76,29 @@ body {
 
 .info-btn:hover {
   background: #003333;
+} */
+
+.info-btn {
+  background: transparent;   /* Invisible background */
+  border: none;              
+  border-radius: 10%;
+  width: 80px;               /* Increased size */
+  height: 80px;              /* Increased size */
+  cursor: pointer;
+  display: inline-flex;       /* Flex to center text */
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;           /* Bigger text */
+  opacity: 0;                /* Fully invisible */
+  transition: opacity 0.3s ease, background 0.3s ease;
 }
+
+.info-btn:hover {
+  opacity: 0.25;                
+  background: #003333;       /* Show background only when hovered */
+  color: white;              /* Make text visible */
+}
+
 
 /* Hero Section */
 .hero {

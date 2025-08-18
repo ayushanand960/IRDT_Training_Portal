@@ -1,103 +1,243 @@
+
+@import url('https://unpkg.com/aos@2.3.1/dist/aos.css');
+
+
+
+body {
+  font-family: Arial, sans-serif !important;
+}
+
+
+/* Cards Section Styling */
+.cards-section {
+  padding: 40px 30px;
+  margin: 30px 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #E0F7FA, #FFF8E7);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px 25px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  cursor: default;
+  text-align: left;
+}
+
+.info-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.info-card h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: #FF6F61;
+}
+
+.info-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Optional: Animated list items (slide-in) */
+[data-aos] {
+  opacity: 0;
+  transition-property: transform, opacity;
+}
+
+
+
 .about-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 50px 30px;
-  background: linear-gradient(to bottom right, #fdfdfd, #f4f9ff);
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: #2c2c2c;
-  line-height: 1.8;
+  font-family: Arial, sans-serif;
+  background: #fdf9f3;
+  color: #222;
+  padding: 30px;
+}
+
+/* Animated Gradient Headings */
+.animated-gradient {
+  background: linear-gradient(90deg, black, black);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  animation: gradientMove 3s ease infinite alternate;
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 /* Hero Section */
 .about-hero {
-  text-align: center;
-  padding: 50px 20px;
-  background: linear-gradient(135deg, #006666, #457b9d);
-  border-radius: 15px;
-  color: #fff;
-  margin-bottom: 60px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-}
-.about-hero h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.about-hero p {
-  font-size: 1.3rem;
-  max-width: 900px;
-  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 50px 30px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #FFF8E7);
+  color: black;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
 }
 
-/* Section Styling */
+.hero-content h1 {
+  font-family: Arial, sans-serif;
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.intro-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.dropcap::first-letter {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #FF6F61;
+  float: left;
+  margin-right: 8px;
+}
+
+.highlight {
+  color: #FF6F61;
+  font-weight: 700;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Sections */
 .about-section {
-  margin-bottom: 60px;
-  background: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #FFF8E7;
+  padding: 35px;
+  margin: 30px 0;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
-.about-section:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+
+.about-section:nth-child(even) {
+  background: #E0F7FA;
 }
-.about-section h2 {
-  font-size: 2rem;
-  color: #1d3557;
+
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 28px;
   margin-bottom: 20px;
   position: relative;
-  padding-bottom: 10px;
 }
-.about-section h2::after {
-  content: "";
-  width: 80px;
-  height: 4px;
-  background: #ffb703;
+
+.section-title::after {
+  content: '';
   position: absolute;
-  bottom: 0;
+  width: 70px;
+  height: 3px;
+  background: #FF6F61;
+  bottom: -6px;
   left: 0;
   border-radius: 3px;
 }
 
-.about-section p,
-.about-section ul,
-.about-section ol {
-  font-size: 1.15rem;
-  text-align: justify;
-  color: #333;
+/* Fancy Lists */
+.fancy-list {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
 }
 
-.about-section ul,
-.about-section ol {
-  margin-top: 15px;
+.fancy-list li {
+  position: relative;
   padding-left: 25px;
+  margin: 10px 0;
+  font-size: 1.05rem;
 }
 
-.about-section li {
-  margin-bottom: 12px;
-  transition: color 0.2s ease;
-}
-.about-section li:hover {
-  color: #006666;
-  font-weight: 500;
+.fancy-list li::before {
+  content: '◆';
+  position: absolute;
+  left: 0;
+  color: #FF6F61;
+  font-size: 1rem;
+  top: 2px;
 }
 
 /* Icons */
 .icon {
-  color: #006666;
-  margin-right: 8px;
-  font-size: 1.1rem;
+  color: #FF6F61;
+  margin-right: 6px;
 }
 
-/* Vision Section Special Styling */
-.vision {
-  background: linear-gradient(135deg, #eef6fc, #fefefe);
-  border-left: 6px solid #006666;
+/* Leadership Cards */
+.leader-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin-top: 25px;
 }
-.vision p {
-  font-size: 1.2rem;
-  line-height: 1.9;
+
+.leader-card {
+  background: #fff;
+  border-radius: 20px;
+  text-align: center;
+  padding: 20px;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.leader-card:hover {
+  transform: translateY(-12px) rotateX(5deg) scale(1.05);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.leader-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-bottom: 12px;
+}
+
+/* Vision Section */
+.vision {
+  background: linear-gradient(135deg, #008080, #00CED1);
+  color: black;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-image img {
+    max-width: 100%;
+  }
 }
