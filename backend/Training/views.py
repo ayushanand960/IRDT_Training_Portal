@@ -529,6 +529,32 @@ Training Coordination Team
             status=status.HTTP_200_OK
         ) 
 
+# class FinalizedNominationsListView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         if not request.user.is_superuser:
+#             return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+
+#         finalized_trainings = TrainingProgram.objects.filter(is_finalized=True).select_related("faculty")
+
+#         data = []
+#         for t in finalized_trainings:
+#             # Check if all nominations are attended
+#             all_attended = Enrollment.objects.filter(training=t, is_finalized=True).exclude(status='attended').count() == 0
+
+#             data.append({
+#                 "code": t.code,
+#                 "name": t.name,
+#                 "faculty": f"{t.faculty.first_name} {t.faculty.middle_name or ''} {t.faculty.last_name}".strip() if t.faculty else "N/A",
+#                 "finalized_at": t.finalized_at.isoformat() if t.finalized_at else None,
+#                 "is_completed": all_attended,
+#                 "edit_request_status": t.edit_request_status,     # ✅ add this
+#                 "edit_requested": t.edit_requested,
+#             })
+
+#         return Response(data, status=200)
+    
 class FinalizedNominationsListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -536,12 +562,17 @@ class FinalizedNominationsListView(APIView):
         if not request.user.is_superuser:
             return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
 
-        finalized_trainings = TrainingProgram.objects.filter(is_finalized=True).select_related("faculty")
+        # ✅ Order by finalized_at descending (recent on top)
+        finalized_trainings = TrainingProgram.objects.filter(
+            is_finalized=True
+        ).select_related("faculty").order_by("-finalized_at")
 
         data = []
         for t in finalized_trainings:
-            # Check if all nominations are attended
-            all_attended = Enrollment.objects.filter(training=t, is_finalized=True).exclude(status='attended').count() == 0
+            # ✅ Check if all nominations are attended
+            all_attended = Enrollment.objects.filter(
+                training=t, is_finalized=True
+            ).exclude(status='attended').count() == 0
 
             data.append({
                 "code": t.code,
@@ -549,12 +580,11 @@ class FinalizedNominationsListView(APIView):
                 "faculty": f"{t.faculty.first_name} {t.faculty.middle_name or ''} {t.faculty.last_name}".strip() if t.faculty else "N/A",
                 "finalized_at": t.finalized_at.isoformat() if t.finalized_at else None,
                 "is_completed": all_attended,
-                "edit_request_status": t.edit_request_status,     # ✅ add this
+                "edit_request_status": t.edit_request_status,
                 "edit_requested": t.edit_requested,
             })
 
         return Response(data, status=200)
-    
 
 
 
