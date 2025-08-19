@@ -7,6 +7,8 @@ import '../widgets/theme_switcher_sheet.dart';
 import '../../dashboard/profile/profile_screen.dart';
 import '../../notifications/notification_screen.dart';
 import '../../dashboard/login_home_page.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/theme_provider.dart';
 
 class LoggedInDrawer extends StatefulWidget {
   final VoidCallback? onNotificationsChanged;
@@ -71,6 +73,8 @@ class _LoggedInDrawerState extends State<LoggedInDrawer> {
       await _api.logout();
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      themeProvider.toggleTheme(false);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     }

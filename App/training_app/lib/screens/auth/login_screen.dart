@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/ui_helpers.dart';
 import 'reset_password_screen.dart';
+import 'access_code_popup.dart';
 import '../../core/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -255,8 +256,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextButton(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/access-code'),
+                        // onPressed: () =>
+                        //     Navigator.pushNamed(context, '/access-code'),
+                        onPressed: () {
+                          AccessCodePopup.show(context);
+                        },
                         child: RichText(
                           text: const TextSpan(
                             children: [

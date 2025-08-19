@@ -1,7 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import '../../core/services/api_service.dart';
 
 import 'package:training_app/core/constants.dart';
 
@@ -16,13 +16,62 @@ class _AccessCodePageState extends State<AccessCodePage> {
   final TextEditingController _codeController = TextEditingController();
   bool _isLoading = false;
 
+  Future<void> _showDialogMessage(
+    String title,
+    String message, {
+    bool goBackLogin = false,
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(message),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.red[50],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                if (goBackLogin)
+                  Navigator.pushReplacementNamed(context, '/login');
+              },
+              child: const Text(
+                "Close",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _verifyAccessCode() async {
     final code = _codeController.text.trim();
 
     if (code.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter the access code")),
-      );
+      _showDialogMessage("Error", "Please enter the access code");
       return;
     }
 
@@ -40,25 +89,23 @@ class _AccessCodePageState extends State<AccessCodePage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['valid'] == true) {
-          // ✅ Access code valid, navigate to register page
           Navigator.pushReplacementNamed(context, '/register');
         } else {
-          // ❌ Invalid code
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text("Invalid access code")));
-          Navigator.pushReplacementNamed(context, '/login');
+          await _showDialogMessage(
+            "Invalid Access Code",
+            "The access code you entered is incorrect.",
+            goBackLogin: true,
+          );
         }
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Invalid access code")));
-        Navigator.pushReplacementNamed(context, '/login');
+        await _showDialogMessage(
+          "Invalid Access Code",
+          "The access code you entered is incorrect.",
+          goBackLogin: true,
+        );
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      await _showDialogMessage("Error", "Error: $e");
     } finally {
       setState(() {
         _isLoading = false;
@@ -74,34 +121,84 @@ class _AccessCodePageState extends State<AccessCodePage> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Enter Access Code")),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Please enter your access code to register",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _codeController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Access Code",
-              ),
-            ),
-            const SizedBox(height: 20),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _verifyAccessCode,
-                    child: const Text("Verify"),
+      backgroundColor: Colors.grey[100], // subtle background for contrast
+      appBar: AppBar(
+        title: const Text("Access Code"),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Please enter your access code to register",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-          ],
+                ),
+                const SizedBox(height: 30),
+                // Rounded TextField
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _codeController,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Access Code",
+                      contentPadding: EdgeInsets.symmetric(vertical: 18),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : SizedBox(
+                        width: width,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _verifyAccessCode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
+                          ),
+                          child: const Text(
+                            "Verify",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+              ],
+            ),
+          ),
         ),
       ),
     );
