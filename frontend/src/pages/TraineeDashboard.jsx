@@ -52,6 +52,7 @@ const TraineeDashboard = () => {
     institute_name: '',
     branch: '',
     designation: '',
+    designationOption: '',
     date_of_joining: ""
   });
 
@@ -89,6 +90,18 @@ const TraineeDashboard = () => {
     }
   };
 
+  // const openEditModal = () => {
+  //   if (!user) return;
+  //   setEditForm({
+  //     email: user.email || '',
+  //     mobile_number: user.mobile_number || '',
+  //     institute_name: user.institute_name || '',
+  //     branch: user.branch || '',
+  //     designation: user.designation || '',
+  //     date_of_joining: user.date_of_joining || '',
+  //   });
+  //   setShowEditModal(true);
+  // };
   const openEditModal = () => {
     if (!user) return;
     setEditForm({
@@ -97,10 +110,18 @@ const TraineeDashboard = () => {
       institute_name: user.institute_name || '',
       branch: user.branch || '',
       designation: user.designation || '',
-      date_of_joining: user.date_of_joining || '', 
+      date_of_joining: user.date_of_joining
+        ? user.date_of_joining.split("T")[0]   // 👈 ensures correct YYYY-MM-DD format
+        : '',
+      otherDesignation:
+        user.designation &&
+          !designations.includes(user.designation) // 👈 if user's designation is not in dropdown
+          ? user.designation
+          : '',
     });
     setShowEditModal(true);
   };
+
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -127,12 +148,18 @@ const TraineeDashboard = () => {
       return;
     }
 
+    let designationValue = editForm.designation;
+    if (designationValue === "Others" && editForm.designation_other?.trim()) {
+      designationValue = editForm.designation_other.trim();
+    }
+
+
     const payload = {
       email: editForm.email.trim(),
       mobile_number: editForm.mobile_number.trim(),
       institute_name: editForm.institute_name,
       branch: editForm.branch,
-      designation: editForm.designation,
+      designation: designationValue,
       date_of_joining: editForm.date_of_joining,
     };
 
@@ -628,7 +655,13 @@ const TraineeDashboard = () => {
 
                     {/* Designation */}
                     <div className="mb-3">
-                      <label className="form-label">Designation</label>
+                      <label className="form-label">
+                        Designation
+                        {editForm.designation === "Others" && (
+                          <span style={{ color: "red" }}> *</span>
+                        )}
+                      </label>
+
                       <select
                         name="designation"
                         className="form-select"
@@ -640,8 +673,25 @@ const TraineeDashboard = () => {
                         {designations.map((d, i) => (
                           <option key={i} value={d}>{d}</option>
                         ))}
+
                       </select>
+
+                      {editForm.designation === "Others" && (
+                        <input
+                          type="text"
+                          name="designation_other"
+                          className="form-control mt-2"
+                          value={editForm.designation_other || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, designation_other: e.target.value }))
+                          }
+                          placeholder="Enter your designation"
+                          required
+                        />
+                      )}
                     </div>
+
+
 
 
                     {/* Date of Joining */}
