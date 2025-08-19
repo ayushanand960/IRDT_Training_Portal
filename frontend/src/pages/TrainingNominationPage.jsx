@@ -150,13 +150,20 @@ const TrainingNominationPage = () => {
     }
   };
 
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
   const handleFinalizeNomination = async (trainingCode) => {
     try {
-      const res = await axiosInstance.post(`/training/finalize-nominations/${trainingCode}/`);
+      setIsFinalizing(true); // show spinner
+      const res = await axiosInstance.post(
+        `/training/finalize-nominations/${trainingCode}/`
+      );
       toast.success(res.data.message);
       setTrainingStatus((prev) => ({ ...prev, isFinalized: true }));
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to finalize.");
+    } finally {
+      setIsFinalizing(false); // hide spinner
     }
   };
 
@@ -323,9 +330,16 @@ const TrainingNominationPage = () => {
                   </div>
                 </>
               ) : (
-                <Button className="nomination-btn" onClick={() => handleFinalizeNomination(code)}>
-                  Finalize Nominations
-                </Button>
+                <button
+                  onClick={() => handleFinalizeNomination(code)}
+                  disabled={isFinalizing}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-black rounded-md disabled:opacity-50"
+                >
+                  {isFinalizing && (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  )}
+                  {isFinalizing ? "Finalizing..." : "Finalize Nomination"}
+                </button>
               )}
 
               {nominated.length === 0 ? (

@@ -204,3 +204,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 ACCESS_CODE = "IRDT2025"
+
+# Email Details for sending email
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "irdtknp@gmail.com"   # Your Gmail address
+EMAIL_HOST_PASSWORD = "lipt iuyb yhke hpnh"  # The App Password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

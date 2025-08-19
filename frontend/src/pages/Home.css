@@ -62,71 +62,87 @@ body {
   background: #004d4d;
   text-decoration: underline;
 }
-/* 
-.info-btn {
-  background: #004d4d;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.info-btn:hover {
-  background: #003333;
-} */
 
 .info-btn {
   background: transparent;   /* Invisible background */
   border: none;              
   border-radius: 10%;
-  width: 80px;               /* Increased size */
-  height: 80px;              /* Increased size */
+  width: 80px;               
+  height: 80px;              
   cursor: pointer;
-  display: inline-flex;       /* Flex to center text */
+  display: inline-flex;      
   align-items: center;
   justify-content: center;
-  font-size: 16px;           /* Bigger text */
-  opacity: 0;                /* Fully invisible */
+  font-size: 16px;           
+  opacity: 0;                
   transition: opacity 0.3s ease, background 0.3s ease;
 }
 
 .info-btn:hover {
   opacity: 0.25;                
-  background: #003333;       /* Show background only when hovered */
-  color: white;              /* Make text visible */
+  background: #003333;       
+  color: white;              
 }
 
-
-/* Hero Section */
-.hero {
+.hero-section {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  background: #e5e7eb;
+  justify-content: center;   /* centers content horizontally */
+  align-items: flex-start;   /* aligns them top-aligned (change to center if needed) */
+  gap: 30px;                 /* space between slideshow and trainings */
+  margin: 0 auto;
+  max-width: 1200px;         /* keeps it centered inside screen */
   padding: 20px;
+}
+/* ✅ Hero Section Layout (Slideshow + Trainings Side by Side) */
+.hero-section.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap; /* Responsive */
 }
 
-.hero-slideshow, .hero-image {
-  flex: 1 1 300px;
-  max-width: 600px;
-  width: 100%;
+/* Left side: Slideshow */
+.hero-slideshow {
+  flex: 1;
+  max-width: 600px; /* adjust as needed */
+  max-height: 400px; /* adjust as needed */
+  aspect-ratio: 1 / 1; /* makes it a perfect square */
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: relative; 
 }
 
-/* ✅ Responsive Slideshow */
-.slideshow-container {
+/* .slideshow-container {
   position: relative;
   width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
+  padding-top: 56.25%; 
   border: 2px solid #006666;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+} */
+
+.slideshow-container {
+  width: 100%;       /* take full width of parent */
+  height: 100%;      /* take full height of parent */
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
 }
+
+/* .slideshow-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  animation: fade 12s infinite;
+} */
 
 .slideshow-container img {
   position: absolute;
@@ -151,11 +167,177 @@ body {
   100% { opacity: 0; }
 }
 
-.hero-image img {
-  width: 300px;
-  max-width: 100%;
-  border: 5px solid #006666;
+
+
+
+/* Upcoming Trainings */
+/* .upcoming-trainings {
+  background: #fff;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.upcoming-trainings h2 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #0d3b66;
+} */
+
+.upcoming-trainings {
+  flex: 1;
+  max-width: 500px;
+  background: #ffffff;
   border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;         /* fixed height */
+  overflow-y: auto;
+    text-align: left;
+
+  transition: all 0.3s ease;
+}
+
+
+/* 🔹 Heading Style */
+.upcoming-trainings h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  color: #222;   /* darker heading */
+  border-left: 4px solid #006666; /* accent line */
+  padding-left: 10px;
+}
+
+.upcoming-trainings h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+
+/* .trainings-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+} */
+
+/* .training-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  transition: transform 0.2s ease;
+} */
+
+.trainings-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.training-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #eee;
+  cursor: pointer;
+}
+
+.training-card:hover {
+  background: #f9f9ff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+}
+
+/* .date-box {
+  background: #0d3b66;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  text-align: center;
+  margin-right: 12px;
+  min-width: 55px;
+}
+
+.date-box .day {
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: block;
+}
+
+.date-box .month {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.training-details h3 {
+  font-size: 1rem;
+  margin: 0;
+  color: #0d3b66;
+}
+
+.training-details p {
+  margin: 2px 0;
+  font-size: 0.85rem;
+  color: #444; 
+}*/
+
+/* Date Box */
+.date-box {
+  min-width: 60px;
+  text-align: center;
+  border-radius: 8px;
+  background: #006666;
+  color: white;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-box .day {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.date-box .month {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Training Details */
+.training-details h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.training-details .date-range {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.training-details .venue,
+.training-details .target {
+  font-size: 13px;
+  color: #666;
+  margin: 2px 0;
 }
 
 /* Marquee */
@@ -251,8 +433,6 @@ body {
 .footer h3 {
   margin-bottom: 10px;
   font-size: 16px;
-  color: white;
-  font-weight: 800;
 }
 
 .footer ul {
@@ -280,17 +460,22 @@ body {
     gap: 8px;
   }
 
-  .hero {
+  .hero-section.flex-container {
     flex-direction: column;
-    padding: 15px;
+    align-items: center;
+  }
+
+  .hero-slideshow {
+    min-width: 50%;
+  }
+
+  .upcoming-trainings {
+    max-width: 100%;
+    min-width: unset;
   }
 
   .slideshow-container {
     padding-top: 60%; /* taller on tablets */
-  }
-
-  .hero-image img {
-    width: 200px;
   }
 
   .program {

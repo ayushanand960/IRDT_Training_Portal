@@ -363,6 +363,20 @@ const Register = () => {
                     {selectedCategory === 'B' && <><option>Lecturer</option><option>Librarian</option><option>Workshop Superintendent</option></>}
                     {selectedCategory === 'C' && <><option>Workshop Instructor</option><option>Office Employee/Worker</option><option>Computer Instructor</option><option>Computer Operator</option><option>Others</option></>}
                   </select>
+
+                  {/* If user selects "Others" under Group C, show a text field */}
+                  {selectedCategory === "C" && selectedDesignation === "Others" && (
+                    <input
+                      type="text"
+                      placeholder="Enter your designation"
+                      className="form-control input-dark mt-2"
+                      value={form.designation}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, designation: e.target.value }))
+                      }
+                      required
+                    />
+                  )}
                 </div>
 
                 <div className="col-md-6 mb-3">
@@ -423,7 +437,13 @@ const Register = () => {
 
                 {/* Submit Button */}
                 <div className="col-md-12 mt-3">
-                  <button type="submit" className="btn btn-success w-100 btn-lg">Create Account</button>
+                  <button type="submit" className="btn btn-success w-100 btn-lg"
+                    disabled={
+                      selectedCategory === "C" &&
+                      selectedDesignation === "Others" &&
+                      !form.designation.trim()
+                    }
+                  >Create Account</button>
                 </div>
 
                 {/* Login Link */}

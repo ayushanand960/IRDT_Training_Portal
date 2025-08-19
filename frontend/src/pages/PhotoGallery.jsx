@@ -1,4 +1,3 @@
-// src/pages/PhotoGallery.jsx
 import React, { useState } from "react";
 import "./PhotoGallery.css";
 import logo from "../assets/irdt-logo.png";
@@ -34,7 +33,7 @@ export default function PhotoGallery() {
     },
     {
       title: "Visit of Hon'ble Principal Secretary, Technical Education Dept. U.P. Govt.",
-      date: "Shri M. Devaraj (IAS)",
+      date: " 21 August 2023",
       venue: "IRDT Kanpur",
       img: "/images/gl5.png",
     },
@@ -58,11 +57,62 @@ export default function PhotoGallery() {
     },
     {
       title: "तकनीकी प्रतिभा सम्मान समारोह - 2019",
-      date: "सक्षम बालिका-सम्पन्न परिवार योजना",
+      date: " 17-february-2019",
       venue: "IRDT Kanpur",
       img: "/images/gl8.png",
     },
+    {
+      title: "Induction training program",
+      date: "14-18 July 2025 ",
+      venue: "IRDT Kanpur",
+      img: "/images/p2.jpg",
+    },
+    {
+      title: "Drone technology",
+      date: " 17-21 February 2025",
+      venue: "IRDT Kanpur",
+      img: "/images/p3.jpg",
+    },
+    {
+      title: "Cryptography, network defence and mobile security ",
+      date: "28 July- 01 Aug 2025",
+      venue: "IRDT kanpur In collaboration with CDAC  patna",
+      img: "/images/p5.jpg",
+    },
+    {
+      title: "FDP on Cyber security essentials",
+      date: "03-07 March  2025",
+      venue: " IRDT kanpur In collaboration with CDAC patna",
+      img: "/images/p8.jpg",
+    },
+    {
+      title: "Android application development",
+      date: "14-19 October 2024",
+      venue: "IRDT Kanpur",
+      img: "/images/p10.jpg",
+    },
   ];
+
+  // ✅ Function to parse mixed date formats
+  const parseEventDate = (dateStr) => {
+    let cleaned = dateStr.trim();
+
+    // If date has a range (like "10-14 June 2024"), take the last part
+    if (cleaned.includes("-")) {
+      const parts = cleaned.split("-");
+      cleaned = parts[parts.length - 1].trim();
+    }
+
+    // Capitalize month names (e.g., february -> February)
+    cleaned = cleaned.replace(/\b([a-z])/g, (c) => c.toUpperCase());
+
+    return new Date(cleaned);
+  };
+
+  // ✅ Sort events latest → oldest
+  const sortedEvents = [...events].sort(
+    (a, b) => parseEventDate(b.date) - parseEventDate(a.date)
+  );
 
   return (
     <>
@@ -93,10 +143,6 @@ export default function PhotoGallery() {
             </p>
           </div>
         </div>
-
-        {/* <Link to="/" className="btn btn-outline-light fw-semibold">
-                  Home
-                </Link> */}
       </div>
 
       {/* Navigation Bar */}
@@ -113,9 +159,6 @@ export default function PhotoGallery() {
         <Link to="/curriculum" className="text-white fw-semibold text-decoration-none">
           Trainings
         </Link>
-        {/* <Link to="/zonetable" className="text-white fw-semibold text-decoration-none">
-          Polytechnics
-        </Link> */}
         <Link to="/photogallery" className="text-white fw-semibold text-decoration-none">
           Gallery
         </Link>
@@ -132,10 +175,11 @@ export default function PhotoGallery() {
           Login
         </Link>
       </nav>
+
       <div className="gallery-wrapper">
         <h1 className="gallery-title">Photo Gallery</h1>
         <div className="gallery-grid">
-          {events.map((event, index) => (
+          {sortedEvents.map((event, index) => (
             <div
               className="gallery-card"
               key={index}
