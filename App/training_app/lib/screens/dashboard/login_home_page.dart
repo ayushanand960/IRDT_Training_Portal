@@ -45,7 +45,7 @@ class LoginHomePageState extends State<LoginHomePage> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.blue),
         title: const Text(
-          "IRDT Portal",
+          "Shiksha Pragati",
           style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -118,6 +118,12 @@ class LoginHomePageState extends State<LoginHomePage> {
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2196F3),
                   ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Bridge of Education for Progress",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
                 const Text(
