@@ -20,13 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final ApiService _api = ApiService();
 
+  bool _obscurePassword = true;
+
   @override
   void initState() {
     super.initState();
-    // Future.microtask(() {
-    //   final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    //   themeProvider.toggleTheme(false); // Force Light Mode
-    // });
     _checkSession(); // Auto-login if session is still valid
   }
 
@@ -243,10 +241,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      // TextField(
+                      //   controller: passwordController,
+                      //   decoration: fieldDecoration('Password', required: true),
+                      //   obscureText: true,
+                      // ),
                       TextField(
                         controller: passwordController,
-                        decoration: fieldDecoration('Password', required: true),
-                        obscureText: true,
+                        obscureText: _obscurePassword,
+                        decoration: fieldDecoration('Password', required: true)
+                            .copyWith(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
