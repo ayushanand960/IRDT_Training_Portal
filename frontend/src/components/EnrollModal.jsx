@@ -34,8 +34,45 @@ const EnrollModal = ({ show, onHide, training, ehrmsCode, onConfirm }) => {
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="primary" onClick={onConfirm}>Confirm Apply</Button>
+        {/* Cancel button - outlined green */}
+        <Button
+          style={{
+            borderColor: "#006666",
+            color: "#006666",
+            backgroundColor: "transparent",
+          }}
+          onMouseOver={(e) => {
+            e.target.style.backgroundColor = "#006666";
+            e.target.style.color = "white";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.backgroundColor = "transparent";
+            e.target.style.color = "#006666";
+          }}
+          onClick={onHide}
+        >
+          Cancel
+        </Button>
+
+        {/* Confirm button - solid green */}
+        <Button
+          style={{
+            backgroundColor: "#006666",
+            borderColor: "#006666",
+            color: "white",
+          }}
+          onMouseOver={(e) => {
+            e.target.style.backgroundColor = "#004c4c";
+            e.target.style.borderColor = "#004c4c";
+          }}
+          onMouseOut={(e) => {
+            e.target.style.backgroundColor = "#006666";
+            e.target.style.borderColor = "#006666";
+          }}
+          onClick={onConfirm}
+        >
+          Confirm Apply
+        </Button>
       </Modal.Footer>
     </Modal>
   );

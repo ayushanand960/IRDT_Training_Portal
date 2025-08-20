@@ -12,6 +12,7 @@ import NotificationBell from '../components/NotificationBell';
 import { polytechnics } from '../data/polytechnics';
 import { branches } from '../data/branches';
 import designations from '../data/designations';
+import logo from "../assets/irdt-logo.png";
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -314,27 +315,89 @@ const TraineeDashboard = () => {
 
   return (
     <>
-      <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
-        <span className="navbar-brand text-white fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
-        <div className="d-flex align-items-center gap-2">
-          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">Home</button>
-          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Logout</button>
+      <nav
+        className="navbar navbar-dark px-4 d-flex justify-content-between align-items-center shadow-sm"
+        style={{
+          background: "linear-gradient(to right, #004d4d, #006666, #009999)",
+          height: "70px",
+        }}
+      >
+        {/* Left Section: Logo + Title */}
+        <div className="d-flex align-items-center gap-3">
+          <img
+            src={logo}
+            alt="IRDT Logo"
+            style={{ height: "80px", width: "80px", borderRadius: "8px", filter: "invert(1) brightness(2)" }}
+          />
+          <span className="navbar-brand text-white fw-bold fs-2 mb-0"
+            style={{ letterSpacing: "0.5px" }}>
+            Trainee Dashboard
+          </span>
+        </div>
+
+        {/* Right Section: Actions */}
+        <div className="d-flex align-items-center gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="btn btn-sm"
+            style={{
+              backgroundColor: "#ffffff",
+              color: "#006666",
+              fontWeight: "500",
+              borderRadius: "6px",
+              padding: "6px 14px",
+              border: "none",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "#006666";
+              e.target.style.color = "#fff";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "#ffffff";
+              e.target.style.color = "#006666";
+            }}
+          >
+            Home
+          </button>
+
+          <button
+            className="btn btn-sm"
+            onClick={handleLogout}
+            style={{
+              backgroundColor: "#cc0000",
+              color: "#fff",
+              fontWeight: "500",
+              borderRadius: "6px",
+              padding: "6px 14px",
+              border: "none",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "#990000";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "#cc0000";
+            }}
+          >
+            Logout
+          </button>
+
           <NotificationBell />
-          <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
+
+          {/* Profile Photo */}
+          <label onClick={handleProfileClick} style={{ cursor: "pointer", marginBottom: 0 }}>
             <img
               src={profilePhoto}
               alt="Profile"
-              className="rounded-circle border"
-              style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+              className="rounded-circle border border-light"
+              style={{ height: "45px", width: "45px", objectFit: "cover" }}
               onError={(e) => {
                 e.target.src = `${import.meta.env.VITE_BACKEND_URL}/media/profile_pictures/default.jpg`;
               }}
             />
-
           </label>
-          {/* <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} /> */}
         </div>
-
       </nav>
 
       {showProfileModal && (
@@ -477,7 +540,10 @@ const TraineeDashboard = () => {
                     </div>
                     {group.items.length > visibleCounts[group.section] && (
                       <div className="text-center mt-2">
-                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                        <button className="btn btn-outline-primary btn-sm" style={{
+                          borderColor: "#006666",
+                          color: "#006666",
+                        }} onClick={() => handleShowMore(group.section)}>
                           Show More
                         </button>
                       </div>
@@ -531,7 +597,10 @@ const TraineeDashboard = () => {
                 </div>
                 {group.items.length > visibleCounts[group.section] && (
                   <div className="text-center mt-2">
-                    <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                    <button className="btn btn-outline-primary btn-sm" style={{
+                          borderColor: "#006666",
+                          color: "#006666",
+                        }} onClick={() => handleShowMore(group.section)}>
                       Show More
                     </button>
                   </div>
@@ -564,7 +633,10 @@ const TraineeDashboard = () => {
                   )}
                 </div>
                 <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={() => setShowPastTrainingsModal(false)}>
+                  <button className="btn btn-secondary" style={{
+                          borderColor: "#006666",
+                          color: "#006666",
+                        }} onClick={() => setShowPastTrainingsModal(false)}>
                     Close
                   </button>
                 </div>
@@ -718,7 +790,10 @@ const TraineeDashboard = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={isSavingProfile}>
+                    <button type="submit" className="btn btn-primary"style={{
+                          borderColor: "#006666",
+                          color: "#006666",
+                        }} disabled={isSavingProfile}>
                       {isSavingProfile ? 'Saving…' : 'Save Changes'}
                     </button>
                   </div>

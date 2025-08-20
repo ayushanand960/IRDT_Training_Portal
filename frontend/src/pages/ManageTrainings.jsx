@@ -480,12 +480,12 @@ const ManageTrainings = () => {
             </Form.Group>
           </Col>
           <Col md={2}>
-            <Button className="w-100" onClick={handleUpload}>
+            <Button className="w-100" style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }} onClick={handleUpload}>
               Upload Training Batch
             </Button>
           </Col>
           <Col md={2}>
-            <Button variant="primary" className="w-100" onClick={handleAdd}>
+            <Button variant="primary" className="w-100" style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }} onClick={handleAdd}>
               + Add Training
             </Button>
           </Col>
@@ -552,7 +552,7 @@ const ManageTrainings = () => {
                         <td>
                           <div className="d-flex justify-content-center gap-1">
                             <Button
-                              size="sm"
+                              size="sm" style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }}
                               variant="secondary"
                               onClick={() => handleEdit(t)}
                             >

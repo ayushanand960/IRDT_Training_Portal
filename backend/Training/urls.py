@@ -19,6 +19,8 @@ from .views import (
     RequestEditAPIView,
     PastTrainingsAPIView,
     ApproveEditRequestAPIView,
+    NominationNotificationListAPIView,
+     MarkNominationNotificationReadAPIView,
     DeleteTrainingBatchAPIView,download_curriculum_excel
 )
 from .views import CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView, FinalizeNominationAPIView, DownloadFinalNominationXLSXAPIView, AttendedTraineesAPIView, FinalizedNominationsListView
@@ -35,13 +37,14 @@ urlpatterns = [
     path('nominate-multiple/', BulkNominationView.as_view(), name='bulk-nominate'),
     path('nominated/<str:training_code>/', NominatedTraineesByTrainingAPIView.as_view()),
     path("attended/<str:code>/", AttendedTraineesAPIView.as_view()),
-
     path('nomination/remove/<str:training_code>/<str:ehrms_code>/', RemoveNominationAPIView.as_view()),
     path('trainings/assigned/', AssignedTrainingsView.as_view(), name='assigned-trainings'),
     path('rejections/', RejectTraineeAPIView.as_view(), name='reject-trainee'),
     path('notification/rejections/', RejectionNotificationAPIView.as_view(), name='reject-notification'),
     path('notification/rejections/<int:pk>/read/', MarkRejectionAsReadAPIView.as_view(), name='mark-rejection-read'),
     path('notification/rejections/<int:pk>/delete/', DeleteRejectionAPIView.as_view(), name='delete-rejection'),
+    path("notification/nominations/", NominationNotificationListAPIView.as_view(), name="nomination-notifications"),
+    path("notification/nominations/<int:enrollment_id>/read/", MarkNominationNotificationReadAPIView.as_view(), name="mark-nomination-read"),
     path('finalize-nominations/<str:training_code>/', FinalizeNominationAPIView.as_view(), name='finalize-nominations'),
     path('download-final-nominations/<str:training_code>/', DownloadFinalNominationXLSXAPIView.as_view(), name='download-final-csv'),
     path("finalized-nominations/", FinalizedNominationsListView.as_view(), name="finalized-nominations-list"),
@@ -49,7 +52,7 @@ urlpatterns = [
     path('approve-edit/<str:training_code>/', ApproveEditRequestAPIView.as_view(), name='approve-edit'),
     path('past-trainings/', PastTrainingsAPIView.as_view(), name='past-trainings'),
     path('curriculum/', CurriculumListAPIView.as_view(), name='curriculum-list'),
-     path("curriculum/download/", download_curriculum_excel, name="curriculum-download"),
+    path("curriculum/download/", download_curriculum_excel, name="curriculum-download"),
 ]
 
 

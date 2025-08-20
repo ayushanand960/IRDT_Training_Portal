@@ -23,6 +23,8 @@ class Enrollment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied')
     is_finalized = models.BooleanField(default=False)
     finalized_at = models.DateTimeField(null=True, blank=True)
+    notification_read = models.BooleanField(default=False)
+
 
 
     class Meta:

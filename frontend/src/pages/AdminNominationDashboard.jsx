@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
-import { Table, Button, Spinner, Card, Container , Form} from "react-bootstrap";
+import { Table, Button, Spinner, Card, Container, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 
 import Sidebar from "../components/Sidebar";
@@ -21,17 +21,17 @@ const AdminNominationDashboard = () => {
 
 
   const filteredTrainings = finalizedTrainings.filter((t) => {
-  if (!filters.faculty) return true; // show all if no filter selected
- return t.faculty?.toString() === filters.faculty;
+    if (!filters.faculty) return true; // show all if no filter selected
+    return t.faculty?.toString() === filters.faculty;
 
-});
+  });
 
   // Handle window resize to show/hide sidebar automatically
   useEffect(() => {
     const fetchCoordinators = async () => {
       try {
         const response = await axiosInstance.get('/login/coordinators/');
-        console.log(response.data); 
+        console.log(response.data);
         setCoordinators(response.data); // Make sure API returns array of names
       } catch (error) {
         console.error('Failed to fetch coordinators:', error);
@@ -122,6 +122,14 @@ const AdminNominationDashboard = () => {
     return (
       <Spinner animation="border" role="status" className="mt-5 d-block mx-auto" />
     );
+  // Common button styles
+  const btnBase = {
+    border: "none",
+
+    padding: "3px 12px",
+    fontSize: "0.85rem",
+    fontWeight: 500,
+  };
 
   return (
     <div className="d-flex">
@@ -137,40 +145,64 @@ const AdminNominationDashboard = () => {
         }}
       >
         <Topbar toggleSidebar={toggleSidebar} />
-        
+
         <Container className="mt-4">
           <Card className="shadow-sm">
             <Card.Body>
               <h4 className="mb-4 text-primary">📋 Finalized Nomination Lists</h4>
-              
-           <Form.Group className="mb-3" style={{ maxWidth: "250px" }}>
-  <Form.Label>Coordinator</Form.Label>
-  <div className="d-flex gap-2">
-    <Form.Select
-      size="sm"
-      value={filters.faculty}
-      onChange={(e) => setFilters({ ...filters, faculty: e.target.value })}
-    >
-      <option value="">All Coordinators</option>
-      {coordinators.map((coordinator) => (
-        <option key={coordinator.ehrms_code} value={coordinator.full_name}>
-          {coordinator.full_name}
-        </option>
-      ))}
-    </Form.Select>
 
-    <Button
-      variant="outline-secondary"
-      size="sm"
-      onClick={() => setFilters({ faculty: "" })}
-    >
-      Clear
-    </Button>
-  </div>
-</Form.Group>
+              {/* Coordinator Filter */}
+              <Form.Group
+                className="mb-3"
+                style={{
+                  maxWidth: "280px",
+                  background: "#fff",
+                  padding: "12px 15px",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                  border: "1px solid #e0e0e0",
+                }}
+              >
+                <Form.Label
+                  style={{
+                    fontWeight: 600,
+                    color: "#444",
+                    marginBottom: "6px",
+                  }}
+                >
+                  Coordinator
+                </Form.Label>
+                <div className="d-flex gap-2">
+                  <Form.Select
+                    size="sm"
+                    value={filters.faculty}
+                    onChange={(e) => setFilters({ ...filters, faculty: e.target.value })}
+                    style={{ borderRadius: "8px" }}
+                  >
+                    <option value="">All Coordinators</option>
+                    {coordinators.map((coordinator) => (
+                      <option
+                        key={coordinator.ehrms_code}
+                        value={coordinator.full_name}
+                      >
+                        {coordinator.full_name}
+                      </option>
+                    ))}
+                  </Form.Select>
+
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => setFilters({ faculty: "" })}
+                    style={{ borderRadius: "8px" }}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </Form.Group>
 
 
-          
+
 
               {filteredTrainings.length === 0 ? (
                 <p>No finalized nominations submitted yet.</p>
@@ -195,36 +227,47 @@ const AdminNominationDashboard = () => {
                         <td>{training.finalized_at?.slice(0, 10) || "—"}</td>
                         <td>
                           {training.is_completed ? (
-                            <span className="text-success fw-bold">✅ Completed</span>
+                            <span className="text-success fw-bold">Completed</span>
                           ) : (
                             <Button
-                              variant="success"
                               size="sm"
                               onClick={() => handleDownload(training.code)}
+                              style={{
+                                ...btnBase,
+                                backgroundColor: "#006666",
+                                color: "white",
+                              }}
                             >
-                              ⬇️ XLSX
+                              Excel File
                             </Button>
                           )}
                         </td>
                         <td>
                           {training.edit_request_status === "pending" ? (
-                            <>
+<div className="d-flex gap-2">
                               <Button
-                                variant="primary"
                                 size="sm"
-                                className="me-2"
                                 onClick={() => handleApproveEdit(training.code)}
+                                style={{
+                                  ...btnBase,
+                                  backgroundColor: "#006666",
+                                  color: "white",
+                                }}
                               >
-                                ✅ Approve
+                                 Approve
                               </Button>
                               <Button
-                                variant="danger"
                                 size="sm"
                                 onClick={() => handleRejectEdit(training.code)}
+                                style={{
+                                  ...btnBase,
+                                  backgroundColor: "#cc0000",
+                                  color: "white",
+                                }}
                               >
-                                ❌ Reject
+                                 Reject
                               </Button>
-                            </>
+                            </div>
                           ) : training.edit_request_status === "approved" ? (
                             <span className="text-success fw-bold">Approved</span>
                           ) : training.edit_request_status === "rejected" ? (

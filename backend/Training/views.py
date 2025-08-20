@@ -427,6 +427,58 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 
+class NominationNotificationListAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get finalized nominations of the current trainee
+        enrollments = Enrollment.objects.filter(
+            trainee=request.user,
+            status="nominated",
+            is_finalized=True,
+            notification_read=False 
+        ).select_related("training").order_by("-finalized_at")
+
+        notifications = []
+        for e in enrollments:
+            notifications.append({
+                "id": e.id,  # using enrollment id as unique notification id
+                "training_code": e.training.code,
+                "training_name": e.training.name,
+                "message": f"Your nomination for {e.training.name} has been finalized.",
+                "is_read": e.notification_read if hasattr(e, "notification_read") else False,
+                "created_at": e.finalized_at,
+            })
+
+        return Response(notifications, status=status.HTTP_200_OK)
+
+
+
+class MarkNominationNotificationReadAPIView(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, enrollment_id):
+        try:
+            enrollment = Enrollment.objects.get(
+                id=enrollment_id,
+                trainee=request.user,
+                status="nominated",
+                is_finalized=True
+            )
+        except Enrollment.DoesNotExist:
+            return Response(
+                {"error": "Notification not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        enrollment.notification_read = True
+        enrollment.save()
+        return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
+
+
+
 class FinalizeNominationAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]

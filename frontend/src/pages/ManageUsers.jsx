@@ -377,7 +377,7 @@ const ManageUsers = () => {
       <div className="p-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3>Manage Users</h3>
-          <Button variant="primary" onClick={handleAdd}>Add User</Button>
+          <Button style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }} onClick={handleAdd}>Add User</Button>
         </div>
 
         <Table striped bordered hover responsive>
@@ -416,7 +416,7 @@ const ManageUsers = () => {
                 <td className="align-middle">
                   {/* <div className="d-flex flex-column gap-1"> */}
                   <div className="d-flex gap-2 justify-content-center">
-                    <Button variant="warning" size="sm" onClick={() => handleEdit(user)}>Edit</Button>
+                    <Button variant="warning" size="sm" style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }} onClick={() => handleEdit(user)}>Edit</Button>
                     {/* <Button variant="danger" size="sm" onClick={() => handleDelete(user.ehrms_code)}>Delete</Button> */}
                     <Button
                       variant="danger"
@@ -646,8 +646,8 @@ const UserModal = ({ show, onHide, editingUser, fetchUsers }) => {
           </Row>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={onHide}>Cancel</Button>
-          <Button type="submit" variant="primary">
+          <Button variant="secondary"  onClick={onHide}>Cancel</Button>
+          <Button type="submit" variant="primary" style={{ backgroundColor: "#006666", borderColor: "#006666", color: "white" }}>
             {editingUser ? "Update User" : "Add User"}
           </Button>
         </Modal.Footer>

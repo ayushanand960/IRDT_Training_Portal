@@ -88,6 +88,18 @@ const AssignedTrainings = ({ trainings }) => {
                     {/* ✅ Specific Generate Certificates button inside the card */}
                     <button
                       className="btn btn-outline-primary mt-2"
+                      style={{
+                        borderColor: "#006666",
+                        color: "#006666",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#006666";
+                        e.currentTarget.style.color = "white";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#006666";
+                      }}
                       onClick={(e) => {
                         e.stopPropagation(); // prevent full card click
                         navigate(`/generate-certificate/${training.code}`);
