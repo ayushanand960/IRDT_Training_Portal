@@ -61,7 +61,7 @@ const Home = () => {
     <div className="home-page">
       {/* Top Bar */}
       <div className="top-bar">
-        <p>Email: irdtkanpur@gmail.com | Latest Updates: New Curriculum Released</p>
+        <p>Email: irdtknp@gmail.com | Latest Updates: New Curriculum Released</p>
       </div>
 
       {/* Header */}
