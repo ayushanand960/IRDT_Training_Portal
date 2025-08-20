@@ -140,8 +140,7 @@ const Home = () => {
       <div className="marquee-container">
         <div className="marquee-content">
           <strong>Welcome to IRDT Kanpur</strong> — The Nodal Training Institute
-          for 147 Government Polytechnics across Uttar Pradesh, empowering faculty
-          development and technical education.
+          for 147 Government Polytechnics across Uttar Pradesh, IRDT Siksha Pragati - "Bridge of Education for Progress"
         </div>
       </div>
 

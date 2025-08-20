@@ -18,7 +18,7 @@ export default function AboutUs() {
     { name: "Shri Shyam Lal", role: "Text Book Officer", img: "/images/sks1.jpg" },
     { name: "Shri Vikas Kulshrestha", role: "Assistant Professor", img: "/images/svk.jpg" },
     { name: "Shri Gaurav Kishor Kanaujiya", role: "Assistant Professor", img: "/images/gks.jpg" },
-    { name: "Shri Sambhaskar Singh", role: "Assistant Professor (On Study Leave)", img: "/images/leader6.jpg" },
+    // { name: "Shri Sambhaskar Singh", role: "Assistant Professor (On Study Leave)", img: "/images/leader6.jpg" },
      { name: "Shri Anurag singh", role: "Lecturer - Web Designing , Technical Cell", img: "/images/ang.jpg" },
   ];
 
