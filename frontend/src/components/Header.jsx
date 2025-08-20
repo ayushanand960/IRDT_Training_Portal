@@ -7,7 +7,7 @@ const Header = () => {
     <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
       <div className="container">
         <a className="navbar-brand fw-bold text-primary" href="/" onClick={(e) => { e.preventDefault(); nav('/'); }}>
-          IRDT Portal
+          IRDT Shiksha Pragati
         </a>
 
         <div className="ms-auto">

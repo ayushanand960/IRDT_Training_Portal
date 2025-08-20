@@ -76,26 +76,64 @@ const Login = () => {
   return (
     <div className="container-fluid min-vh-100 bg-light p-0">
       {/* Navbar */}
-      <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom" style={{ backgroundColor: "#006666" }}>
-        <div className="d-flex align-items-center gap-3">
-          <img src={logo} alt="IRDT Logo" style={{ height: "8vw", filter: "invert(1) brightness(2)" }} />
+      {/* <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom" style={{ backgroundColor: "#006666" }}>
+              <div className="d-flex align-items-center gap-3" style={{ flex: 1 }}>
+                <img
+                  src={logo}
+                  alt="IRDT Logo"
+                  style={{ height: "8vw", filter: "invert(1) brightness(2)" }}
+                />
+      
+                <div style={{ textAlign: "center", flex: 1 }}>
+                  <h2 className="fw-bold mb-0" style={{ color: "white" }}>
+                    Institute for Research, Development & Training (IRDT)
+                  </h2>
+                  <big className="fw-semibold" style={{ color: "white" }}>
+                    Government of Uttar Pradesh
+                  </big>
+                  <br></br>
+                  <big className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic" }}>
+                    Shiksha Pragati - "Bridge of Education for Progress"
+                  </big>
+                </div>
+              </div>
+      
+              <Link to="/" className="btn btn-outline-light fw-semibold">
+                Home
+              </Link>
+            </div> */}
+            <div className="d-flex align-items-center justify-content-between px-4 py-2 border-bottom" style={{ backgroundColor: "#006666" }}>
+  <div className="d-flex align-items-center gap-3" style={{ flex: 1 }}>
+    <img
+      src={logo}
+      alt="IRDT Logo"
+      style={{ height: "7vw", filter: "invert(1) brightness(2)" }} // reduced logo size
+    />
 
-          <div>
-            <h2 className="fw-bold mb-0" style={{ color: "white", marginLeft: "2in" }}>
-              Institute for Research, Development & Training (IRDT)
-            </h2>
-            <big className="fw-semibold" style={{ color: "white", marginLeft: "2in" }}>
-              Government of Uttar Pradesh
-            </big>
-          </div>
-        </div>
-        <Link to="/" className="btn btn-outline-light fw-semibold">
-          Home
-        </Link>
-      </div>
+    <div style={{ textAlign: "center", flex: 1 }}>
+      <h2 className="fw-bold mb-0" style={{ color: "white", fontSize: "2rem" }}>
+        Institute for Research, Development & Training (IRDT)
+      </h2>
+      <p className="fw-semibold mb-0" style={{ color: "white", fontSize: "1.25rem" }}>
+        Government of Uttar Pradesh
+      </p>
+      <p className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic", fontSize: "1.25rem" }}>
+        Shiksha Pragati - "Bridge of Education for Progress"
+      </p>
+    </div>
+  </div>
+
+  <Link to="/" className="btn btn-outline-light fw-semibold btn-lg">
+  Home
+</Link>
+
+</div>
+
       <br />
       <br />
       <br />
+      <br />
+     
       {/* Page content */}
       <div className="container d-flex justify-content-center align-items-center py-5">
         <div className="row w-100" style={{ maxWidth: "900px" }}>
