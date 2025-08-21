@@ -142,43 +142,6 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
     return list;
   }
 
-  // Future<void> _enroll(String trainingCode) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final ehrmsCode = prefs.getString('ehrms_code') ?? '';
-
-  //   final confirmed = await showDialog<bool>(
-  //     context: context,
-  //     builder: (ctx) => AlertDialog(
-  //       title: const Text("Confirm Enrollment"),
-  //       content: const Text("Do you want to enroll in this training?"),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(ctx, false),
-  //           child: const Text("Cancel", style: TextStyle(color: Colors.black)),
-  //         ),
-  //         ElevatedButton(
-  //           onPressed: () => Navigator.pop(ctx, true),
-  //           child: const Text("Enroll"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-
-  //   if (confirmed != true) return;
-
-  //   final success = await _apiService.enrollTraining(ehrmsCode, trainingCode);
-  //   if (success) {
-  //     setState(() => _enrolledTrainings.add(trainingCode));
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(const SnackBar(content: Text("Enrolled successfully!")));
-  //   } else {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(const SnackBar(content: Text("Enrollment failed!")));
-  //   }
-  // }
-
   Future<void> _enroll(String trainingCode) async {
     final prefs = await SharedPreferences.getInstance();
     final ehrmsCode = prefs.getString('ehrms_code') ?? '';

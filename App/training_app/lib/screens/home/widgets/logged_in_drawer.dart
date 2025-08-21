@@ -144,16 +144,6 @@ class _LoggedInDrawerState extends State<LoggedInDrawer> {
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text("Notifications"),
-            // trailing: widget.hasUnreadNotifications
-            //     ? Container(
-            //         width: 12,
-            //         height: 12,
-            //         decoration: BoxDecoration(
-            //           color: Colors.red,
-            //           shape: BoxShape.circle,
-            //         ),
-            //       )
-            //     : null,
             onTap: () async {
               Navigator.pop(context);
               await Navigator.push(
