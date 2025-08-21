@@ -11,7 +11,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/irdt-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
-// ✅ Add this inside the Register component
+// Add this inside the Register component
 
 
 const Register = () => {
@@ -41,10 +41,6 @@ const Register = () => {
   const navigate = useNavigate();
 
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setForm((prev) => ({ ...prev, [name]: value }));
-  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,7 +48,7 @@ const Register = () => {
     if (name === "password") {
       setForm((prev) => ({ ...prev, password: value }));
     } else if (name === "confirmPassword") {
-      setConfirmPassword(value); // ← Must update confirmPassword state
+      setConfirmPassword(value); // Must update confirmPassword state
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -177,10 +173,8 @@ const Register = () => {
       return { valid: true };
     }
 
-    // -------------------------
     // Existing field validations
-    // -------------------------
-
+    
     if (!form.ehrms_code.trim()) errors.push("EHRMS Code is required.");
     if (!form.first_name.trim()) errors.push("First name is required.");
     if (!form.date_of_joining) errors.push("Date of joining is required.");
@@ -227,7 +221,7 @@ const Register = () => {
       return;
     }
 
-    // ✅ Ensure correct designation is sent
+    // Ensure correct designation is sent
     const finalDesignation =
       selectedCategory === "C" && selectedDesignation === "Others"
         ? form.designation

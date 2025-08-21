@@ -203,7 +203,7 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
-ACCESS_CODE = "IRDT2025"
+ACCESS_CODE = "SP25#SHPAPS@IRDT82"
 
 # Email Details for sending email
 

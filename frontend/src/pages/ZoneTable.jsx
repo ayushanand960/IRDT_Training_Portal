@@ -10,7 +10,7 @@ const ZoneTable = () => {
     { title: "West Zone - DAURALA (MEERUT)", data: westZoneData },
      { title: "CENTRAL ZONE - LUCKNOW", data: centralZoneData },
       { title: "BUNDELKHAND ZONE :- JHANSI", data: bundelkhandZoneData },
-    // 🔜 You can easily add North Zone, South Zone later
+    // You can easily add North Zone, South Zone later
   ];
 
   return (

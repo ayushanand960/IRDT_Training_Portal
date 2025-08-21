@@ -98,7 +98,7 @@ export default function Info1() {
         Meet Our Developers
       </motion.h1>
 
-      {/* ✨ Animated Tagline */}
+      {/* Animated Tagline */}
       <motion.p
         className="tagline"
         initial={{ opacity: 0, y: 20 }}

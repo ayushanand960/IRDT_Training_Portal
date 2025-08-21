@@ -1,52 +1,4 @@
 
-// import React, { useState } from 'react';
-// import axiosInstance from '../utils/axiosInstance';
-// import { toast } from 'react-toastify';
-
-// const EnrollButton = ({ trainingCode, enrolledTrainings, onEnrollSuccess, ehrmsCode }) => {
-//   const [loading, setLoading] = useState(false);
-
-//   const isAlreadyEnrolled = enrolledTrainings?.includes(trainingCode);
-
-//   const handleEnroll = async () => {
-//     if (isAlreadyEnrolled) {
-//       toast.info('ℹ️ Already enrolled.');
-//       return;
-//     }
-
-//     setLoading(true);
-//     try {
-//       await axiosInstance.post('/enrollment/enroll/', {
-//         trainee: ehrmsCode,
-//         training: trainingCode,
-//       });
-//       toast.success('✅ Enrolled!');
-//       if (onEnrollSuccess) onEnrollSuccess(trainingCode);
-//     } catch (error) {
-//       console.error("Enrollment error:", error.response?.data);
-//       toast.error("⚠️ " + (error.response?.data?.trainee || error.response?.data?.training || "You have already enrolled."));
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <button
-//       onClick={handleEnroll}
-//       disabled={isAlreadyEnrolled || loading}
-//       className={`btn btn-${isAlreadyEnrolled ? "success" : "outline-primary"} btn-sm`}
-//     >
-//       {isAlreadyEnrolled ? '✅ Enrolled' : loading ? 'Processing...' : 'Enroll'}
-//     </button>
-//   );
-// };
-
-// export default EnrollButton;
-
-
-
-
-
 
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
@@ -66,7 +18,7 @@ const EnrollButton = ({ trainingCode, enrolledTrainings = [], onEnrollSuccess, e
 
   const handleEnroll = async () => {
     if (enrolled) {
-      toast.info('ℹ️ Already applied.');
+      toast.info(' Already applied.');
       return;
     }
 
@@ -77,7 +29,7 @@ const EnrollButton = ({ trainingCode, enrolledTrainings = [], onEnrollSuccess, e
         training: trainingCode,
       });
 
-      toast.success('✅ Applied!');
+      toast.success('Applied!');
       setEnrolled(true); // Local UI update
       setShowModal(false);
       if (onEnrollSuccess) onEnrollSuccess(trainingCode); // Propagate change to parent
@@ -99,12 +51,12 @@ const EnrollButton = ({ trainingCode, enrolledTrainings = [], onEnrollSuccess, e
       <button
         onClick={() => {
           if (!enrolled) setShowModal(true);
-          else toast.info("✅ Already applied.");
+          else toast.info(" Already applied.");
         }}
         disabled={enrolled}
         className={`btn btn-${enrolled ? "success" : "outline-primary"} btn-sm`}
       >
-        {enrolled ? "✅ Applied" : loading ? "Processing..." : label}
+        {enrolled ? "Applied" : loading ? "Processing..." : label}
       </button>
 
       <EnrollModal

@@ -1,15 +1,8 @@
 
-
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { useAuth } from "../components/AuthContext"; // ✅ Import useAuth
+import { useAuth } from "../components/AuthContext"; // Import useAuth
 import logo from "../assets/irdt-logo.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
@@ -23,15 +16,9 @@ const AdminCoordinatorLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
 
 
-  const { setUser } = useAuth(); // ✅ Get setUser from AuthContext
+  const { setUser } = useAuth(); // Get setUser from AuthContext
   const sessionExpired = location.state?.sessionExpired || false;
-  // useEffect(() => {
-  //   const logoutReason = localStorage.getItem("logoutReason");
-  //   if (logoutReason) {
-  //     setError(logoutReason);
-  //     setTimeout(() => localStorage.removeItem("logoutReason"), 100);
-  //   }
-  // }, []);
+
 
   useEffect(() => {
     if (location.state?.sessionExpired) {
@@ -44,30 +31,30 @@ const AdminCoordinatorLogin = () => {
     setError("");
 
     try {
-      // ✅ Step 1: Login (cookie-based JWT)
+      // Step 1: Login (cookie-based JWT)
       await axiosInstance.post("/login/token/", {
         ehrms_code: ehrmsId,
         password: password,
       });
 
-      // ✅ Step 2: Fetch user profile
+      // Step 2: Fetch user profile
       const res = await axiosInstance.get("/login/user/profile/");
       const { is_superuser, is_coordinator, ehrms_code } = res.data;
 
-      // ✅ Step 3: Determine role and set in AuthContext
+      // Step 3: Determine role and set in AuthContext
       const determinedRole = is_superuser
         ? "admin"
         : is_coordinator
           ? "coordinator"
           : "trainee";
 
-      setUser({ ehrms_code, role: determinedRole }); // ✅ Required for PrivateRoute to work
+      setUser({ ehrms_code, role: determinedRole }); // Required for PrivateRoute to work
 
-      // ✅ Mark that user has logged in at least once
+      // Mark that user has logged in at least once
       localStorage.setItem("hasLoggedInBefore", "true");
 
 
-      // ✅ Step 4: Navigate based on selected and actual role
+      // Step 4: Navigate based on selected and actual role
       if (role === "admin" && is_superuser) {
         navigate("/admin-dashboard");
       } else if (role === "coordinator" && is_coordinator) {
@@ -88,25 +75,7 @@ const AdminCoordinatorLogin = () => {
   return (
     <div className="container-fluid min-vh-100 bg-white p-0">
       {/* Navbar */}
-      {/* <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom" style={{ backgroundColor: "#006666" }}>
-    <div className="d-flex align-items-center gap-3">
-      <img src={logo} alt="IRDT Logo" style={{ height: "8vw", filter: "invert(1) brightness(2)" }} />
-      <div  style={{ textAlign: "center" }}>
-        <h2 className="fw-bold mb-0" style={{ color: "white"}}>
-          Institute for Research, Development & Training (IRDT)
-        </h2>
-        <big className="fw-semibold" style={{ color: "white"}}>
-          Government of Uttar Pradesh
-        </big>
-         <p className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic" }}>
-              Shiksha Pragati - "Bridge of Education for Progress"
-             </p>
-      </div>
-    </div>
-    <Link to="/" className="btn btn-outline-light fw-semibold">
-      Home
-    </Link>
-  </div> */}
+
       <div className="d-flex align-items-center justify-content-between px-4 py-2 border-bottom" style={{ backgroundColor: "#006666" }}>
         <div className="d-flex align-items-center gap-3" style={{ flex: 1 }}>
           <img
@@ -114,7 +83,7 @@ const AdminCoordinatorLogin = () => {
             alt="IRDT Logo"
             style={{ height: "7vw", filter: "invert(1) brightness(2)" }} // reduced logo size
           />
-      
+
           <div style={{ textAlign: "center", flex: 1 }}>
             <h2 className="fw-bold mb-0" style={{ color: "white", fontSize: "2rem" }}>
               Institute for Research, Development & Training (IRDT)
@@ -127,11 +96,11 @@ const AdminCoordinatorLogin = () => {
             </p>
           </div>
         </div>
-      
+
         <Link to="/" className="btn btn-outline-light fw-semibold btn-lg">
-        Home
-      </Link>
-      
+          Home
+        </Link>
+
       </div>
 
       <br />

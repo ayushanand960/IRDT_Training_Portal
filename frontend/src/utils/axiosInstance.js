@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         console.error("🔐 Token refresh failed. Logging out...");
 
-        // ✅ Only set logoutReason once per expired session
+        // Only set logoutReason once per expired session
         if (!localStorage.getItem("logoutReason")) {
           localStorage.setItem(
             "logoutReason",

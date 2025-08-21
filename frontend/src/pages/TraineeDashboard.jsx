@@ -91,18 +91,7 @@ const TraineeDashboard = () => {
     }
   };
 
-  // const openEditModal = () => {
-  //   if (!user) return;
-  //   setEditForm({
-  //     email: user.email || '',
-  //     mobile_number: user.mobile_number || '',
-  //     institute_name: user.institute_name || '',
-  //     branch: user.branch || '',
-  //     designation: user.designation || '',
-  //     date_of_joining: user.date_of_joining || '',
-  //   });
-  //   setShowEditModal(true);
-  // };
+
   const openEditModal = () => {
     if (!user) return;
     setEditForm({
@@ -112,11 +101,11 @@ const TraineeDashboard = () => {
       branch: user.branch || '',
       designation: user.designation || '',
       date_of_joining: user.date_of_joining
-        ? user.date_of_joining.split("T")[0]   // 👈 ensures correct YYYY-MM-DD format
+        ? user.date_of_joining.split("T")[0]   // ensures correct YYYY-MM-DD format
         : '',
       otherDesignation:
         user.designation &&
-          !designations.includes(user.designation) // 👈 if user's designation is not in dropdown
+          !designations.includes(user.designation) // if user's designation is not in dropdown
           ? user.designation
           : '',
     });
@@ -197,10 +186,10 @@ const TraineeDashboard = () => {
   };
 
 
-  // 🧾 Fetch all certificates
+  // Fetch all certificates
   const fetchAllCertificates = async () => {
     try {
-      setShowProfileModal(false);  // ✅ Close profile modal first
+      setShowProfileModal(false);  // Close profile modal first
       const res = await axiosInstance.get('/certificate/my-certificates/');
       setAllCertificates(res.data);
       setShowAllCertificatesModal(true);
@@ -469,19 +458,7 @@ const TraineeDashboard = () => {
                   >
                     View Certificates
                   </button>
-                  {/* <button
-                    className="btn btn-outline-info btn-sm"
-                    onClick={() => {
-                      handleCloseProfileModal();
-                      setTimeout(() => {
-                        document
-                          .querySelector('#past-trainings-section')
-                          ?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }}
-                  >
-                    📚 Past Trainings
-                  </button> */}
+
                   <button
                     className="btn btn-outline-info btn-sm"
                     onClick={fetchPastTrainings}
@@ -554,14 +531,6 @@ const TraineeDashboard = () => {
 
             {/* Right: Announcement + Quote */}
             <div className="col-md-4">
-              {/* <div className="card shadow border-info mb-3 bg-info-subtle p-3">
-                <h5 className="text-info">📢 Announcements</h5>
-                <ul>
-                  <li>📅 AI in Education begins July 7</li>
-                  <li>📝 OBE Workshop due July 10</li>
-                  <li>🎓 Cert Review July 12</li>
-                </ul>
-              </div> */}
               <div className="card bg-light shadow-sm border border-primary p-3">
                 <h6 className="text-primary">🌟 Quote of the Moment</h6>
                 <p className="mb-0">"{randomQuote}"</p>
@@ -598,9 +567,9 @@ const TraineeDashboard = () => {
                 {group.items.length > visibleCounts[group.section] && (
                   <div className="text-center mt-2">
                     <button className="btn btn-outline-primary btn-sm" style={{
-                          borderColor: "#006666",
-                          color: "#006666",
-                        }} onClick={() => handleShowMore(group.section)}>
+                      borderColor: "#006666",
+                      color: "#006666",
+                    }} onClick={() => handleShowMore(group.section)}>
                       Show More
                     </button>
                   </div>
@@ -634,9 +603,9 @@ const TraineeDashboard = () => {
                 </div>
                 <div className="modal-footer">
                   <button className="btn btn-secondary" style={{
-                          borderColor: "#006666",
-                          color: "#006666",
-                        }} onClick={() => setShowPastTrainingsModal(false)}>
+                    borderColor: "#006666",
+                    color: "#006666",
+                  }} onClick={() => setShowPastTrainingsModal(false)}>
                     Close
                   </button>
                 </div>
@@ -790,10 +759,10 @@ const TraineeDashboard = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary"style={{
-                          borderColor: "#006666",
-                          color: "#006666",
-                        }} disabled={isSavingProfile}>
+                    <button type="submit" className="btn btn-primary" style={{
+                      borderColor: "#006666",
+                      color: "#006666",
+                    }} disabled={isSavingProfile}>
                       {isSavingProfile ? 'Saving…' : 'Save Changes'}
                     </button>
                   </div>
@@ -804,8 +773,6 @@ const TraineeDashboard = () => {
         )}
 
       </div>
-      {/* ✅ Certificate Module Ends Here */}
-
     </>
 
   );

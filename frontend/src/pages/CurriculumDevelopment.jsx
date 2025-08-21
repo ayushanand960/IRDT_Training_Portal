@@ -38,10 +38,6 @@ const CurriculumDevelopment = () => {
              </p>
           </div>
         </div>
-
-        {/* <Link to="/" className="btn btn-outline-light fw-semibold">
-          Home
-        </Link> */}
       </div>
 
       {/* Navigation Bar */}

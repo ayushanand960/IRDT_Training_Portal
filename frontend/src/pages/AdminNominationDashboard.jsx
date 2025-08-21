@@ -91,10 +91,10 @@ const AdminNominationDashboard = () => {
   const handleApproveEdit = async (trainingCode) => {
     try {
       await axiosInstance.post(`/training/approve-edit/${trainingCode}/`, {
-        action: "approve", // ✅ Send in request body
+        action: "approve", // Send in request body
       });
       toast.success("Edit access approved.");
-      fetchFinalizedTrainings(); // 🔁 refresh list
+      fetchFinalizedTrainings(); // refresh list
     } catch (err) {
       console.error(err);
       toast.error("Failed to approve access.");
@@ -104,10 +104,10 @@ const AdminNominationDashboard = () => {
   const handleRejectEdit = async (trainingCode) => {
     try {
       await axiosInstance.post(`/training/approve-edit/${trainingCode}/`, {
-        action: "reject", // ✅ Send in request body
+        action: "reject", // Send in request body
       });
       toast.success("Edit access rejected.");
-      fetchFinalizedTrainings(); // 🔁 refresh list
+      fetchFinalizedTrainings(); // refresh list
     } catch (err) {
       console.error(err);
       toast.error("Failed to reject access.");

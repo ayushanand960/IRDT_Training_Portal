@@ -15,7 +15,7 @@ const AccessCodeModal = ({ onClose }) => {
 
       if (response.data.valid) {
         onClose();
-        navigate("/register/staff"); // ✅ redirect if backend says valid
+        navigate("/register/staff"); // redirect if backend says valid
       } else {
         setError("Invalid access code. Please try againGUYFUF.");
       }

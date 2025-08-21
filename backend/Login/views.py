@@ -580,7 +580,7 @@ class AccessCodeCheckView(APIView):
         access_code = request.data.get("access_code")
 
         # ✅ Replace this with DB lookup if you want multiple codes
-        VALID_CODES = ["IRDT2025"]
+        VALID_CODES = ["SP25#SHPAPS@IRDT82"]
 
         if access_code in VALID_CODES:
             return Response({"valid": True}, status=status.HTTP_200_OK)

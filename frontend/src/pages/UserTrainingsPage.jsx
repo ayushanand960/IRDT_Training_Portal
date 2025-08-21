@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
 import { Spinner, Alert, Container, Card, Table } from "react-bootstrap";
 import Topbar from "../components/Topbar";
-import { useNavigate } from "react-router-dom"; // ✅ NEW IMPORT
+import { useNavigate } from "react-router-dom"; 
 
 const UserTrainingsPage = () => {
   const { ehrms_code } = useParams();
@@ -55,12 +55,7 @@ const UserTrainingsPage = () => {
       <Topbar />
       <Container className="mt-4">
         <Card className="p-3 shadow-sm mb-4">
-          {/* <h4>Past Trainings of {full_name}: {ehrms_code}</h4>
-        <h4>Date of joining: {date_of_joining}</h4> */}
-          {/* <Link to="/all-users" className="btn btn-secondary mb-3">
-          ← Back to Users
-        </Link> */}
-
+          
           <h4>
             Past Trainings of {userDetails?.full_name} : {ehrms_code}
           </h4>

@@ -55,9 +55,6 @@ export default function AboutUs() {
           </div>
         </div>
 
-        {/* <Link to="/" className="btn btn-outline-light fw-semibold">
-          Home
-        </Link> */}
       </div>
 
       {/* Navigation Bar */}
