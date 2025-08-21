@@ -85,6 +85,16 @@ const Topbar = ({ profilePhoto, user, role, toggleSidebar }) => {
           >
             Government of Uttar Pradesh
           </small>
+          <br></br>
+          <small
+            className="fw-semibold text-white"
+            style={{
+              fontSize: "1rem",
+              fontStyle: "italic"
+            }}
+          >
+           Shiksha Pragati - "Bridge of Education for Progress"
+          </small>
         </div>
       )}
 

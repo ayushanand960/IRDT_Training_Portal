@@ -32,6 +32,9 @@ const LearningResources = () => {
                 <p className="fw-semibold mb-0" style={{ color: "white" }}>
                   Government of Uttar Pradesh
                 </p>
+                 <p className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic" }}>
+              Shiksha Pragati - "Bridge of Education for Progress"
+             </p>
               </div>
             </div>
     

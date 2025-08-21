@@ -67,7 +67,7 @@ const Home = () => {
       {/* Header */}
       <header className="header">
         <div className="logo">
-          <img src="/images/banner1.png.png" />
+          <img src="/images/banner1.png" />
         </div>
       </header>
 
