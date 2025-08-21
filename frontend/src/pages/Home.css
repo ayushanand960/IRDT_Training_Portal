@@ -90,41 +90,53 @@ body {
   justify-content: center;   /* centers content horizontally */
   align-items: flex-start;   /* aligns them top-aligned (change to center if needed) */
   gap: 30px;                 /* space between slideshow and trainings */
-  margin: 0 auto;
+  margin: 40px auto 0;
   max-width: 1200px;         /* keeps it centered inside screen */
   padding: 20px;
 }
-/* ✅ Hero Section Layout (Slideshow + Trainings Side by Side) */
-.hero-section.flex-container {
+/* Hero Section Layout (Slideshow + Trainings Side by Side) */
+/* .hero-section.flex-container {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 20px;
   padding: 20px;
-  flex-wrap: wrap; /* Responsive */
+  flex-wrap: wrap;
+} */
+.hero-section.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;             /* visible gap between slideshow & trainings */
+  padding: 40px 20px 20px;
+  flex-wrap: wrap;       /* makes it stack on smaller screens */
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
-
 /* Left side: Slideshow */
-.hero-slideshow {
+/* .hero-slideshow {
   flex: 1;
-  max-width: 600px; /* adjust as needed */
-  max-height: 400px; /* adjust as needed */
-  aspect-ratio: 1 / 1; /* makes it a perfect square */
+  max-width: 600px; 
+  max-height: 400px; 
+  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   position: relative; 
-}
-
-/* .slideshow-container {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; 
-  border: 2px solid #006666;
+} */
+.hero-slideshow {
+  flex: 1 1 50%;   /* takes half width */
+  min-width: 300px;
+  max-width: 65%;
+  height: 600px;   /* FIX: give it height */
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-} */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: relative;
+  background: #ddd;  /* fallback background so you see the box */
+}
+
 
 .slideshow-container {
   width: 100%;       /* take full width of parent */
@@ -132,18 +144,8 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 12px;
+  border: 2px solid #006666;
 }
-
-/* .slideshow-container img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  animation: fade 12s infinite;
-} */
 
 .slideshow-container img {
   position: absolute;
@@ -171,21 +173,8 @@ body {
 
 
 
-/* Upcoming Trainings */
+
 /* .upcoming-trainings {
-  background: #fff;
-  padding: 15px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.upcoming-trainings h2 {
-  font-size: 1.4rem;
-  margin-bottom: 12px;
-  color: #0d3b66;
-} */
-
-.upcoming-trainings {
   flex: 1;
   max-width: 500px;
   background: #ffffff;
@@ -194,12 +183,29 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  max-height: 400px;         /* fixed height */
+  max-height: 400px;        
   overflow-y: auto;
     text-align: left;
 
   transition: all 0.3s ease;
+} */
+
+.upcoming-trainings {
+  flex: 1 1 50%;         /* Grow/Shrink but aim for 50% */
+  min-width: 300px;
+  max-width: 30%;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+  overflow-y: auto;
+  text-align: left;
+  transition: all 0.3s ease;
 }
+
 
 
 /* 🔹 Heading Style */
@@ -218,24 +224,6 @@ body {
   border-bottom: 2px solid #eee;
   padding-bottom: 5px;
 }
-
-
-/* .trainings-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-} */
-
-/* .training-card {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
-  transition: transform 0.2s ease;
-} */
 
 .trainings-list {
   list-style: none;
@@ -262,39 +250,6 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
   transform: translateY(-3px);
 }
-
-/* .date-box {
-  background: #0d3b66;
-  color: #fff;
-  border-radius: 8px;
-  padding: 6px 10px;
-  text-align: center;
-  margin-right: 12px;
-  min-width: 55px;
-}
-
-.date-box .day {
-  font-size: 1.2rem;
-  font-weight: bold;
-  display: block;
-}
-
-.date-box .month {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-}
-
-.training-details h3 {
-  font-size: 1rem;
-  margin: 0;
-  color: #0d3b66;
-}
-
-.training-details p {
-  margin: 2px 0;
-  font-size: 0.85rem;
-  color: #444; 
-}*/
 
 /* Date Box */
 .date-box {
@@ -375,12 +330,15 @@ body {
 
 .program {
   text-align: center;
-  width: 260px;
+  width: 300px;
 }
 
+
 .program-img-box {
-  width: 240px;
-  height: 240px;
+  width: 100%;
+  max-width: 400px;  
+  height: auto;
+  aspect-ratio: 1/1;  
   border: 2px solid black;
   border-radius: 10px;
   overflow: hidden;

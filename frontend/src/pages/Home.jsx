@@ -185,22 +185,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Quick Links */}
-      <section className="quick-links">
-        <button
-          className="link-btn"
-          onClick={() => window.open("https://bteup.ac.in", "_blank")}
-        >
-          BTEUP Portal
-        </button>
-        <button
-          className="link-btn"
-          onClick={() => window.open("http://upted.gov.in/directorate", "_blank")}
-        >
-          Directorate
-        </button>
-      </section>
-
       {/* Footer */}
       <footer className="footer">
         <div>
@@ -217,6 +201,37 @@ const Home = () => {
             <li><Link to="/info1">Developers</Link></li>
           </ul>
         </div>
+        <div>
+          <h3>Other Links</h3>
+          <ul>
+            <li>
+              <a href="http://upted.gov.in/hi" target="_blank" rel="noopener noreferrer">
+                Technical Education Department ,Govt. of U.P.
+              </a>
+            </li>
+            <li>
+              <a href="http://upted.gov.in/directorate" target="_blank" rel="noopener noreferrer">
+                Directorate of Technical Education, Govt. of U.P.
+              </a>
+            </li>
+            <li>
+              <a href="https://bteup.ac.in/webapp/home.aspx" target="_blank" rel="noopener noreferrer">
+                Board of Technical Education, Lucknow, U.P.
+              </a>
+            </li>
+            <li>
+              <a href="https://jeecup.admissions.nic.in" target="_blank" rel="noopener noreferrer">
+                Joint Entrance Examination Council, U.P.
+              </a>
+            </li>
+            <li>
+              <a href="https://www.aicte.gov.in" target="_blank" rel="noopener noreferrer">
+                All India Council for Technical Education (AICTE)
+              </a>
+            </li>
+          </ul>
+        </div>
+
         <div>
           <h3>Locate Us</h3>
           <iframe
