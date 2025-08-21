@@ -227,15 +227,6 @@ class ApiService {
       body: jsonEncode(payload),
     );
 
-    // if (response.statusCode != 200 && response.statusCode != 201) {
-    //   try {
-    //     final errorData = jsonDecode(response.body);
-    //     throw Exception(errorData['detail'] ?? "Registration failed");
-    //   } catch (_) {
-    //     throw Exception("Registration failed. Please try again.");
-    //   }
-    // }
-
     if (response.statusCode != 200 && response.statusCode != 201) {
       try {
         final errorData = jsonDecode(response.body);

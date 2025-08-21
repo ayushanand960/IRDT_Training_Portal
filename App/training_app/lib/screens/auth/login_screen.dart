@@ -241,11 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // TextField(
-                      //   controller: passwordController,
-                      //   decoration: fieldDecoration('Password', required: true),
-                      //   obscureText: true,
-                      // ),
+
                       TextField(
                         controller: passwordController,
                         obscureText: _obscurePassword,
@@ -279,8 +275,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextButton(
-                        // onPressed: () =>
-                        //     Navigator.pushNamed(context, '/access-code'),
                         onPressed: () {
                           AccessCodePopup.show(context);
                         },
