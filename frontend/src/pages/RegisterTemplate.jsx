@@ -31,7 +31,7 @@ const Register = () => {
     security_answer: '',
     date_of_joining: '',
   });
-  const [password, setPassword] = useState("");
+  // const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -197,12 +197,12 @@ const Register = () => {
 
     // Password strength
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-    if (!strongPasswordRegex.test(password)) {
+    if (!strongPasswordRegex.test(form.password)) {
       errors.push("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
     }
 
     // Password match
-    if (password !== confirmPassword) errors.push("Passwords do not match.");
+    if (form.password !== confirmPassword) errors.push("Passwords do not match.");
 
     if (!form.security_question) errors.push("Security question is required.");
     if (!form.security_answer.trim()) errors.push("Security answer is required.");
