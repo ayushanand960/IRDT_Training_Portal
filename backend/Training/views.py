@@ -477,8 +477,6 @@ class MarkNominationNotificationReadAPIView(APIView):
         enrollment.save()
         return Response({"message": "Notification marked as read."}, status=status.HTTP_200_OK)
 
-
-
 class FinalizeNominationAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -531,16 +529,13 @@ class FinalizeNominationAPIView(APIView):
         training.finalized_by = request.user
         training.save()
 
-        #  Send confirmation emails
-        emails_sent, emails_failed = [], []
-        for enrollment in enrollments:
-            trainee = enrollment.trainee
-            if not trainee.email:
-                emails_failed.append(f"{trainee} (no email)")
-                continue
+    # Email logic 
+        trainee_emails = [enrollment.trainee.email for enrollment in enrollments if enrollment.trainee.email]
 
-            subject = "Training Nomination Finalized"
-            message = f"""Dear {trainee},
+        emails_sent, emails_failed = [], []
+        if trainee_emails:
+            subject = f"Nomination Finalized for Training {training.name}"
+            body = f"""Dear Trainee,
 
 Congratulations! Your nomination for the training program has been finalized.
 
@@ -549,7 +544,7 @@ Training Details:
 - Dates: {training.start_date} to {training.end_date}
 - Faculty: {training.faculty_name}
 
-If you have any issue or require clarification, please feel free to contact your principal within two to three days so that prinipal could contact to the coordinator of this training.
+If you have any issue or require clarification, please feel free to contact your principal within two to three days so that principal could contact the coordinator of this training.
 
 We look forward to your participation. Please await further instructions.
 
@@ -559,16 +554,17 @@ Training Coordination Team
 """
 
             try:
-                send_mail(
+                email = EmailMessage(
                     subject=subject,
-                    message=message,
+                    body=body,
                     from_email="irdtknp@gmail.com",
-                    recipient_list=[trainee.email],
-                    fail_silently=False,
+                    to=["noreply@irdt.com"],   # required main recipient
+                    cc=trainee_emails,          # ✅ send to all finalized trainees
                 )
-                emails_sent.append(trainee.email)
+                email.send(fail_silently=False)
+                emails_sent = trainee_emails
             except Exception as e:
-                emails_failed.append(f"{trainee.email} (Error: {e})")
+                emails_failed = [f"(Error: {e})"]
 
         # Response
         return Response(
@@ -579,33 +575,7 @@ Training Coordination Team
                 "finalized": True,
             },
             status=status.HTTP_200_OK
-        ) 
-
-# class FinalizedNominationsListView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         if not request.user.is_superuser:
-#             return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
-
-#         finalized_trainings = TrainingProgram.objects.filter(is_finalized=True).select_related("faculty")
-
-#         data = []
-#         for t in finalized_trainings:
-#             # Check if all nominations are attended
-#             all_attended = Enrollment.objects.filter(training=t, is_finalized=True).exclude(status='attended').count() == 0
-
-#             data.append({
-#                 "code": t.code,
-#                 "name": t.name,
-#                 "faculty": f"{t.faculty.first_name} {t.faculty.middle_name or ''} {t.faculty.last_name}".strip() if t.faculty else "N/A",
-#                 "finalized_at": t.finalized_at.isoformat() if t.finalized_at else None,
-#                 "is_completed": all_attended,
-#                 "edit_request_status": t.edit_request_status,     # ✅ add this
-#                 "edit_requested": t.edit_requested,
-#             })
-
-#         return Response(data, status=200)
+        )
     
 class FinalizedNominationsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -744,24 +714,6 @@ class ApproveEditRequestAPIView(APIView):
 
         training.save()
         return Response({"message": message}, status=200)
-    
-
-# class PastTrainingsAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-#         today = date.today()
-
-#         # Fetch enrollments where training ended in the past
-#         enrollments = Enrollment.objects.filter(
-#             trainee=user,
-#             training__end_date__lt=today
-#         ).select_related('training')
-
-#         past_trainings = [enrollment.training for enrollment in enrollments]
-#         serializer = TrainingProgramSerializer(past_trainings, many=True)
-#         return Response(serializer.data)
     
 class PastTrainingsAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1009,3 +961,86 @@ def download_curriculum_excel(request):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     wb.save(response)
     return response
+
+
+from django.core.mail import EmailMessage
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import  Rejection
+from .serializers import RejectionSerializer
+
+class RejectRemainingTraineesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, training_code):
+        try:
+            # 1. Get training
+            training = TrainingProgram.objects.get(code=training_code)
+
+            # 2. Already nominated trainees
+            nominated_ids = Enrollment.objects.filter(
+                training=training, status="nominated"
+            ).values_list("trainee_id", flat=True)
+
+            # 3. Remaining trainees (not nominated)
+            remaining_enrollments = Enrollment.objects.filter(
+                training=training
+            ).exclude(trainee_id__in=nominated_ids)
+
+            if not remaining_enrollments.exists():
+                return Response({"message": "No remaining trainees to reject."})
+
+            # 4. Update their status to rejected
+            remaining_enrollments.update(status="rejected")
+
+            # 5. Create rejection entries + collect emails
+            emails = []
+            rejection_objects = []
+            for en in remaining_enrollments:
+                trainee = en.trainee
+                if trainee.email:
+                    emails.append(trainee.email)
+
+                rejection_objects.append(
+                    Rejection(
+                        trainee=trainee,
+                        training=training,
+                        reason=(
+                            f"You have not been nominated for the training "
+                            f"'{training.name}' scheduled from "
+                            f"{training.start_date} to {training.end_date}."
+                        ),
+                        is_read=False
+                    )
+                )
+
+            # Bulk create all rejection notifications
+            Rejection.objects.bulk_create(rejection_objects)
+
+            # 6. Send one email with CC
+            if emails:
+                subject = f"Nomination Result for Training {training.name}"
+                body = (
+                    f"Dear Trainee,\n\n"
+                    f"We regret to inform you that you have not been nominated for the training program:\n\n"
+                    f"Title: {training.name}\n"
+                    f"Dates: {training.start_date} to {training.end_date}\n"
+                    f"Venue: {training.venue}\n\n"
+                    f"Thank you for your interest.\n\n"
+                    f"Regards,\nTraining Coordination Team"
+                )
+
+                email = EmailMessage(
+                    subject=subject,
+                    body=body,
+                    from_email="noreply@irdt.com",
+                    to=["noreply@irdt.com"],  # required main recipient
+                    cc=emails,               # all rejected trainees
+                )
+                email.send(fail_silently=False)
+
+            return Response({"message": "Remaining trainees rejected, rejection notifications created, and email sent."})
+
+        except TrainingProgram.DoesNotExist:
+            return Response({"error": "Training not found."}, status=404)

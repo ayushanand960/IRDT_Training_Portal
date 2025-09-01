@@ -68,6 +68,49 @@ const TrainingNominationPage = () => {
       toast.error(err.response?.data?.error || "Rejection failed.");
     }
   };
+  const [rejectingAll, setRejectingAll] = useState(false);
+
+  // const handleRejectRemaining = async (trainingCode) => {
+  //   if (!window.confirm("Are you sure you want to reject all remaining trainees?")) return;
+
+  //   setRejectingAll(true);
+  //   try {
+  //     const res = await axiosInstance.post(`/training/reject-remaining/${trainingCode}/`);
+  //     toast.success(res.data.message);
+
+  //   // Refresh trainees + nominated list after rejection
+  //     const traineeRes = await axiosInstance.get(`/training/enrolled-trainees/${encodeURIComponent(trainingCode)}/`);
+  //     setTrainees(traineeRes.data);
+
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.error || "Failed to reject remaining trainees.");
+  //   } finally {
+  //     setRejectingAll(false);
+  //   }
+  // };
+const handleRejectRemaining = async (trainingCode) => {
+  if (!window.confirm("Are you sure you want to reject all remaining trainees?")) return;
+
+  setRejectingAll(true);
+  try {
+    const res = await axiosInstance.post(`/training/reject-remaining/${trainingCode}/`);
+    toast.success(res.data.message);
+
+    // ✅ Mark all remaining trainees as rejected in state
+    setTrainees((prev) =>
+      prev.map((trainee) => ({
+        ...trainee,
+        status: "Rejected"
+      }))
+    );
+
+  } catch (err) {
+    toast.error(err.response?.data?.error || "Failed to reject remaining trainees.");
+  } finally {
+    setRejectingAll(false);
+  }
+};
+
 
   const handleShowAllUsers = (e) => {
     e.stopPropagation();
@@ -239,6 +282,7 @@ const TrainingNominationPage = () => {
               </div>
               <hr />
               <h5>Available Trainees</h5>
+              
               <Row className="mb-3">
                 <Col md={4}>
                   <Form.Select name="institute" value={filters.institute} onChange={handleFilterChange}>
@@ -265,6 +309,20 @@ const TrainingNominationPage = () => {
                   </Form.Select>
                 </Col>
               </Row>
+              <div className="mb-3 text-end">
+  <Button
+    variant="danger"
+    onClick={() => handleRejectRemaining(code)}
+    disabled={rejectingAll || !canEdit}
+  >
+    {rejectingAll ? (
+      <Spinner size="sm" animation="border" />
+    ) : (
+      "Reject All Remaining Trainees"
+    )}
+  </Button>
+</div>
+
               <ListGroup>
                 {filteredTrainees.length === 0 && <p>No trainees match the selected filters.</p>}
                 {filteredTrainees.map((trainee) => (
@@ -283,7 +341,7 @@ const TrainingNominationPage = () => {
                       <Col md={2}><strong>Branch:</strong> {trainee.branch || "N/A"}</Col>
                       <Col md={2}><strong>Designation:</strong> {trainee.designation || "N/A"}</Col>
                       <Col md={2} className="text-end">
-                        {isAlreadyAttended(trainee.ehrms_code) ? (
+                        {/* {isAlreadyAttended(trainee.ehrms_code) ? (
                           <span className="text-muted">Already Attended</span>
                         ) : isAlreadyNominated(trainee.ehrms_code) ? (
                           <span className="text-muted">Already Nominated</span>
@@ -292,7 +350,34 @@ const TrainingNominationPage = () => {
                             <Button size="sm" variant="success" onClick={() => handleNominate(trainee)} disabled={!canEdit} className="me-2">Nominate</Button>
                             <Button size="sm" variant="outline-danger" onClick={() => handleShowRejectModal(trainee)}>Reject</Button>
                           </>
-                        )}
+                        )} */}
+                        {isAlreadyAttended(trainee.ehrms_code) ? (
+  <span className="text-muted">Already Attended</span>
+) : isAlreadyNominated(trainee.ehrms_code) ? (
+  <span className="text-muted">Already Nominated</span>
+) : trainee.status === "Rejected" ? (
+  <span className="text-danger">Rejected</span>
+) : (
+  <>
+    <Button
+      size="sm"
+      variant="success"
+      onClick={() => handleNominate(trainee)}
+      disabled={!canEdit}
+      className="me-2"
+    >
+      Nominate
+    </Button>
+    <Button
+      size="sm"
+      variant="outline-danger"
+      onClick={() => handleShowRejectModal(trainee)}
+    >
+      Reject
+    </Button>
+  </>
+)}
+
                       </Col>
                     </Row>
                   </ListGroup.Item>
