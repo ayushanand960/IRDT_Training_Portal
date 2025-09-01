@@ -25,7 +25,7 @@ const developers = [
     image: "/images/piyush.png",
     desc: "Designs engaging, responsive, and user-friendly interfaces.",
     color: "#42a5f5", // Blue
-     linkedin: "https://www.linkedin.com/in/sumityadav",
+     linkedin: "https://www.linkedin.com/in/piyushsahu-dev",
   },
   {
     name: "Siddharth Mishra",
