@@ -1,4 +1,3 @@
-// lib/data/venue_list.dart
 const List<String> venues = [
   "IRDT",
   "NITTTR Chandigarh",

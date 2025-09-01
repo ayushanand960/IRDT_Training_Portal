@@ -11,7 +11,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import logo from "../assets/irdt-logo.png";
 import { Link, useNavigate } from "react-router-dom";
 
-// ✅ Add this inside the Register component
+// Add this inside the Register component
 
 
 const Register = () => {
@@ -31,7 +31,7 @@ const Register = () => {
     security_answer: '',
     date_of_joining: '',
   });
-  const [password, setPassword] = useState("");
+  // const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -41,18 +41,41 @@ const Register = () => {
   const navigate = useNavigate();
 
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setForm((prev) => ({ ...prev, [name]: value }));
-  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "password") {
+      setForm((prev) => ({ ...prev, password: value }));
+    } else if (name === "confirmPassword") {
+      setConfirmPassword(value); // Must update confirmPassword state
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
 
     let errorMsg = "";
 
-    // Field-specific validations
+    // Field-specific validation
+    if (name === "ehrms_code") {
+
+      const hasNonDigit = /\D/.test(value); // check for any non-digit character
+      const digitsOnly = value.replace(/\D/g, "");
+
+      // Update the value with digits only
+      setForm((prev) => ({ ...prev, [name]: digitsOnly }));
+
+      if (hasNonDigit) {
+        errorMsg = "EHRMS Code must contain only digits.";
+      } else if (digitsOnly.length > 0 && (digitsOnly.length < 6 || digitsOnly.length > 7)) {
+        errorMsg = "EHRMS Code must be 6 or 7 digits.";
+      }
+
+      setFieldErrors((prev) => ({ ...prev, [name]: errorMsg }));
+      return; // stop further validation
+    }
+
+
+
     if (name === "first_name" || name === "last_name" || name === "middle_name") {
       if (/\d/.test(value)) errorMsg = "Name cannot contain numbers.";
     }
@@ -84,14 +107,26 @@ const Register = () => {
 
 
     if (name === "password") {
-      const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-      if (!strongPasswordRegex.test(value)) {
-        errorMsg = "Weak password.";
+      let pwdErrors = [];
+      if (!/[a-z]/.test(value)) pwdErrors.push("lowercase letter");
+      if (!/[A-Z]/.test(value)) pwdErrors.push("uppercase letter");
+      if (!/\d/.test(value)) pwdErrors.push("digit");
+      if (!/[@$!%*?&#^()_+\-[\]{}|;:'",.<>\/\\]/.test(value)) pwdErrors.push("special character");
+      if (value.length < 8) pwdErrors.push("minimum 8 characters");
+
+      errorMsg = pwdErrors.length > 0 ? "Password must include: " + pwdErrors.join(", ") : "";
+
+      // Confirm password check while typing password
+      if (confirmPassword && value !== confirmPassword) {
+        setFieldErrors((prev) => ({ ...prev, confirmPassword: "Passwords do not match." }));
+      } else {
+        setFieldErrors((prev) => ({ ...prev, confirmPassword: "" }));
       }
     }
 
-    if (name === "confirmPassword" && value !== password) {
-      errorMsg = "Passwords do not match.";
+    // Confirm password validation
+    if (name === "confirmPassword") {
+      if (value !== form.password) errorMsg = "Passwords do not match.";
     }
 
     // Save field-specific error
@@ -138,10 +173,8 @@ const Register = () => {
       return { valid: true };
     }
 
-    // -------------------------
     // Existing field validations
-    // -------------------------
-
+    
     if (!form.ehrms_code.trim()) errors.push("EHRMS Code is required.");
     if (!form.first_name.trim()) errors.push("First name is required.");
     if (!form.date_of_joining) errors.push("Date of joining is required.");
@@ -164,12 +197,12 @@ const Register = () => {
 
     // Password strength
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
-    if (!strongPasswordRegex.test(password)) {
+    if (!strongPasswordRegex.test(form.password)) {
       errors.push("Password must be at least 8 characters long and include uppercase, lowercase, digit, and special character.");
     }
 
     // Password match
-    if (password !== confirmPassword) errors.push("Passwords do not match.");
+    if (form.password !== confirmPassword) errors.push("Passwords do not match.");
 
     if (!form.security_question) errors.push("Security question is required.");
     if (!form.security_answer.trim()) errors.push("Security answer is required.");
@@ -188,13 +221,19 @@ const Register = () => {
       return;
     }
 
+    // Ensure correct designation is sent
+    const finalDesignation =
+      selectedCategory === "C" && selectedDesignation === "Others"
+        ? form.designation
+        : selectedDesignation;
+
     try {
       await axiosInstance.post(
         "/login/register/",
         {
           ...form,
           category: selectedCategory,
-          designation: selectedDesignation,
+          designation: finalDesignation,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -269,8 +308,17 @@ const Register = () => {
                 {/* EHRMS Code */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">EHRMS Code <span className="text-danger">*</span></label>
-                  <input type="text" name="ehrms_code" required onChange={handleChange} className="form-control input-dark" />
+                  <input
+                    type="text"
+                    name="ehrms_code"
+                    required
+                    onChange={handleChange}
+                    value={form.ehrms_code}
+                    className={`form-control input-dark ${fieldErrors.ehrms_code ? "is-invalid" : ""}`}
+                  />
+                  {fieldErrors.ehrms_code && <div className="invalid-feedback">{fieldErrors.ehrms_code}</div>}
                 </div>
+
 
                 {/* First Name */}
                 <div className="col-md-6 mb-3">
@@ -363,6 +411,20 @@ const Register = () => {
                     {selectedCategory === 'B' && <><option>Lecturer</option><option>Librarian</option><option>Workshop Superintendent</option></>}
                     {selectedCategory === 'C' && <><option>Workshop Instructor</option><option>Office Employee/Worker</option><option>Computer Instructor</option><option>Computer Operator</option><option>Others</option></>}
                   </select>
+
+                  {/* If user selects "Others" under Group C, show a text field */}
+                  {selectedCategory === "C" && selectedDesignation === "Others" && (
+                    <input
+                      type="text"
+                      placeholder="Enter your designation"
+                      className="form-control input-dark mt-2"
+                      value={form.designation}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, designation: e.target.value }))
+                      }
+                      required
+                    />
+                  )}
                 </div>
 
                 <div className="col-md-6 mb-3">
@@ -383,19 +445,34 @@ const Register = () => {
                 </div>
 
 
-                {/* Password Fields */}
+                {/* Password */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Create Password <span className="text-danger">*</span></label>
-                  <input type="password" name="password" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}" onChange={(e) => {
-                    setPassword(e.target.value);
-                    setForm((prev) => ({ ...prev, password: e.target.value }));
-                  }} className="form-control input-dark" />
+                  <input
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    className={`form-control input-dark ${fieldErrors.password ? "is-invalid" : ""}`}
+                    required
+                  />
+                  {fieldErrors.password && <div className="invalid-feedback">{fieldErrors.password}</div>}
                 </div>
 
+                {/* Confirm Password */}
                 <div className="col-md-6 mb-3">
                   <label className="form-label">Confirm Password <span className="text-danger">*</span></label>
-                  <input type="password" name="confirmPassword" required onChange={(e) => setConfirmPassword(e.target.value)} className="form-control input-dark" />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={handleChange}
+                    className={`form-control input-dark ${fieldErrors.confirmPassword ? "is-invalid" : ""}`}
+                    required
+                  />
+                  {fieldErrors.confirmPassword && <div className="invalid-feedback">{fieldErrors.confirmPassword}</div>}
                 </div>
+
 
                 {/* Security Question */}
                 <div className="col-md-6 mb-3">
@@ -423,7 +500,13 @@ const Register = () => {
 
                 {/* Submit Button */}
                 <div className="col-md-12 mt-3">
-                  <button type="submit" className="btn btn-success w-100 btn-lg">Create Account</button>
+                  <button type="submit" className="btn btn-success w-100 btn-lg"
+                    disabled={
+                      selectedCategory === "C" &&
+                      selectedDesignation === "Others" &&
+                      !form.designation.trim()
+                    }
+                  >Create Account</button>
                 </div>
 
                 {/* Login Link */}

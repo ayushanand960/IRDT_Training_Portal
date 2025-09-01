@@ -12,6 +12,7 @@ import NotificationBell from '../components/NotificationBell';
 import { polytechnics } from '../data/polytechnics';
 import { branches } from '../data/branches';
 import designations from '../data/designations';
+import logo from "../assets/irdt-logo.png";
 
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -52,6 +53,7 @@ const TraineeDashboard = () => {
     institute_name: '',
     branch: '',
     designation: '',
+    designationOption: '',
     date_of_joining: ""
   });
 
@@ -89,6 +91,7 @@ const TraineeDashboard = () => {
     }
   };
 
+
   const openEditModal = () => {
     if (!user) return;
     setEditForm({
@@ -97,10 +100,18 @@ const TraineeDashboard = () => {
       institute_name: user.institute_name || '',
       branch: user.branch || '',
       designation: user.designation || '',
-      date_of_joining: user.date_of_joining || '', 
+      date_of_joining: user.date_of_joining
+        ? user.date_of_joining.split("T")[0]   // ensures correct YYYY-MM-DD format
+        : '',
+      otherDesignation:
+        user.designation &&
+          !designations.includes(user.designation) // if user's designation is not in dropdown
+          ? user.designation
+          : '',
     });
     setShowEditModal(true);
   };
+
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
@@ -127,12 +138,18 @@ const TraineeDashboard = () => {
       return;
     }
 
+    let designationValue = editForm.designation;
+    if (designationValue === "Others" && editForm.designation_other?.trim()) {
+      designationValue = editForm.designation_other.trim();
+    }
+
+
     const payload = {
       email: editForm.email.trim(),
       mobile_number: editForm.mobile_number.trim(),
       institute_name: editForm.institute_name,
       branch: editForm.branch,
-      designation: editForm.designation,
+      designation: designationValue,
       date_of_joining: editForm.date_of_joining,
     };
 
@@ -169,10 +186,10 @@ const TraineeDashboard = () => {
   };
 
 
-  // 🧾 Fetch all certificates
+  // Fetch all certificates
   const fetchAllCertificates = async () => {
     try {
-      setShowProfileModal(false);  // ✅ Close profile modal first
+      setShowProfileModal(false);  // Close profile modal first
       const res = await axiosInstance.get('/certificate/my-certificates/');
       setAllCertificates(res.data);
       setShowAllCertificatesModal(true);
@@ -287,27 +304,89 @@ const TraineeDashboard = () => {
 
   return (
     <>
-      <nav className="navbar navbar-dark px-4" style={{ background: 'linear-gradient(to right, #0f2027, #203a43, #2c5364)', height: '70px' }}>
-        <span className="navbar-brand text-white fw-bold fs-4">📘 TRAINEE DASHBOARD</span>
-        <div className="d-flex align-items-center gap-2">
-          <button onClick={() => navigate('/')} className="btn btn-sm btn-outline-light me-2">Home</button>
-          <button className="btn btn-sm btn-outline-danger ms-2" onClick={handleLogout}>Logout</button>
+      <nav
+        className="navbar navbar-dark px-4 d-flex justify-content-between align-items-center shadow-sm"
+        style={{
+          background: "linear-gradient(to right, #004d4d, #006666, #009999)",
+          height: "70px",
+        }}
+      >
+        {/* Left Section: Logo + Title */}
+        <div className="d-flex align-items-center gap-3">
+          <img
+            src={logo}
+            alt="IRDT Logo"
+            style={{ height: "80px", width: "80px", borderRadius: "8px", filter: "invert(1) brightness(2)" }}
+          />
+          <span className="navbar-brand text-white fw-bold fs-2 mb-0"
+            style={{ letterSpacing: "0.5px" }}>
+            Trainee Dashboard
+          </span>
+        </div>
+
+        {/* Right Section: Actions */}
+        <div className="d-flex align-items-center gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="btn btn-sm"
+            style={{
+              backgroundColor: "#ffffff",
+              color: "#006666",
+              fontWeight: "500",
+              borderRadius: "6px",
+              padding: "6px 14px",
+              border: "none",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "#006666";
+              e.target.style.color = "#fff";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "#ffffff";
+              e.target.style.color = "#006666";
+            }}
+          >
+            Home
+          </button>
+
+          <button
+            className="btn btn-sm"
+            onClick={handleLogout}
+            style={{
+              backgroundColor: "#cc0000",
+              color: "#fff",
+              fontWeight: "500",
+              borderRadius: "6px",
+              padding: "6px 14px",
+              border: "none",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = "#990000";
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = "#cc0000";
+            }}
+          >
+            Logout
+          </button>
+
           <NotificationBell />
-          <label onClick={handleProfileClick} style={{ cursor: 'pointer', marginBottom: 0 }}>
+
+          {/* Profile Photo */}
+          <label onClick={handleProfileClick} style={{ cursor: "pointer", marginBottom: 0 }}>
             <img
               src={profilePhoto}
               alt="Profile"
-              className="rounded-circle border"
-              style={{ height: '50px', width: '50px', objectFit: 'cover' }}
+              className="rounded-circle border border-light"
+              style={{ height: "45px", width: "45px", objectFit: "cover" }}
               onError={(e) => {
                 e.target.src = `${import.meta.env.VITE_BACKEND_URL}/media/profile_pictures/default.jpg`;
               }}
             />
-
           </label>
-          {/* <input id="profileUpload" type="file" accept="image/*" onChange={() => { }} style={{ display: 'none' }} /> */}
         </div>
-
       </nav>
 
       {showProfileModal && (
@@ -379,19 +458,7 @@ const TraineeDashboard = () => {
                   >
                     View Certificates
                   </button>
-                  {/* <button
-                    className="btn btn-outline-info btn-sm"
-                    onClick={() => {
-                      handleCloseProfileModal();
-                      setTimeout(() => {
-                        document
-                          .querySelector('#past-trainings-section')
-                          ?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }}
-                  >
-                    📚 Past Trainings
-                  </button> */}
+
                   <button
                     className="btn btn-outline-info btn-sm"
                     onClick={fetchPastTrainings}
@@ -450,7 +517,10 @@ const TraineeDashboard = () => {
                     </div>
                     {group.items.length > visibleCounts[group.section] && (
                       <div className="text-center mt-2">
-                        <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                        <button className="btn btn-outline-primary btn-sm" style={{
+                          borderColor: "#006666",
+                          color: "#006666",
+                        }} onClick={() => handleShowMore(group.section)}>
                           Show More
                         </button>
                       </div>
@@ -461,14 +531,6 @@ const TraineeDashboard = () => {
 
             {/* Right: Announcement + Quote */}
             <div className="col-md-4">
-              {/* <div className="card shadow border-info mb-3 bg-info-subtle p-3">
-                <h5 className="text-info">📢 Announcements</h5>
-                <ul>
-                  <li>📅 AI in Education begins July 7</li>
-                  <li>📝 OBE Workshop due July 10</li>
-                  <li>🎓 Cert Review July 12</li>
-                </ul>
-              </div> */}
               <div className="card bg-light shadow-sm border border-primary p-3">
                 <h6 className="text-primary">🌟 Quote of the Moment</h6>
                 <p className="mb-0">"{randomQuote}"</p>
@@ -504,7 +566,10 @@ const TraineeDashboard = () => {
                 </div>
                 {group.items.length > visibleCounts[group.section] && (
                   <div className="text-center mt-2">
-                    <button className="btn btn-outline-primary btn-sm" onClick={() => handleShowMore(group.section)}>
+                    <button className="btn btn-outline-primary btn-sm" style={{
+                      borderColor: "#006666",
+                      color: "#006666",
+                    }} onClick={() => handleShowMore(group.section)}>
                       Show More
                     </button>
                   </div>
@@ -537,7 +602,10 @@ const TraineeDashboard = () => {
                   )}
                 </div>
                 <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={() => setShowPastTrainingsModal(false)}>
+                  <button className="btn btn-secondary" style={{
+                    borderColor: "#006666",
+                    color: "#006666",
+                  }} onClick={() => setShowPastTrainingsModal(false)}>
                     Close
                   </button>
                 </div>
@@ -628,7 +696,13 @@ const TraineeDashboard = () => {
 
                     {/* Designation */}
                     <div className="mb-3">
-                      <label className="form-label">Designation</label>
+                      <label className="form-label">
+                        Designation
+                        {editForm.designation === "Others" && (
+                          <span style={{ color: "red" }}> *</span>
+                        )}
+                      </label>
+
                       <select
                         name="designation"
                         className="form-select"
@@ -640,8 +714,25 @@ const TraineeDashboard = () => {
                         {designations.map((d, i) => (
                           <option key={i} value={d}>{d}</option>
                         ))}
+
                       </select>
+
+                      {editForm.designation === "Others" && (
+                        <input
+                          type="text"
+                          name="designation_other"
+                          className="form-control mt-2"
+                          value={editForm.designation_other || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, designation_other: e.target.value }))
+                          }
+                          placeholder="Enter your designation"
+                          required
+                        />
+                      )}
                     </div>
+
+
 
 
                     {/* Date of Joining */}
@@ -668,7 +759,10 @@ const TraineeDashboard = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-primary" disabled={isSavingProfile}>
+                    <button type="submit" className="btn btn-primary" style={{
+                      borderColor: "#006666",
+                      color: "#006666",
+                    }} disabled={isSavingProfile}>
                       {isSavingProfile ? 'Saving…' : 'Save Changes'}
                     </button>
                   </div>
@@ -679,8 +773,6 @@ const TraineeDashboard = () => {
         )}
 
       </div>
-      {/* ✅ Certificate Module Ends Here */}
-
     </>
 
   );

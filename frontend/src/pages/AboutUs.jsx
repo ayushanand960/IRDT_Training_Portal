@@ -13,12 +13,13 @@ export default function AboutUs() {
   }, []);
 
   const leaders = [
-    { name: "Shri F.R. Khan", role: "Director", img: "/images/leader1.jpg" },
-    { name: "Dr. A.P. Singh", role: "Deputy Director", img: "/images/leader2.jpg" },
-    { name: "Shri Shyam Lal", role: "Text Book Officer", img: "/images/leader3.jpg" },
-    { name: "Shri Vikas Kulshrestha", role: "Assistant Professor", img: "/images/leader4.jpg" },
-    { name: "Shri Gaurav Kishor Kanaujiya", role: "Assistant Professor", img: "/images/leader5.jpg" },
-    { name: "Shri Sambhaskar Singh", role: "Assistant Professor (On Study Leave)", img: "/images/leader6.jpg" },
+    { name: "Shri F.R. Khan", role: "Director", img: "/images/fr1.png" },
+    { name: "Dr. A.P. Singh", role: "Deputy Director", img: "/images/ap.jpg" },
+    { name: "Shri Shyam Lal", role: "Text Book Officer", img: "/images/sks1.jpg" },
+    { name: "Shri Vikas Kulshrestha", role: "Assistant Professor", img: "/images/svk.jpg" },
+    { name: "Shri Gaurav Kishor Kanaujiya", role: "Assistant Professor", img: "/images/gks.jpg" },
+    // { name: "Shri Sambhaskar Singh", role: "Assistant Professor (On Study Leave)", img: "/images/leader6.jpg" },
+     { name: "Shri Anurag singh", role: "Lecturer - Web Designing , Technical Cell", img: "/images/ang.jpg" },
   ];
 
   return (
@@ -48,12 +49,12 @@ export default function AboutUs() {
             <p className="fw-semibold mb-0" style={{ color: "white" }}>
               Government of Uttar Pradesh
             </p>
+            <p className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic" }}>
+              Shiksha Pragati - "Bridge of Education for Progress"
+             </p>
           </div>
         </div>
 
-        {/* <Link to="/" className="btn btn-outline-light fw-semibold">
-          Home
-        </Link> */}
       </div>
 
       {/* Navigation Bar */}

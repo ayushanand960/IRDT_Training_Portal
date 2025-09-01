@@ -9,13 +9,13 @@ const PrivateRoute = ({ allowedRoles }) => {
 
   useEffect(() => {
     if (!loading) {
-      // 🛑 Not logged in
+      //  Not logged in
       if (!user) {
         toast.error("You must be logged in to access this page!");
         navigate("/", { replace: true });
       }
 
-      // 🛑 Logged in but role not allowed
+      // Logged in but role not allowed
       else if (allowedRoles && !allowedRoles.includes(user.role)) {
         toast.error("Unauthorized access!");
         navigate("/", { replace: true });
@@ -31,57 +31,13 @@ const PrivateRoute = ({ allowedRoles }) => {
     );
   }
 
-  // ✅ Access granted
+  // Access granted
   if (user && (!allowedRoles || allowedRoles.includes(user.role))) {
     return <Outlet />;
   }
 
-  return null; // ⏳ prevent flicker
+  return null; // prevent flicker
 };
 
 export default PrivateRoute;
 
-
-
-// import { Outlet } from "react-router-dom";
-// import { useAuth } from "../components/AuthContext";
-
-// const PrivateRoute = ({ allowedRoles }) => {
-//   const { user, loading } = useAuth();
-
-//   console.log("🔐 user:", user);
-//   console.log("⏳ loading:", loading);
-
-//   if (loading) {
-//     return (
-//       <div className="text-center mt-5">
-//         <h4>Loading...</h4>
-//       </div>
-//     );
-//   }
-
-//   // 🛑 Not logged in
-//   if (!user) {
-//     return (
-//       <div className="text-center mt-5 text-danger">
-//         <h3>🔒 Access Denied</h3>
-//         <p>You must be logged in to access this page.</p>
-//       </div>
-//     );
-//   }
-
-//   // 🛑 Logged in but role not allowed
-//   if (allowedRoles && !allowedRoles.includes(user.role)) {
-//     return (
-//       <div className="text-center mt-5 text-danger">
-//         <h3>🚫 Unauthorized</h3>
-//         <p>You do not have permission to access this page.</p>
-//       </div>
-//     );
-//   }
-
-//   // ✅ Access granted
-//   return <Outlet />;
-// };
-
-// export default PrivateRoute;

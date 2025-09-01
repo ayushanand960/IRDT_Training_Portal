@@ -24,7 +24,7 @@ const AssignedTrainings = ({ trainings }) => {
   const handleCardClick = (code) => {
     navigate(`/trainings/${code}`);
   };
-  // ✅ Prevent crash if trainings is undefined or not an array
+  //  Prevent crash if trainings is undefined or not an array
   if (!Array.isArray(trainings) || trainings.length === 0) {
     return <p>No trainings assigned yet.</p>;
   }
@@ -85,9 +85,21 @@ const AssignedTrainings = ({ trainings }) => {
                     </p>
 
 
-                    {/* ✅ Specific Generate Certificates button inside the card */}
+                    {/*  Specific Generate Certificates button inside the card */}
                     <button
                       className="btn btn-outline-primary mt-2"
+                      style={{
+                        borderColor: "#006666",
+                        color: "#006666",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#006666";
+                        e.currentTarget.style.color = "white";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#006666";
+                      }}
                       onClick={(e) => {
                         e.stopPropagation(); // prevent full card click
                         navigate(`/generate-certificate/${training.code}`);

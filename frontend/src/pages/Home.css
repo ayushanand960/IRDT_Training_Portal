@@ -46,6 +46,7 @@ body {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
+   padding-left: 10px; 
 }
 
 .nav-links a {
@@ -62,70 +63,88 @@ body {
   background: #004d4d;
   text-decoration: underline;
 }
-/* 
-.info-btn {
-  background: #004d4d;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.info-btn:hover {
-  background: #003333;
-} */
 
 .info-btn {
   background: transparent;   /* Invisible background */
   border: none;              
   border-radius: 10%;
-  width: 80px;               /* Increased size */
-  height: 80px;              /* Increased size */
+  width: 80px;               
+  height: 80px;              
   cursor: pointer;
-  display: inline-flex;       /* Flex to center text */
+  display: inline-flex;      
   align-items: center;
   justify-content: center;
-  font-size: 16px;           /* Bigger text */
-  opacity: 0;                /* Fully invisible */
+  font-size: 16px;           
+  opacity: 0;                
   transition: opacity 0.3s ease, background 0.3s ease;
 }
 
 .info-btn:hover {
   opacity: 0.25;                
-  background: #003333;       /* Show background only when hovered */
-  color: white;              /* Make text visible */
+  background: #003333;       
+  color: white;              
 }
 
-
-/* Hero Section */
-.hero {
+.hero-section {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  background: #e5e7eb;
+  justify-content: center;   /* centers content horizontally */
+  align-items: flex-start;   /* aligns them top-aligned (change to center if needed) */
+  gap: 30px;                 /* space between slideshow and trainings */
+  margin: 40px auto 0;
+  max-width: 1200px;         /* keeps it centered inside screen */
   padding: 20px;
+}
+/* Hero Section Layout (Slideshow + Trainings Side by Side) */
+/* .hero-section.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+} */
+.hero-section.flex-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;             /* visible gap between slideshow & trainings */
+  padding: 40px 20px 20px;
+  flex-wrap: wrap;       /* makes it stack on smaller screens */
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
-
-.hero-slideshow, .hero-image {
-  flex: 1 1 300px;
-  max-width: 600px;
-  width: 100%;
-}
-
-/* ✅ Responsive Slideshow */
-.slideshow-container {
-  position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
-  border: 2px solid #006666;
+/* Left side: Slideshow */
+/* .hero-slideshow {
+  flex: 1;
+  max-width: 600px; 
+  max-height: 400px; 
+  aspect-ratio: 1 / 1;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: relative; 
+} */
+.hero-slideshow {
+  flex: 1 1 50%;   /* takes half width */
+  min-width: 300px;
+  max-width: 65%;
+  height: 600px;   /* FIX: give it height */
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: relative;
+  background: #ddd;  /* fallback background so you see the box */
+}
+
+
+.slideshow-container {
+  width: 100%;       /* take full width of parent */
+  height: 100%;      /* take full height of parent */
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 2px solid #006666;
 }
 
 .slideshow-container img {
@@ -151,11 +170,130 @@ body {
   100% { opacity: 0; }
 }
 
-.hero-image img {
-  width: 300px;
-  max-width: 100%;
-  border: 5px solid #006666;
+
+
+
+
+/* .upcoming-trainings {
+  flex: 1;
+  max-width: 500px;
+  background: #ffffff;
   border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;        
+  overflow-y: auto;
+    text-align: left;
+
+  transition: all 0.3s ease;
+} */
+
+.upcoming-trainings {
+  flex: 1 1 50%;         /* Grow/Shrink but aim for 50% */
+  min-width: 300px;
+  max-width: 30%;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+  overflow-y: auto;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+
+
+/* 🔹 Heading Style */
+.upcoming-trainings h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  color: #222;   /* darker heading */
+  border-left: 4px solid #006666; /* accent line */
+  padding-left: 10px;
+}
+
+.upcoming-trainings h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 5px;
+}
+
+.trainings-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.training-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #eee;
+  cursor: pointer;
+}
+
+.training-card:hover {
+  background: #f9f9ff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+}
+
+/* Date Box */
+.date-box {
+  min-width: 60px;
+  text-align: center;
+  border-radius: 8px;
+  background: #006666;
+  color: white;
+  padding: 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-box .day {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.date-box .month {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Training Details */
+.training-details h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.training-details .date-range {
+  font-size: 13px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.training-details .venue,
+.training-details .target {
+  font-size: 13px;
+  color: #666;
+  margin: 2px 0;
 }
 
 /* Marquee */
@@ -192,12 +330,15 @@ body {
 
 .program {
   text-align: center;
-  width: 260px;
+  width: 300px;
 }
 
+
 .program-img-box {
-  width: 240px;
-  height: 240px;
+  width: 100%;
+  max-width: 400px;  
+  height: auto;
+  aspect-ratio: 1/1;  
   border: 2px solid black;
   border-radius: 10px;
   overflow: hidden;
@@ -250,9 +391,8 @@ body {
 
 .footer h3 {
   margin-bottom: 10px;
-  font-size: 16px;
-  color: white;
-  font-weight: 800;
+  font-size: 25px;
+  color:#fff
 }
 
 .footer ul {
@@ -280,17 +420,22 @@ body {
     gap: 8px;
   }
 
-  .hero {
+  .hero-section.flex-container {
     flex-direction: column;
-    padding: 15px;
+    align-items: center;
+  }
+
+  .hero-slideshow {
+    min-width: 50%;
+  }
+
+  .upcoming-trainings {
+    max-width: 100%;
+    min-width: unset;
   }
 
   .slideshow-container {
     padding-top: 60%; /* taller on tablets */
-  }
-
-  .hero-image img {
-    width: 200px;
   }
 
   .program {

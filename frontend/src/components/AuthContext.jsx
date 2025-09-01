@@ -12,14 +12,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let didCancel = false;
 
-    // 👇 Skip session check if already on login-like page
+    // Skip session check if already on login-like page
     const currentPath = window.location.pathname;
     const isLoginPage =
       currentPath === "/login" ||
       currentPath === "/admin-coordinator-login" ||
       currentPath === "/forgot_password";
 
-    // ✅ Don't check profile if already on login page
+    // Don't check profile if already on login page
     if (isLoginPage) {
       setLoading(false);
       return;
@@ -32,14 +32,7 @@ export const AuthProvider = ({ children }) => {
 
         const { is_superuser, is_coordinator, ehrms_code } = res.data;
 
-        // const role = is_superuser
-        //   ? "admin"
-        //   : is_coordinator
-        //   ? "coordinator"
-        //   : "trainee";
-
-        // setUser({ ehrms_code, role });
-
+        
 
 
         setUser({

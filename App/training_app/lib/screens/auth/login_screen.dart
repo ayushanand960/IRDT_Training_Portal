@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../widgets/ui_helpers.dart';
 import 'reset_password_screen.dart';
+import 'access_code_popup.dart';
 import '../../core/services/api_service.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final ehrmsController = TextEditingController();
   final passwordController = TextEditingController();
   final ApiService _api = ApiService();
+
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -236,10 +241,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
                       TextField(
                         controller: passwordController,
-                        decoration: fieldDecoration('Password', required: true),
-                        obscureText: true,
+                        obscureText: _obscurePassword,
+                        decoration: fieldDecoration('Password', required: true)
+                            .copyWith(
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
@@ -255,8 +275,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextButton(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/register'),
+                        onPressed: () {
+                          AccessCodePopup.show(context);
+                        },
                         child: RichText(
                           text: const TextSpan(
                             children: [

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
-import CertificateCard from '../components/CertificateCard'; // ✅ use the card you made
+import CertificateCard from '../components/CertificateCard'; // use the card you made
 
 const TraineeDashboard = () => {
   const [assignedTrainings, setAssignedTrainings] = useState([]);
@@ -9,7 +9,7 @@ const TraineeDashboard = () => {
 
   useEffect(() => {
     fetchAssignedTrainings();
-    fetchCertificates(); // ✅
+    fetchCertificates(); 
   }, []);
 
   const fetchAssignedTrainings = async () => {
@@ -54,7 +54,7 @@ const TraineeDashboard = () => {
       <h4>Your Trainings</h4>
 
       {assignedTrainings.map(training => {
-        const cert = certificates.find(c => c.training_code === training.code); // ✅ check for certificate
+        const cert = certificates.find(c => c.training_code === training.code); // check for certificate
 
         return (
           <CertificateCard

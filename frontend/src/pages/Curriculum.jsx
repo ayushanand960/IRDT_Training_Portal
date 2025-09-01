@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import logo from "../assets/irdt-logo.png"; // ✅ For the topbar logo
+import logo from "../assets/irdt-logo.png"; // For the topbar logo
 
 export default function Curriculum() {
   const [trainings, setTrainings] = useState([]);
@@ -12,8 +12,8 @@ export default function Curriculum() {
   const [selectedSession, setSelectedSession] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate(); // ✅ In case you want Home navigation
-  const API_BASE = "http://127.0.0.1:8000";
+  const navigate = useNavigate(); // In case you want Home navigation
+  const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     fetchSessions();
@@ -118,6 +118,9 @@ export default function Curriculum() {
                 <p className="fw-semibold mb-0" style={{ color: "white" }}>
                   Government of Uttar Pradesh
                 </p>
+                 <p className="fw-semibold mb-0" style={{ color: "white", fontStyle: "italic" }}>
+              Shiksha Pragati - "Bridge of Education for Progress"
+             </p>
               </div>
             </div>
     
@@ -159,7 +162,7 @@ export default function Curriculum() {
               Login
             </Link>
           </nav>
-      {/* ✅ Main content */}
+      {/*  Main content */}
       <Container className="mt-4">
         <Card className="shadow-sm p-4">
           <div className="d-flex justify-content-between align-items-center mb-3">
