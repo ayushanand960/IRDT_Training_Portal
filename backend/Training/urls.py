@@ -21,7 +21,7 @@ from .views import (
     ApproveEditRequestAPIView,
     NominationNotificationListAPIView,
      MarkNominationNotificationReadAPIView,
-    DeleteTrainingBatchAPIView,download_curriculum_excel
+    DeleteTrainingBatchAPIView,download_curriculum_excel,RejectRemainingTraineesAPIView
 )
 from .views import CoordinatorTrainingDetailView, EnrolledTraineesByTrainingAPIView,BulkNominationView,NominatedTraineesByTrainingAPIView,RemoveNominationAPIView, FinalizeNominationAPIView, DownloadFinalNominationXLSXAPIView, AttendedTraineesAPIView, FinalizedNominationsListView
 from .views import AssignedTrainingsView , RejectTraineeAPIView, RejectionNotificationAPIView, MarkRejectionAsReadAPIView, DeleteRejectionAPIView ,  CurriculumListAPIView
@@ -53,6 +53,7 @@ urlpatterns = [
     path('past-trainings/', PastTrainingsAPIView.as_view(), name='past-trainings'),
     path('curriculum/', CurriculumListAPIView.as_view(), name='curriculum-list'),
     path("curriculum/download/", download_curriculum_excel, name="curriculum-download"),
+    path('reject-remaining/<str:training_code>/', RejectRemainingTraineesAPIView.as_view(), name='reject-remaining'),
 ]
 
 
